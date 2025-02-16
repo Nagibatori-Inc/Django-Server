@@ -1,0 +1,45 @@
+x-postgres-db-variables: &db-variables
+  POSTGRES_USER: admin
+  POSTGRES_PASSWORD: adminpassword
+  POSTGRES_DB: booking_platform
+x-postgres-admin-variables: &pgadmin-variables
+  PGADMIN_DEFAULT_EMAIL: admin@mail.store
+  PGADMIN_DEFAULT_PASSWORD: adminpassword
+x-app-variables: &app-variables
+  DEBUG: dev
+  ALLOWED_HOSTS: http://localhost
+  HOST: http://localhost:8000/
+  DATABASE_HOST: db
+  POSTGRES_DB: booking_platform
+  POSTGRES_USER: admin
+  POSTGRES_PASSWORD: adminpassword
+  REST_API_BASE: api/
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    environment: *db-variables
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
+    environment: *pgadmin-variables
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+
+  app:
+    container_name: django-rest-server
+    build:
+      context: .
+      dockerfile: .docker/Dockerfile
+    environment: *app-variables
+    ports:
+      - 8000:8080
+    depends_on:
+      - db
