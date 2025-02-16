@@ -23,9 +23,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-jlfaz)s(!fgo^x!y=^kxyr1huxxr^qutvna2ek3#azy_+1t__z"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config("DEBUG", default='dev') == 'debug' or 'dev' or 'development'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost',
+    '0.0.0.0',
+    '127.0.0.1',
+    '192.168.0.107',
+    '[::1]',
+] + config(
+    'ALLOWED_HOSTS',
+    default=''
+).split(',')
 
 
 # Application definition
