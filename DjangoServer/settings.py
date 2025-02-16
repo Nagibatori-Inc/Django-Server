@@ -85,8 +85,17 @@ WSGI_APPLICATION = "DjangoServer.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': config('POSTGRES_DB', default='booking_platform'),
+        'USER': config('POSTGRES_USER', default='admin'),
+        'PASSWORD': config('POSTGRES_PASSWORD', default='adminpassword'),
+        'HOST': config('DATABASE_HOST', default='localhost'),
+        'PORT': config('DJANGO_DATABASE_PORT', cast=int, default=5432),
+        'CONN_MAX_AGE': config('CONN_MAX_AGE', cast=int, default=60),
+        'OPTIONS': {
+            'connect_timeout': 10,
+            'options': '-c statement_timeout=15000ms',
+        },
     }
 }
 
