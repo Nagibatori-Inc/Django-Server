@@ -133,6 +133,10 @@ USE_I18N = True
 
 USE_TZ = True
 
+HOST = config('HOST', default='http://localhost:8000/')
+
+REST_API_BASE = config('REST_API_BASE', default='api/')
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
