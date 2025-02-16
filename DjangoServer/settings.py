@@ -23,9 +23,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-jlfaz)s(!fgo^x!y=^kxyr1huxxr^qutvna2ek3#azy_+1t__z"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config("DEBUG", default='dev') == 'debug' or 'dev' or 'development'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost',
+    '0.0.0.0',
+    '127.0.0.1',
+    '192.168.0.107',
+    '[::1]',
+] + config(
+    'ALLOWED_HOSTS',
+    default=''
+).split(',')
 
 
 # Application definition
@@ -37,6 +46,9 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    
+    'rest_framework',
+    'rest_framework.authtoken',
 ]
 
 MIDDLEWARE = [
@@ -76,8 +88,17 @@ WSGI_APPLICATION = "DjangoServer.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': config('POSTGRES_DB', default='booking_platform'),
+        'USER': config('POSTGRES_USER', default='admin'),
+        'PASSWORD': config('POSTGRES_PASSWORD', default='adminpassword'),
+        'HOST': config('DATABASE_HOST', default='localhost'),
+        'PORT': config('DJANGO_DATABASE_PORT', cast=int, default=5432),
+        'CONN_MAX_AGE': config('CONN_MAX_AGE', cast=int, default=60),
+        'OPTIONS': {
+            'connect_timeout': 10,
+            'options': '-c statement_timeout=15000ms',
+        },
     }
 }
 
@@ -111,6 +132,10 @@ TIME_ZONE = "UTC"
 USE_I18N = True
 
 USE_TZ = True
+
+HOST = config('HOST', default='http://localhost:8000/')
+
+REST_API_BASE = config('REST_API_BASE', default='api/')
 
 
 # Static files (CSS, JavaScript, Images)
