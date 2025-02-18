@@ -27,14 +27,20 @@ class Advert(models.Model):
     activated_at = models.DateTimeField(auto_now=True) # поле auto_now задает значение datetime.now() когда у объект модели вызывает метод save()
     is_active = models.BooleanField(default=False)
     
+    class Meta:
+        verbose_name = ('Объявление')
+        verbose_name_plural = ('Объявления')
+        
+    def __str__(self):
+        return self.title
     
 class Propmotion(models.Model):
 
     
 
     class Meta:
-        verbose_name = _("Продвижение")
-        verbose_name_plural = _("Продвижения")
+        verbose_name = ("Продвижение")
+        verbose_name_plural = ("Продвижения")
 
     def __str__(self):
         return self.name
