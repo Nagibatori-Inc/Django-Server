@@ -51,7 +51,8 @@ class Advert(models.Model):
         Promotion,
         on_delete=models.CASCADE,
         related_name='advert',
-        verbose_name='Объявление'
+        verbose_name='Объявление',
+        null=True,
     )
     
     created_at = models.DateTimeField(auto_now_add=True) # поле auto_now_add ставит datetime.now() когда объект только создан
@@ -64,3 +65,7 @@ class Advert(models.Model):
         
     def __str__(self):
         return self.title
+
+    @property
+    def is_promoted(self):
+        return self.promotion
