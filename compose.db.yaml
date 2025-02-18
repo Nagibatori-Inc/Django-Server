@@ -5,15 +5,6 @@ x-postgres-db-variables: &db-variables
 x-postgres-admin-variables: &pgadmin-variables
   PGADMIN_DEFAULT_EMAIL: admin@mail.store
   PGADMIN_DEFAULT_PASSWORD: adminpassword
-x-app-variables: &app-variables
-  DEBUG: dev
-  ALLOWED_HOSTS: http://localhost
-  HOST: http://localhost:8000/
-  DATABASE_HOST: db
-  POSTGRES_DB: booking_platform
-  POSTGRES_USER: admin
-  POSTGRES_PASSWORD: adminpassword
-  REST_API_BASE: api/
 services:
   postgres:
     image: postgres:latest
@@ -30,16 +21,5 @@ services:
     environment: *pgadmin-variables
     ports:
       - "5050:80"
-    depends_on:
-      - postgres
-
-  app:
-    container_name: django-rest-server
-    build:
-      context: .
-      dockerfile: Dockerfile
-    environment: *app-variables
-    ports:
-      - 8000:8080
     depends_on:
       - postgres
