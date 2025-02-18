@@ -28,8 +28,8 @@ class Advert(models.Model):
     is_active = models.BooleanField(default=False)
     
     class Meta:
-        verbose_name = ('Объявление')
-        verbose_name_plural = ('Объявления')
+        verbose_name = 'Объявление'
+        verbose_name_plural = 'Объявления'
         
     def __str__(self):
         return self.title
@@ -47,8 +47,8 @@ class Propmotion(models.Model):
     rate = models.IntegerField(default=0)
 
     class Meta:
-        verbose_name = ("Продвижение")
-        verbose_name_plural = ("Продвижения")
+        verbose_name = "Продвижение"
+        verbose_name_plural = "Продвижения"
 
     def __str__(self):
         return self.type
