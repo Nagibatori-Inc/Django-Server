@@ -47,7 +47,12 @@ class Advert(models.Model):
     description = models.TextField()
     price = models.DecimalField(max_digits=11, decimal_places=2)
     phone = models.CharField(length=12)
-    promotion = models.ForeignKey(Promotion, on_delete=models.CASCADE)
+    promotion = models.ForeignKey(
+        Promotion,
+        on_delete=models.CASCADE,
+        related_name='advert',
+        verbose_name='Объявление'
+    )
     
     created_at = models.DateTimeField(auto_now_add=True) # поле auto_now_add ставит datetime.now() когда объект только создан
     activated_at = models.DateTimeField(auto_now=True) # поле auto_now задает значение datetime.now() когда у объект модели вызывает метод save()
