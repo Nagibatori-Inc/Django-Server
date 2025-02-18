@@ -29,7 +29,7 @@ class Advert(models.Model):
     """
     Модель объявления об аренде спецтехники
     
-    Fields:
+    :Fields:
     - category (Category): Категория объявления
     - subcategory (Subcategory): Подкатегория 
     + title (CharField): Название объявления
