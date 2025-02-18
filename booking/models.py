@@ -2,6 +2,29 @@ from django.db import models
 from django.urls import reverse
 
 
+class Promotion(models.Model):
+    """
+    Модель продвижения объявления
+
+    Fields:
+    + type (CharField): Тип продвижения
+    + rate (IntegerField): Уровень продвижения
+    """
+
+    type = models.CharField(max_length=50)
+    rate = models.IntegerField(default=0)
+
+    class Meta:
+        verbose_name = "Продвижение"
+        verbose_name_plural = "Продвижения"
+
+    def __str__(self):
+        return self.type
+
+    def get_absolute_url(self):
+        return reverse("Propmotion_detail", kwargs={"pk": self.pk})
+
+
 class Advert(models.Model):
     """
     Модель объявления об аренде спецтехники
@@ -24,6 +47,7 @@ class Advert(models.Model):
     description = models.TextField()
     price = models.DecimalField(max_digits=11, decimal_places=2)
     phone = models.CharField(length=12)
+    promotion = models.ForeignKey(Promotion, on_delete=models.CASCADE)
     
     created_at = models.DateTimeField(auto_now_add=True) # поле auto_now_add ставит datetime.now() когда объект только создан
     activated_at = models.DateTimeField(auto_now=True) # поле auto_now задает значение datetime.now() когда у объект модели вызывает метод save()
@@ -35,26 +59,3 @@ class Advert(models.Model):
         
     def __str__(self):
         return self.title
-    
-class Promotion(models.Model):
-    """
-    Модель продвижения объявления
-    
-    Fields:
-    + type (CharField): Тип продвижения
-    + rate (IntegerField): Уровень продвижения
-    """
-    
-    type = models.CharField(max_length=50)
-    rate = models.IntegerField(default=0)
-
-    class Meta:
-        verbose_name = "Продвижение"
-        verbose_name_plural = "Продвижения"
-
-    def __str__(self):
-        return self.type
-
-    def get_absolute_url(self):
-        return reverse("Propmotion_detail", kwargs={"pk": self.pk})
-
