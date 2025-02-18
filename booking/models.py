@@ -40,7 +40,7 @@ class Advert(models.Model):
     + created_at (DateTimeField): Дата, когда было создано объявление
     + activated_at (DateTimeField): Дата, когда пользователь активировал свое объявление
     + is_active (BooleanField): Активно ли объявление
-    - promotion (Promotion): Данные о продвижении объявления
+    + promotion (Promotion): Данные о продвижении объявления
     """
     
     title = models.CharField(max_length=100)
