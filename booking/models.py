@@ -20,11 +20,17 @@ class Advert(models.Model):
     
     title = models.CharField(max_length=100)
     description = models.TextField()
-    price = models.DecimalField(max_digits=11, decimal_places=2)
+    price = models.DecimalField(
+        max_digits=11, 
+        decimal_places=2
+    )
     phone = models.CharField(length=12)
     
     created_at = models.DateTimeField(auto_now_add=True) # поле auto_now_add ставит datetime.now() когда объект только создан
-    activated_at = models.DateTimeField(auto_now=True) # поле auto_now задает значение datetime.now() когда у объект модели вызывает метод save()
+    activated_at = models.DateTimeField(
+        auto_now=True, # поле auto_now задает значение datetime.now() когда у объект модели вызывает метод save()
+        null=True
+    ) 
     is_active = models.BooleanField(default=False)
     
     class Meta:
