@@ -36,7 +36,7 @@ class Advert(models.Model):
     def __str__(self):
         return self.title
     
-class Propmotion(models.Model):
+class Promotion(models.Model):
     """
     Модель продвижения объявления
     
