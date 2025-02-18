@@ -26,3 +26,19 @@ class Advert(models.Model):
     created_at = models.DateTimeField(auto_now_add=True) # поле auto_now_add ставит datetime.now() когда объект только создан
     activated_at = models.DateTimeField(auto_now=True) # поле auto_now задает значение datetime.now() когда у объект модели вызывает метод save()
     is_active = models.BooleanField(default=False)
+    
+    
+class Propmotion(models.Model):
+
+    
+
+    class Meta:
+        verbose_name = _("Продвижение")
+        verbose_name_plural = _("Продвижения")
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse("Propmotion_detail", kwargs={"pk": self.pk})
+
