@@ -11,8 +11,8 @@ class Advert(models.Model):
     - subcategory (Subcategory): Подкатегория 
     + title (CharField): Название объявления
     + description (TextField): Текст объявления
-    + price (DecimalField): Стоимость улсуги
-    - contact (Profile | Новая моделька о правовых Субъектах): Контакты - контакное лицо
+    + price (DecimalField): Стоимость услуги
+    - contact (Profile | Новая моделька о правовых Субъектах): Контакты - контактное лицо
     + phone (Profile, но пока просто CharField): Контакты - телефон
     + created_at (DateTimeField): Дата, когда было создано объявление
     + activated_at (DateTimeField): Дата, когда пользователь активировал свое объявление
