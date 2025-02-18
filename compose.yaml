@@ -22,7 +22,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ./.postgres_data:/var/lib/postgresql/data
 
   pgadmin:
     image: dpage/pgadmin4:latest
@@ -37,9 +37,9 @@ services:
     container_name: django-rest-server
     build:
       context: .
-      dockerfile: .docker/Dockerfile
+      dockerfile: Dockerfile
     environment: *app-variables
     ports:
       - 8000:8080
     depends_on:
-      - db
+      - postgres
