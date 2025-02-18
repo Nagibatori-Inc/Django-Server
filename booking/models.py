@@ -35,15 +35,23 @@ class Advert(models.Model):
         return self.title
     
 class Propmotion(models.Model):
-
+    """
+    Модель продвижения объявления
     
+    Fields:
+    + type (CharField): Тип продвижения
+    + rate (IntegerField): Уровень продвижения
+    """
+    
+    type = models.CharField(max_length=50)
+    rate = models.IntegerField(default=0)
 
     class Meta:
         verbose_name = ("Продвижение")
         verbose_name_plural = ("Продвижения")
 
     def __str__(self):
-        return self.name
+        return self.type
 
     def get_absolute_url(self):
         return reverse("Propmotion_detail", kwargs={"pk": self.pk})
