@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     
     'booking.apps.BookingConfig',
+    'auth.apps.AuthConfig',
 ]
 
 MIDDLEWARE = [
