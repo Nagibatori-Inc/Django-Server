@@ -21,9 +21,6 @@ class Promotion(models.Model):
     def __str__(self):
         return self.type
 
-    def get_absolute_url(self):
-        return reverse("Propmotion_detail", kwargs={"pk": self.pk})
-
 
 class Advert(models.Model):
     """
