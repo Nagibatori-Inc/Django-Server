@@ -5,7 +5,7 @@ from booking.models import Advert
 
 
 class AdvertView(APIView):
-    def get(self, request):
+    def get(self, request): # TODO: из request'а будем доставать юзера, дабы проверять есть ли у него вообще заявленное объявление
         advert_id = request.GET.get('id')
         advert: Advert = get_object_or_404(Advert, pk=advert_id)
         return advert
