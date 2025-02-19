@@ -46,7 +46,7 @@ class Advert(models.Model):
         max_digits=11, 
         decimal_places=2
     )
-    phone = models.CharField(length=12)
+    phone = models.CharField(max_length=12)
     promotion = models.ForeignKey(
         Promotion,
         on_delete=models.CASCADE,
