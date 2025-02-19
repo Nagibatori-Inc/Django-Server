@@ -39,7 +39,7 @@ docker compose up --build
 >------
 >[+] Running 0/1l] load build context:
 > ⠹ Service app  Building                                                                                                     2.2s 
->failed to solve: error from sender: open /home/anton/Projects/University/Diploma/Django-Server/.postgres_data: permission denied
+>failed to solve: error from sender: open /home/projects/Django-Server/.postgres_data: permission denied
 > ```
 > Просто запустите борку проекта как sudo user: `sudo docker compose up --build` 
 > или сразу под рутом `sudo -i` и после уже `docker compose up --build`
