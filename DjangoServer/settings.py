@@ -45,15 +45,15 @@ ALLOWED_HOSTS = [
 # Application definition
 
 INSTALLED_APPS = [
+    "authentication",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    
-    'rest_framework',
-    'rest_framework.authtoken',
+    "rest_framework",
+    "knox"
 ]
 
 MIDDLEWARE = [
@@ -84,6 +84,11 @@ TEMPLATES = [
         },
     },
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': ('knox.auth.TokenAuthentication',),
+}
+
 
 WSGI_APPLICATION = "DjangoServer.wsgi.application"
 
