@@ -9,7 +9,7 @@ x-app-variables: &app-variables
   DEBUG: dev
   ALLOWED_HOSTS: http://localhost
   HOST: http://localhost:8000/
-  DATABASE_HOST: db
+  DATABASE_HOST: postgres
   POSTGRES_DB: booking_platform
   POSTGRES_USER: admin
   POSTGRES_PASSWORD: adminpassword
