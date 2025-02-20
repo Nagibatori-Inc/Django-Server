@@ -9,10 +9,16 @@ x-app-variables: &app-variables
   DEBUG: dev
   ALLOWED_HOSTS: http://localhost
   HOST: http://localhost:8000/
+
   DATABASE_HOST: postgres
   POSTGRES_DB: booking_platform
   POSTGRES_USER: admin
   POSTGRES_PASSWORD: adminpassword
+
+  DJANGO_SUPERUSER_USERNAME: admin
+  DJANGO_SUPERUSER_EMAIL: admin@example.com
+  DJANGO_SUPERUSER_PASSWORD: 123ядаун
+
   REST_API_BASE: api/
 services:
   postgres:
@@ -39,7 +45,7 @@ services:
       context: .
       dockerfile: Dockerfile
     environment: *app-variables
-    command: sh create_superuser.sh
+    command: create_superuser.sh
     ports:
       - 8000:8080
     depends_on:
