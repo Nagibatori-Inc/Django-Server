@@ -6,8 +6,8 @@ class Promotion(models.Model):
     Модель продвижения объявления
 
     Fields:
-    + type (CharField): Тип продвижения
-    + rate (IntegerField): Уровень продвижения
+        + type (CharField): Тип продвижения
+        + rate (IntegerField): Уровень продвижения
     """
 
     type = models.CharField(max_length=50)
@@ -25,18 +25,18 @@ class Advert(models.Model):
     """
     Модель объявления об аренде спецтехники
     
-    :Fields:
-    - category (Category): Категория объявления
-    - subcategory (Subcategory): Подкатегория 
-    + title (CharField): Название объявления
-    + description (TextField): Текст объявления
-    + price (DecimalField): Стоимость услуги
-    - contact (Profile | Новая моделька о правовых Субъектах): Контакты - контактное лицо
-    + phone (Profile, но пока просто CharField): Контакты - телефон
-    + created_at (DateTimeField): Дата, когда было создано объявление
-    + activated_at (DateTimeField): Дата, когда пользователь активировал свое объявление
-    + is_active (BooleanField): Активно ли объявление
-    + promotion (Promotion): Данные о продвижении объявления
+    Fields:
+        - category (Category): Категория объявления
+        - subcategory (Subcategory): Подкатегория
+        + title (CharField): Название объявления
+        + description (TextField): Текст объявления
+        + price (DecimalField): Стоимость услуги
+        - contact (Profile | Новая моделька о правовых Субъектах): Контакты - контактное лицо
+        + phone (Profile, но пока просто CharField): Контакты - телефон
+        + created_at (DateTimeField): Дата, когда было создано объявление
+        + activated_at (DateTimeField): Дата, когда пользователь активировал свое объявление
+        + is_active (BooleanField): Активно ли объявление
+        + promotion (Promotion): Данные о продвижении объявления
     """
     
     title = models.CharField(max_length=100)

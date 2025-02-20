@@ -5,7 +5,7 @@ class AdvertService:
     """
     Класс, реализующий бизнес логику работы с объявлениями
     
-    :Methods:
+    Methods:
         - activate: Активирует бъявление
         - deactivate: Деактивирует объявление
         - advertise: Публикация объявления
