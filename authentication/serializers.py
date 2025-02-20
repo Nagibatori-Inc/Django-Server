@@ -65,6 +65,8 @@ class SignUpRequestSerializer(serializers.Serializer):
         profile_name = validated_data.get("profile_name", None)
         type = validated_data.get("type", None)
 
+        phone = self.__make_phone_uniform(phone)
+
         user = get_user_model().objects.create(username=phone, first_name=first_name, email=email, password=password)
         profile = Profile.objects.create(user=user, name=profile_name, type=type)
         return profile
