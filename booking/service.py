@@ -6,7 +6,7 @@ class AdvertService:
     Класс, реализующий бизнес логику работы с объявлениями
     
     Methods:
-        - activate: Активирует бъявление
+        - activate: Активирует объявление
         - deactivate: Деактивирует объявление
         - advertise: Публикация объявления
         - change: изменение объявления (например, изменение описания)
@@ -23,7 +23,7 @@ class AdvertService:
         self.__advert.is_active = False
         self.__advert.save()
         
-    def change(changed_data: dict) -> None: # changed_data пока имеет тип dict, в дальнейшем будет объектом валидационной схемы
+    def change(self, changed_data: dict) -> None: # changed_data пока имеет тип dict, в дальнейшем будет объектом валидационной схемы
         advert: Advert = self.advert
         
         advert.title = changed_data['title']
@@ -35,7 +35,7 @@ class AdvertService:
         
         advert.save()
         
-    def remove():
+    def remove(self):
         advert: Advert = self.advert
         advert.delete()
         
@@ -47,18 +47,18 @@ class AdvertService:
         price: float,
         phone: str,
         promotion: str = None,
-    ) -> AdvertService:
+    ):
         """
         Метод реализации логики подачи объявления (Публикация объявления)
         
-        :Args:
+        Args:
             title (str): Название объявления
             description (str): Текст объявления
-            price (float): Стоимость улсуги
+            price (float): Стоимость услуги
             phone (str): Контакты - телефон
             promotion (str, optional): Данные о продвижении объявления. Может быть None
 
-        :Returns:
+        Returns:
             AdvertService: объект сервисной логики работы с объявлениями
         """
         
