@@ -13,7 +13,6 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = ["id", "name", "type"]
-        depth = 1
 
 
 class SignUpRequestSerializer(serializers.Serializer):
