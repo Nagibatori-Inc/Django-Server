@@ -35,6 +35,10 @@ class AdvertService:
         
         advert.save()
         
+    def remove():
+        advert: Advert = self.advert
+        advert.delete()
+        
     # TODO: ВСЕ объявления должны публиковаться через этот метод
     @staticmethod
     def advertise(

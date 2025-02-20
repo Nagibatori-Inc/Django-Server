@@ -52,4 +52,11 @@ class AdvertView(APIView):
         return Response(status=status.HTTP_200_OK, body={'message': f'Advert {advert.id} successfully changed'})
     
     def delete(self, request):
-        pass
+        user: User = request.user
+        
+        advert = get_object_or_404(Advert, phone=user.phone)
+        advert_service = AdvertService(advert)
+        
+        advert_service.remove()
+        
+        return Response(status=status.HTTP_200_OK, body={'message': f'Advert successfully removed'})
