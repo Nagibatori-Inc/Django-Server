@@ -1,12 +1,18 @@
 from django.http import Http404
 from knox.models import AuthToken
+from knox.views import LoginView as KnowLoginView
 from rest_framework import status
+from rest_framework.authentication import BasicAuthentication
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from authentication.models import Profile
 from authentication.permissions import IsProfileOwnerOrReadOnly
 from authentication.serializers import ProfileSerializer, SignUpRequestSerializer
+
+
+class LoginView(KnowLoginView):
+    authentication_classes = [BasicAuthentication]
 
 
 class SignUpView(APIView):
@@ -50,7 +56,6 @@ class ProfileView(APIView):
         self.check_object_permissions(request, profile)
 
         new_profile_data = request.data
-        print(new_profile_data)
         if not new_profile_data:
             return Response({"err_msg": "no data was sent"}, status=status.HTTP_400_BAD_REQUEST)
 
