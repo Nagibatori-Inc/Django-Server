@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from rest_framework import serializers, status
 
-from DjangoServer.validators.password_validators import PhoneNumberValidator
+from DjangoServer.validators.misc_validators import PhoneNumberValidator
 from DjangoServer.validators.phone_number_re import RUS
 from authentication.models import Profile
 
