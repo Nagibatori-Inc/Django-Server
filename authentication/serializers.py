@@ -1,3 +1,5 @@
+from typing import Dict
+
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password as django_password_validate
 from django.core.exceptions import ValidationError
@@ -25,7 +27,7 @@ class SignUpRequestSerializer(serializers.Serializer):
     profile_name = serializers.CharField(required=False, max_length=50, allow_null=True)
     type = serializers.ChoiceField(choices=Profile.PROFILE_TYPE_CHOICES, default="IND")
 
-    def validate_phone(self, value):
+    def validate_phone(self, value: str) -> str:
         phone_validator = PhoneNumberValidator(RUS)
         if not phone_validator(value):
             raise serializers.ValidationError(
@@ -43,7 +45,7 @@ class SignUpRequestSerializer(serializers.Serializer):
 
         return value
 
-    def validate_password(self, value):
+    def validate_password(self, value: str) -> str:
         try:
             django_password_validate(value)
         except ValidationError as ex:
@@ -54,7 +56,7 @@ class SignUpRequestSerializer(serializers.Serializer):
 
     # Сущность аутентификации не должна создаваться без профиля и наоборот 
     @transaction.atomic
-    def create(self, validated_data):
+    def create(self, validated_data: Dict[str, str]) -> Profile:
         phone = validated_data.get("phone", None)
         password = validated_data.get("password", None)
         first_name = validated_data.get("first_name", None)
@@ -73,7 +75,7 @@ class SignUpRequestSerializer(serializers.Serializer):
         profile = Profile.objects.create(user=user, name=profile_name, type=type)
         return profile
 
-    def __make_phone_uniform(self, phone: str):
+    def __make_phone_uniform(self, phone: str) -> str:
         if phone.startswith("+7"):
             return "8" + phone[2:]
         elif phone.startswith("7"):
