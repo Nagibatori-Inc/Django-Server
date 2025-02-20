@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+
+import smsaero
 from decouple import AutoConfig
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -154,3 +156,13 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+# Настройки сервиса рассылки СМС
+# Используется SMSAero https://smsaero.ru/
+
+SMSAERO_EMAIL = config("SMSAERO_EMAIL", default="johndoe@email.com")
+SMSAERO_API_KEY = config("SMSAERO_API_KEY", default="stub")
+
+if SMSAERO_API_KEY != "stub":
+    SMS_SERVICE = smsaero.SmsAero(email=SMSAERO_EMAIL, api_key=SMSAERO_API_KEY)
