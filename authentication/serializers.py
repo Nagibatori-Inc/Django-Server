@@ -4,7 +4,8 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from rest_framework import serializers, status
 
-
+from DjangoServer.validators.password_validators import PhoneNumberValidator
+from DjangoServer.validators.phone_number_re import RUS
 from authentication.models import Profile
 
 
@@ -16,13 +17,22 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 
 class SignUpRequestSerializer(serializers.Serializer):
-    phone = serializers.CharField(required=True)
+    # Аттрибуты для юзера
+    phone = serializers.CharField(required=True, max_length=15)
     first_name = serializers.CharField(required=True)
     email = serializers.EmailField(required=False, allow_blank=True)
     password = serializers.CharField(required=True)
+    # Аттрибуты для профиля
+    profile_name = serializers.CharField(required=False, max_length=50, allow_null=True)
+    type = serializers.ChoiceField(required=True, choices=Profile.PROFILE_TYPE_CHOICES, default="IND")
 
-    profile_name = serializers.CharField(max_length=50, allow_null=True)
-    type = serializers.ChoiceField(choices=Profile.PROFILE_TYPE_CHOICES, default="IND")
+    def validate_phone(self, value):
+        phone_validator = PhoneNumberValidator(RUS)
+        if not phone_validator(value):
+            raise serializers.ValidationError(
+                detail={"err_msg": "phone number invalid"},
+                code="phone invalid")
+        return value
 
     def validate_password(self, value):
         try:
