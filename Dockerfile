@@ -1,6 +1,11 @@
-FROM --platform=$BUILDPLATFORM python:3.7-alpine AS builder
+FROM python:3.9.15-slim-buster AS builder
 
-RUN apk add --no-cache postgresql-dev gcc musl-dev python3-dev
+RUN apt-get update && apt-get upgrade -y \
+  && apt-get install --no-install-recommends -y \
+    bash \
+    curl \
+    build-essential \
+    libpq-dev
 
 WORKDIR /app
 
