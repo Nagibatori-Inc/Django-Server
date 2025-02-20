@@ -6,9 +6,17 @@ from rest_framework.authentication import BasicAuthentication
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from DjangoServer.settings import SMS_SERVICE
 from authentication.models import Profile
 from authentication.permissions import IsProfileOwnerOrReadOnly
 from authentication.serializers import ProfileSerializer, SignUpRequestSerializer
+
+SmsService = SMS_SERVICE
+
+
+class OTPVerificationView(APIView):
+    def post(self, request, *args, **kwargs):
+        pass
 
 
 class LoginView(KnowLoginView):
@@ -69,7 +77,7 @@ class ProfileView(APIView):
         profile_id = kwargs["pk"]
         profile = self.get_profile(profile_id)
         self.check_object_permissions(request, profile)
-
+        # TODO set user to inactive as well
         profile.is_deleted = True
         profile.save()
 
