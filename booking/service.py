@@ -9,6 +9,7 @@ class AdvertService:
         - activate: Активирует бъявление
         - deactivate: Деактивирует объявление
         - advertise: Публикация объявления
+        - change: изменение объявления (например, изменение описания)
     """
     
     def __init__(self, advert: Advert):
@@ -21,6 +22,18 @@ class AdvertService:
     def deactivate(self) -> None:
         self.__advert.is_active = False
         self.__advert.save()
+        
+    def change(changed_data: dict) -> None: # changed_data пока имеет тип dict, в дальнейшем будет объектом валидационной схемы
+        advert: Advert = self.advert
+        
+        advert.title = changed_data['title']
+        advert.description = changed_data['description']
+        advert.price = changed_data['price']
+        advert.phone = changed_data['phone']
+        advert.promotion = changed_data['promotion']
+        advert.activated_at = changed_data['activated_at']
+        
+        advert.save()
         
     # TODO: ВСЕ объявления должны публиковаться через этот метод
     @staticmethod

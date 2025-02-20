@@ -41,7 +41,15 @@ class AdvertView(APIView):
         return Response(status=status.HTTP_201_CREATED, body={'message': 'OK'})
     
     def put(self, request):
-        pass
+        data_to_change = request.data.get('changed_data', {})
+        user: User = request.user    
+        
+        advert = get_object_or_404(Advert, phone=user.phone)
+        advert_service = AdvertService(advert)
+        
+        advert_service.change(data_to_change)
+        
+        return Response(status=status.HTTP_200_OK, body={'message': f'Advert {advert.id} successfully changed'})
     
     def delete(self, request):
         pass
