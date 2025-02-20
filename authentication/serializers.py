@@ -32,6 +32,16 @@ class SignUpRequestSerializer(serializers.Serializer):
             raise serializers.ValidationError(
                 detail={"err_msg": "phone number invalid"},
                 code="phone invalid")
+
+        phone_used = (get_user_model()
+                      .objects
+                      .filter(username__exact=self.__make_phone_uniform(value)).exists())
+        if phone_used:
+            raise serializers.ValidationError(
+                detail={"err_msg": "phone number already in use"},
+                code="phone is used"
+            )
+
         return value
 
     def validate_password(self, value):
@@ -58,3 +68,12 @@ class SignUpRequestSerializer(serializers.Serializer):
         user = get_user_model().objects.create(username=phone, first_name=first_name, email=email, password=password)
         profile = Profile.objects.create(user=user, name=profile_name, type=type)
         return profile
+
+    def __make_phone_uniform(self, phone: str):
+        if phone.startswith("+7"):
+            return "8" + phone[2:]
+        elif phone.startswith("7"):
+            return "8" + phone[1:]
+        elif phone.startswith("+8"):
+            return phone[1:]
+        return phone
