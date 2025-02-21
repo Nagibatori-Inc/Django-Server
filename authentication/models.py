@@ -27,11 +27,16 @@ class Profile(models.Model):
         "CMP": "Компания"
     }
 
-    name = models.CharField(max_length=50, null=True)
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name="profile", on_delete=models.CASCADE)
-    type = models.CharField(max_length=3, choices=PROFILE_TYPE_CHOICES, default="IND")
-    is_deleted = models.BooleanField(default=False)
-    is_verified = models.BooleanField(default=False)
+    name = models.CharField(max_length=50, null=True, verbose_name="Имя профиля")
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name="profile",
+                                on_delete=models.CASCADE, verbose_name="Пользователь")
+    type = models.CharField(max_length=3, choices=PROFILE_TYPE_CHOICES, default="IND", verbose_name="Тип профиля")
+    is_deleted = models.BooleanField(default=False, verbose_name="Удален")
+    is_verified = models.BooleanField(default=False, verbose_name="Верифицирован")
+
+    class Meta:
+        verbose_name = "Профиль"
+        verbose_name_plural = "Профили"
 
 
 class OneTimePassword(models.Model):
@@ -46,9 +51,10 @@ class OneTimePassword(models.Model):
     Properties:
     + has_expired(): Проверка истекла ли валидность кода
     """
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="otps", on_delete=models.CASCADE)
-    code = models.CharField(max_length=128, default="")
-    creation_date = models.DateTimeField(default=datetime.datetime.now)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="otps",
+                             on_delete=models.CASCADE, verbose_name="Пользователь")
+    code = models.CharField(max_length=128, default="", verbose_name="Одноразовый код (хэш)")
+    creation_date = models.DateTimeField(default=datetime.datetime.now, verbose_name="Время создания")
 
     def save(self, *args, **kwargs) -> str:
         otp = ""
@@ -69,4 +75,10 @@ class OneTimePassword(models.Model):
         if self.creation_date + datetime.timedelta(minutes=OTP_TTL) <= timezone.now():
             return True
         return False
+
+    has_expired.fget.short_description = "OTP уже истек"
+
+    class Meta:
+        verbose_name = "Одноразовый код"
+        verbose_name_plural = "Одноразовые коды"
 
