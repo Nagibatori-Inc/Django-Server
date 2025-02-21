@@ -2,11 +2,11 @@ from django.http import Http404
 from knox.models import AuthToken
 from knox.views import LoginView as KnowLoginView
 from rest_framework import status
-from rest_framework.authentication import BasicAuthentication
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from DjangoServer.settings import SMS_SERVICE
+from authentication.custom_auth import CustomBasicAuthentication
 from authentication.models import Profile
 from authentication.permissions import IsProfileOwnerOrReadOnly
 from authentication.serializers import ProfileSerializer, SignUpRequestSerializer
@@ -20,7 +20,7 @@ class OTPVerificationView(APIView):
 
 
 class LoginView(KnowLoginView):
-    authentication_classes = [BasicAuthentication]
+    authentication_classes = [CustomBasicAuthentication]
 
 
 class SignUpView(APIView):
@@ -40,7 +40,6 @@ class SignUpView(APIView):
         }, status=status.HTTP_200_OK)
 
 
-# TODO rewrite with ViewSet
 class ProfileView(APIView):
     permission_classes = [IsProfileOwnerOrReadOnly]
 
