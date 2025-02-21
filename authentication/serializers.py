@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Tuple
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password as django_password_validate
@@ -8,7 +8,8 @@ from rest_framework import serializers, status
 
 from DjangoServer.validators.misc_validators import PhoneNumberValidator
 from DjangoServer.validators.phone_number_re import RUS
-from authentication.models import Profile
+from authentication.models import Profile, OneTimePassword
+from authentication.utils import make_phone_uniform
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -36,7 +37,7 @@ class SignUpRequestSerializer(serializers.Serializer):
 
         phone_used = (get_user_model()
                       .objects
-                      .filter(username__exact=self.__make_phone_uniform(value)).exists())
+                      .filter(username__exact=make_phone_uniform(value)).exists())
         if phone_used:
             raise serializers.ValidationError(
                 detail={"err_msg": "phone number already in use"},
@@ -56,7 +57,7 @@ class SignUpRequestSerializer(serializers.Serializer):
 
     # Сущность аутентификации не должна создаваться без профиля и наоборот 
     @transaction.atomic
-    def create(self, validated_data: Dict[str, str]) -> Profile:
+    def create(self, validated_data: Dict[str, str]) -> Tuple[Profile, str]:
         phone = validated_data.get("phone", None)
         password = validated_data.get("password", None)
         first_name = validated_data.get("first_name", None)
@@ -66,20 +67,17 @@ class SignUpRequestSerializer(serializers.Serializer):
         profile_name = validated_data.get("profile_name", None)
         type = validated_data.get("type", None)
 
-        phone = self.__make_phone_uniform(phone)
+        phone = make_phone_uniform(phone)
 
         user_model = get_user_model()
         user = user_model(username=phone, first_name=first_name, email=email)
         user.set_password(raw_password=password)
         user.save()
-        profile = Profile.objects.create(user=user, name=profile_name, type=type)
-        return profile
 
-    def __make_phone_uniform(self, phone: str) -> str:
-        if phone.startswith("+7"):
-            return "8" + phone[2:]
-        elif phone.startswith("7"):
-            return "8" + phone[1:]
-        elif phone.startswith("+8"):
-            return phone[1:]
-        return phone
+        otp = OneTimePassword(user=user)
+        otp = otp.save()
+
+        profile = Profile.objects.create(user=user, name=profile_name, type=type)
+        return profile, otp
+
+
