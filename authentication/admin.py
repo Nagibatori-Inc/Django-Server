@@ -1,6 +1,7 @@
 from django.contrib import admin
 
-from authentication.models import Profile
+from authentication.models import Profile, OneTimePassword
+
 
 # Register your models here.
 
@@ -12,3 +13,4 @@ class ProfileAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Profile, ProfileAdmin)
+admin.site.register(OneTimePassword)
