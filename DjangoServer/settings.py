@@ -166,3 +166,8 @@ SMSAERO_API_KEY = config("SMSAERO_API_KEY", default="stub")
 
 if SMSAERO_API_KEY != "stub":
     SMS_SERVICE = smsaero.SmsAero(email=SMSAERO_EMAIL, api_key=SMSAERO_API_KEY)
+
+
+# Время действия одноразового кода (OTP) в минутах
+OTP_TTL = config("OTP_TTL", default=10)
+

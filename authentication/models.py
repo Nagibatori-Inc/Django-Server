@@ -1,5 +1,9 @@
+import datetime
+
 from django.conf import settings
 from django.db import models
+
+from DjangoServer.settings import OTP_TTL
 
 
 # Create your models here.
@@ -23,3 +27,15 @@ class Profile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name="profile", on_delete=models.CASCADE)
     type = models.CharField(max_length=3, choices=PROFILE_TYPE_CHOICES, default="IND")
     is_deleted = models.BooleanField(default=False)
+
+
+class OneTimePassword(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="otps", on_delete=models.CASCADE)
+    expiration_date = models.DateTimeField()
+
+    @property
+    def has_expired(self):
+        if self.expiration_date + datetime.timedelta(minutes=OTP_TTL) <= datetime.datetime.now():
+            return True
+        return False
+
