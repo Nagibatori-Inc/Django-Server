@@ -1,3 +1,5 @@
+from django.contrib.auth import get_user_model
+from django.contrib.auth.hashers import check_password as compare_otps
 from django.http import Http404
 from knox.models import AuthToken
 from knox.views import LoginView as KnowLoginView
@@ -10,13 +12,48 @@ from authentication.custom_auth import CustomBasicAuthentication
 from authentication.models import Profile
 from authentication.permissions import IsProfileOwnerOrReadOnly
 from authentication.serializers import ProfileSerializer, SignUpRequestSerializer
+from authentication.utils import make_phone_uniform
 
 sms_service = SMS_SERVICE
 
 
 class OTPVerificationView(APIView):
     def post(self, request, *args, **kwargs):
-        pass
+        if not request.data:
+            return Response({"err_msg": "no data was sent"}, status=status.HTTP_400_BAD_REQUEST)
+
+        otp_code = request.data.get("otp", None)
+        phone = request.data.get("phone", None)
+
+        if not otp_code or not phone:
+            return Response(
+                {"err_msg": "otp code and phone number are both required"},
+                status=status.HTTP_400_BAD_REQUEST)
+
+        phone = make_phone_uniform(phone)
+        user = get_user_model().objects.get(username=phone)
+
+        if user.profile.is_verified:
+            return Response(
+                {"err_msg": "user already verified"},
+                status=status.HTTP_400_BAD_REQUEST)
+
+        latest_otp = user.otps.latest("creation_date")
+
+        if latest_otp.has_expired:
+            return Response(
+                {"err_msg": "otp has been invalidated"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        otp_valid = compare_otps(otp_code, latest_otp.code)
+
+        if otp_valid:
+            user.profile.is_verified = True
+            user.profile.save(update_fields=["is_verified"])
+            return Response({"detail": "user verified successfully"}, status=status.HTTP_200_OK)
+
+        return Response({"err_msg": "otps doesn't match"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class LoginView(KnowLoginView):
@@ -31,8 +68,10 @@ class SignUpView(APIView):
         serializer = SignUpRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        profile = serializer.save()
+        profile, otp_code = serializer.save()
         auth_token = AuthToken.objects.create(profile.user)[1]
+
+        print(otp_code)
 
         return Response({
             "profile": ProfileSerializer(profile).data,
