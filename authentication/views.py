@@ -11,7 +11,7 @@ from authentication.models import Profile
 from authentication.permissions import IsProfileOwnerOrReadOnly
 from authentication.serializers import ProfileSerializer, SignUpRequestSerializer
 
-SmsService = SMS_SERVICE
+sms_service = SMS_SERVICE
 
 
 class OTPVerificationView(APIView):
