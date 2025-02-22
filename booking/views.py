@@ -1,5 +1,6 @@
-from django.shortcuts import render, get_list_or_404
+from django.shortcuts import render, get_list_or_404, get_object_or_404
 from django.contrib.auth.models import User
+from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 
@@ -21,7 +22,7 @@ class AdvertView(APIView):
         
         # TODO: Нужны будут схемы на body ВСЕХ POST и PUT запросов дабы не доставать по одному полю для создания модельки 
         # а целиком модель из схемы, например, хоть те же сериализаторы
-        # Пока проверка на валидность данныз из тела запроса не происходит
+        # Пока проверка на валидность данных из тела запроса не происходит
         advert: dict = request.data.get('advert')
         
         # TODO: А также пока не происходит проверки на наличие данных
@@ -36,9 +37,9 @@ class AdvertView(APIView):
         )
         
         if not advert_service.advert:
-            return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY, body=advert)
+            return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY, data=advert)
         
-        return Response(status=status.HTTP_201_CREATED, body={'message': 'OK'})
+        return Response(status=status.HTTP_201_CREATED, data={'message': 'OK'})
     
     def put(self, request):
         data_to_change = request.data.get('changed_data', {})
@@ -49,7 +50,7 @@ class AdvertView(APIView):
         
         advert_service.change(data_to_change)
         
-        return Response(status=status.HTTP_200_OK, body={'message': f'Advert {advert.id} successfully changed'})
+        return Response(status=status.HTTP_200_OK, data={'message': f'Advert {advert.id} successfully changed'})
     
     def delete(self, request):
         user: User = request.user
@@ -59,4 +60,4 @@ class AdvertView(APIView):
         
         advert_service.remove()
         
-        return Response(status=status.HTTP_200_OK, body={'message': f'Advert successfully removed'})
+        return Response(status=status.HTTP_200_OK, data={'message': f'Advert successfully removed'})
