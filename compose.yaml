@@ -45,7 +45,7 @@ services:
       context: .
       dockerfile: Dockerfile
     environment: *app-variables
-    command: create_superuser.sh
+    # command: create_superuser.sh
     ports:
       - 8000:8080
     depends_on:
