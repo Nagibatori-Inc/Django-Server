@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+
+import smsaero
 from decouple import AutoConfig
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -45,16 +47,18 @@ ALLOWED_HOSTS = [
 # Application definition
 
 INSTALLED_APPS = [
+    "authentication",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    
-    'rest_framework',
+
+    "rest_framework",
+    "knox"
     'rest_framework.authtoken',
-    
+
     'booking.apps.BookingConfig',
 ]
 
@@ -115,9 +119,6 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
-    },
-    {
         "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
@@ -154,3 +155,19 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+# Настройки сервиса рассылки СМС
+# Используется SMSAero https://smsaero.ru/
+
+SMSAERO_EMAIL = config("SMSAERO_EMAIL", default="johndoe@email.com")
+SMSAERO_API_KEY = config("SMSAERO_API_KEY", default="stub")
+
+SMS_SERVICE = "stub"
+if SMSAERO_API_KEY != "stub":
+    SMS_SERVICE = smsaero.SmsAero(email=SMSAERO_EMAIL, api_key=SMSAERO_API_KEY)
+
+
+# Время действия одноразового кода (OTP) в минутах
+OTP_TTL = config("OTP_TTL", default=10)
+

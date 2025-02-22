@@ -9,8 +9,7 @@ x-app-variables: &app-variables
   DEBUG: dev
   ALLOWED_HOSTS: http://localhost
   HOST: http://localhost:8000/
-
-  DATABASE_HOST: postgres
+  DATABASE_HOST: db
   POSTGRES_DB: booking_platform
   POSTGRES_USER: admin
   POSTGRES_PASSWORD: adminpassword
@@ -21,32 +20,34 @@ x-app-variables: &app-variables
 
   REST_API_BASE: api/
 services:
-  postgres:
+  db:
     image: postgres:latest
-    container_name: postgres
+    container_name: vehicle_board_db
     environment: *db-variables
     ports:
       - "5432:5432"
     volumes:
-      - ./.postgres_data:/var/lib/postgresql/data
+      - ${VEHICLE_BOARD_DB_VOL_PATH:-/opt/volumes/vehicle_board/data}:/var/lib/postgresql/data
+    profiles: [db, backend]
 
   pgadmin:
     image: dpage/pgadmin4:latest
-    container_name: pgadmin
+    container_name: vehicle_board_pgadmin
     environment: *pgadmin-variables
     ports:
       - "5050:80"
     depends_on:
-      - postgres
+      - db
+    profiles: [db]
 
   app:
-    container_name: django-rest-server
+    container_name: vehicle_board_api
     build:
       context: .
       dockerfile: Dockerfile
     environment: *app-variables
-    command: create_superuser.sh
     ports:
-      - 8000:8080
+      - "8000:8080"
     depends_on:
-      - postgres
+      - db
+    profiles: [backend]
