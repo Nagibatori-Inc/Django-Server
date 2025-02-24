@@ -49,7 +49,7 @@ class AdvertService:
         
         advert.save()
         
-    def remove(self):
+    def remove(self) -> None:
         advert: Advert = self.advert
         advert.delete()
 
