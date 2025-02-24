@@ -65,7 +65,8 @@ class Advert(models.Model):
         Profile,
         on_delete=models.CASCADE,
         related_name='adverts',
-        verbose_name='Контактное лицо'
+        verbose_name='Контактное лицо',
+        default=None
     )
     phone = models.CharField(max_length=12, verbose_name='Телефон')
     promotion = models.OneToOneField(
