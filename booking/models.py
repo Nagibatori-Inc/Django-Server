@@ -49,10 +49,10 @@ class Advert(models.Model):
         + is_active(): возвращает True, если статус объявления ACTIVE (то есть активно)
         + is_promoted(): возвращает True, если у объявление активировано 'Продвижение'
     """
-    ADVERT_STATUS_CHOICES = {
-        AdvertStatus.ACTIVE: 'Активировано',
-        AdvertStatus.DISABLED: 'Не опубликовано'
-    }
+    ADVERT_STATUS_CHOICES = (
+        (AdvertStatus.ACTIVE, 'Активировано'),
+        (AdvertStatus.DISABLED, 'Не опубликовано'),
+    )
 
     title = models.CharField(max_length=100, verbose_name='Название')
     description = models.TextField(verbose_name='Описание')
