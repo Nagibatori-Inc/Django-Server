@@ -54,7 +54,7 @@ class Advert(models.Model):
         verbose_name='Контактное лицо'
     )
     phone = models.CharField(max_length=12)
-    promotion = models.ForeignKey(
+    promotion = models.OneToOneField(
         Promotion,
         on_delete=models.CASCADE,
         related_name='advert',
