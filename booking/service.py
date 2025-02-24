@@ -54,25 +54,59 @@ class AdvertService:
         advert.delete()
 
     def ok(self):
-        if self.advert:
+        """
+        Если действия с объявлениями прошли успешно, возвращает `200 OK`, иначе продолжает цепочку
+
+        :return: Response | AdvertService
+        """
+        if self.response is None and self.advert:
             self.response = Response(status=status.HTTP_200_OK)
 
         return self.__finalize_response()
 
     def created(self):
-        if self.advert:
+        """
+        Если объявление создано, возвращает `201 CREATED`
+
+        :return: Response | AdvertService
+        """
+        if self.response is None and self.advert:
             self.response = Response(status=status.HTTP_201_CREATED)
 
         return self.__finalize_response()
 
     def or_else_send(self, status_code):
+        """
+        Продолжает цепочку создания ответа от АПИ. Возвращает полученный `status_code`,
+        если в цепочке не создались требуемые ответы
+
+        :param status_code: (str | int) возвращаемый статус код ответа
+        :return: Response | AdvertService
+        """
         return self.response or Response(status=status_code)
 
     def respond_or_else_send(self, response: callable, status_code):
-        return response or Response(status=status_code)
+        """
+        Вызывает указанный метод отправки ответа (Response'а), используемый в цепочке формирования Response'а,
+        если все действия прошли успешно, иначе ответ со статусом, указанным в `status_code`
+
+
+        :param response: (callable) метод, используемый в цепочке формирования Response'а
+        :param status_code: (str | int) возвращаемый статус код ответа
+        :return: Response | AdvertService
+        """
+        return response() or Response(status=status_code)
 
     def __finalize_response(self):
-        return self.response if self.response else self
+        """
+        Если уже есть Response, дальнейшие вызовы методов не изменяют его
+
+        :return: Response | AdvertService
+        """
+        if isinstance(self.response, Response):
+            return self.response
+
+        return self
         
     # TODO: ВСЕ объявления должны публиковаться через этот метод
     @staticmethod
