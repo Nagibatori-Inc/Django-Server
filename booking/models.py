@@ -38,7 +38,7 @@ class Advert(models.Model):
         + title (CharField): Название объявления
         + description (TextField): Текст объявления
         + price (DecimalField): Стоимость услуги
-        - contact (Profile | Новая моделька о правовых Субъектах): Контакты - контактное лицо
+        + contact (Profile | Новая моделька о правовых Субъектах): Контакты - контактное лицо
         + phone (Profile, но пока просто CharField): Контакты - телефон
         + created_at (DateTimeField): Дата, когда было создано объявление
         + activated_at (DateTimeField): Дата, когда пользователь активировал свое объявление
