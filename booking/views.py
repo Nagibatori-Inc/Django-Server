@@ -4,7 +4,7 @@ from rest_framework import status, serializers
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ViewSet
 from rest_framework.routers import DefaultRouter
 
 from authentication.models import Profile
@@ -22,11 +22,17 @@ class AdvertSerializer(serializers.ModelSerializer):
         fields = ['title', 'description', 'price', 'phone']
 
 
-class AdvertViewSet(ModelViewSet):
+class AdvertViewSet(ViewSet):
     @action(methods=HTTPMethod.GET, detail=True)
     def list(self, request):
         queryset = Advert.objects.all()
         serializer_class = AdvertSerializer(queryset, many=True)
+        return Response(serializer_class.data)
+
+    @action(methods=HTTPMethod.GET, detail=True)
+    def retrieve(self, request, pk=None):
+        advert: Advert = get_object_or_404(Advert, pk=pk)
+        serializer_class = AdvertSerializer(advert)
         return Response(serializer_class.data)
 
     @action(methods=HTTPMethod.POST, detail=True)
@@ -42,6 +48,24 @@ class AdvertViewSet(ModelViewSet):
                 .created()
                 .or_else_send(status.HTTP_422_UNPROCESSABLE_ENTITY)
             )
+
+        else:
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+    @action(methods=HTTPMethod.PUT, detail=True)
+    def update(self, request, pk=None):
+        pass
+
+    @action(methods=HTTPMethod.PUT, detail=True)
+    def partial_update(self, request, pk=None):
+        pass
+
+    @action(methods=HTTPMethod.DELETE, detail=True)
+    def destroy(self, request, pk=None):
+        pass
 
 
 class AdvertView(APIView):
