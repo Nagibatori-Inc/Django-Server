@@ -39,7 +39,7 @@ class AdvertViewSet(ModelViewSet):
             return (
                 AdvertService
                 .advertise(**data)
-                .ok()
+                .created()
                 .or_else_send(status.HTTP_422_UNPROCESSABLE_ENTITY)
             )
 
