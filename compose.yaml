@@ -27,7 +27,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ${VEHICLE_BOARD_DB_VOL_PATH:-/opt/volumes/vehicle_board/data}:/var/lib/postgresql/data
+      - ${VEHICLE_BOARD_DB_VOL_PATH:-./.postgres_data/volumes/vehicle_board/data}:/var/lib/postgresql/data
 
   pgadmin:
     image: dpage/pgadmin4:latest
