@@ -1,19 +1,33 @@
+from rest_framework.response import Response
+from rest_framework import status
+
 from booking.models import Advert, AdvertStatus
 
 
 class AdvertService:
     """
     Класс, реализующий бизнес логику работы с объявлениями
+
+    Fields:
+        + advert (Advert): Объявление
+        + response (Response): Необязательное поле,
+        нужное для отправки ответа при публикации объявления или его изменения
     
     Methods:
         + activate: Активирует объявление
         + deactivate: Деактивирует объявление
         + change: изменение объявления (например, изменение описания)
         + advertise: Публикация объявления
+
+    Properties:
+        + advert(): Возвращает объект текущего объявления над которым производятся операции
+        + response(): Возвращает объект ответа
+        + response(response): Сеттер для поля `response`
     """
     
-    def __init__(self, advert: Advert):
+    def __init__(self, advert: Advert, response: Response = None):
         self.__advert = advert
+        self.__response = response
         
     def activate(self) -> None:
         self.advert.status = AdvertStatus.ACTIVE
@@ -38,6 +52,27 @@ class AdvertService:
     def remove(self):
         advert: Advert = self.advert
         advert.delete()
+
+    def ok(self):
+        if self.advert:
+            self.response = Response(status=status.HTTP_200_OK)
+
+        return self.__finalize_response()
+
+    def created(self):
+        if self.advert:
+            self.response = Response(status=status.HTTP_201_CREATED)
+
+        return self.__finalize_response()
+
+    def or_else_send(self, status_code):
+        return self.response or Response(status=status_code)
+
+    def respond_or_else_send(self, response: callable, status_code):
+        return response or Response(status=status_code)
+
+    def __finalize_response(self):
+        return self.response if self.response else self
         
     # TODO: ВСЕ объявления должны публиковаться через этот метод
     @staticmethod
@@ -75,4 +110,12 @@ class AdvertService:
     @property
     def advert(self):
         return self.__advert
+
+    @property
+    def response(self):
+        return self.__response
+
+    @response.setter
+    def response(self, response: Response):
+        self.__response = response
     
