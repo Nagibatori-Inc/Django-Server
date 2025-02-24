@@ -85,13 +85,12 @@ class AdvertService:
     ):
         """
         Метод реализации логики подачи объявления (Публикация объявления)
-        
-        Args:
-            title (str): Название объявления
-            description (str): Текст объявления
-            price (float): Стоимость услуги
-            phone (str): Контакты - телефон
-            promotion (str, optional): Данные о продвижении объявления. Может быть None
+
+        :param title (str) Название объявления
+        :param description (str) Текст объявления
+        :param price (float) Стоимость услуги
+        :param phone (str) Контакты - телефон
+        :param promotion (str, optional) Данные о продвижении объявления. Может быть None
 
         Returns:
             AdvertService: объект сервисной логики работы с объявлениями
