@@ -23,6 +23,11 @@ class Promotion(models.Model):
         return self.type
 
 
+class AdvertStatus:
+    ACTIVE = 'ACTIVE'
+    DISABLED = 'DISABLED'
+
+
 class Advert(models.Model):
     """
     Модель объявления об аренде спецтехники
@@ -37,10 +42,18 @@ class Advert(models.Model):
         + phone (Profile, но пока просто CharField): Контакты - телефон
         + created_at (DateTimeField): Дата, когда было создано объявление
         + activated_at (DateTimeField): Дата, когда пользователь активировал свое объявление
-        + is_active (BooleanField): Активно ли объявление
+        + status (CharField): Статус объявления. Принимает два значения: ACTIVE или DISABLED
         + promotion (Promotion): Данные о продвижении объявления
+
+    Properties:
+        + is_active(): возвращает True, если статус объявления ACTIVE (то есть активно)
+        + is_promoted(): возвращает True, если у объявление активировано 'Продвижение'
     """
-    
+    ADVERT_STATUS_CHOICES = {
+        AdvertStatus.ACTIVE: 'Активировано',
+        AdvertStatus.DISABLED: 'Не опубликовано'
+    }
+
     title = models.CharField(max_length=100, verbose_name='Название')
     description = models.TextField(verbose_name='Описание')
     price = models.DecimalField(
@@ -71,8 +84,13 @@ class Advert(models.Model):
         auto_now=True, # поле auto_now задает значение datetime.now() когда у объект модели вызывает метод save()
         verbose_name='Активировано',
         null=True
-    ) 
-    is_active = models.BooleanField(default=False, verbose_name='')
+    )
+    status = models.CharField(
+        max_length=16,
+        choices=ADVERT_STATUS_CHOICES,
+        default=AdvertStatus.DISABLED,
+        verbose_name='Статус'
+    )
     
     class Meta:
         verbose_name = 'Объявление'
@@ -80,6 +98,10 @@ class Advert(models.Model):
         
     def __str__(self):
         return self.title
+
+    @property
+    def is_active(self):
+        return self.status == AdvertStatus.ACTIVE
 
     @property
     def is_promoted(self):
