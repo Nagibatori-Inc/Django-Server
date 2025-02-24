@@ -41,11 +41,12 @@ class Advert(models.Model):
         + promotion (Promotion): Данные о продвижении объявления
     """
     
-    title = models.CharField(max_length=100)
-    description = models.TextField()
+    title = models.CharField(max_length=100, verbose_name='Название')
+    description = models.TextField(verbose_name='Описание')
     price = models.DecimalField(
         max_digits=11, 
-        decimal_places=2
+        decimal_places=2,
+        verbose_name='Стоимость'
     )
     contact = models.ForeignKey(
         Profile,
@@ -53,7 +54,7 @@ class Advert(models.Model):
         related_name='adverts',
         verbose_name='Контактное лицо'
     )
-    phone = models.CharField(max_length=12)
+    phone = models.CharField(max_length=12, verbose_name='Телефон')
     promotion = models.OneToOneField(
         Promotion,
         on_delete=models.CASCADE,
@@ -62,12 +63,16 @@ class Advert(models.Model):
         null=True,
     )
     
-    created_at = models.DateTimeField(auto_now_add=True) # поле auto_now_add ставит datetime.now() когда объект только создан
+    created_at = models.DateTimeField(
+        auto_now_add=True, # поле auto_now_add ставит datetime.now() когда объект только создан
+        verbose_name='Создано'
+    )
     activated_at = models.DateTimeField(
         auto_now=True, # поле auto_now задает значение datetime.now() когда у объект модели вызывает метод save()
+        verbose_name='Активировано',
         null=True
     ) 
-    is_active = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=False, verbose_name='')
     
     class Meta:
         verbose_name = 'Объявление'
