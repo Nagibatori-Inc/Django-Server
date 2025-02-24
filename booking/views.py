@@ -55,7 +55,7 @@ class AdvertViewSet(ViewSet):
         pass
 
     @action(methods=HTTPMethod.PUT, detail=True)
-    def partial_update(self, request, pk=None):
+    def activate(self, request, pk=None):
         pass
 
     @action(methods=HTTPMethod.DELETE, detail=True)
