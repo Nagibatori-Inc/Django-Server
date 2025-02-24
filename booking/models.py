@@ -1,5 +1,7 @@
 from django.db import models
 
+from authentication.models import Profile
+
 
 class Promotion(models.Model):
     """
@@ -44,6 +46,12 @@ class Advert(models.Model):
     price = models.DecimalField(
         max_digits=11, 
         decimal_places=2
+    )
+    contact = models.ForeignKey(
+        Profile,
+        on_delete=models.CASCADE,
+        related_name='adverts',
+        verbose_name='Контактное лицо'
     )
     phone = models.CharField(max_length=12)
     promotion = models.ForeignKey(
