@@ -1,4 +1,4 @@
-from booking.models import Advert
+from booking.models import Advert, AdvertStatus
 
 
 class AdvertService:
@@ -16,12 +16,12 @@ class AdvertService:
         self.__advert = advert
         
     def activate(self) -> None:
-        self.__advert.is_active = True
-        self.__advert.save()
+        self.advert.status = AdvertStatus.ACTIVE
+        self.advert.save()
         
     def deactivate(self) -> None:
-        self.__advert.is_active = False
-        self.__advert.save()
+        self.advert.status = AdvertStatus.DISABLED
+        self.advert.save()
         
     def change(self, changed_data: dict) -> None: # changed_data пока имеет тип dict, в дальнейшем будет объектом валидационной схемы
         advert: Advert = self.advert
