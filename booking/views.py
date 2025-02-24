@@ -1,25 +1,20 @@
+from http import HTTPMethod
+
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
-from rest_framework import status, serializers
+from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.routers import DefaultRouter
 from rest_framework.views import APIView
 from rest_framework.viewsets import ViewSet
-from rest_framework.routers import DefaultRouter
 
 from authentication.models import Profile
 from booking.models import Advert
+from booking.serializers import AdvertSerializer
 from booking.service import AdvertService
 
-from http import HTTPMethod
-
 router = DefaultRouter()
-
-
-class AdvertSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Advert
-        fields = ['title', 'description', 'price', 'phone']
 
 
 class AdvertViewSet(ViewSet):
