@@ -28,7 +28,6 @@ services:
       - "5432:5432"
     volumes:
       - ${VEHICLE_BOARD_DB_VOL_PATH:-/opt/volumes/vehicle_board/data}:/var/lib/postgresql/data
-    profiles: [db, backend]
 
   pgadmin:
     image: dpage/pgadmin4:latest
@@ -38,7 +37,6 @@ services:
       - "5050:80"
     depends_on:
       - db
-    profiles: [db]
 
   app:
     container_name: vehicle_board_api
@@ -50,4 +48,3 @@ services:
       - "8000:8080"
     depends_on:
       - db
-    profiles: [backend]
