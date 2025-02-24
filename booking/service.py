@@ -90,7 +90,6 @@ class AdvertService:
         Вызывает указанный метод отправки ответа (Response'а), используемый в цепочке формирования Response'а,
         если все действия прошли успешно, иначе ответ со статусом, указанным в `status_code`
 
-
         :param response: (callable) метод, используемый в цепочке формирования Response'а
         :param status_code: (str | int) возвращаемый статус код ответа
         :return: Response | AdvertService
