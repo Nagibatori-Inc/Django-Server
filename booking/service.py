@@ -1,6 +1,7 @@
 from rest_framework.response import Response
 from rest_framework import status
 
+from authentication.models import Profile
 from booking.models import Advert, AdvertStatus
 
 
@@ -113,6 +114,7 @@ class AdvertService:
         title: str,
         description: str,
         price: float,
+        contact: Profile,
         phone: str,
         promotion: str = None,
     ):
@@ -122,6 +124,7 @@ class AdvertService:
         :param title (str) Название объявления
         :param description (str) Текст объявления
         :param price (float) Стоимость услуги
+        :param contact (Profile) Контакты - контактное лицо
         :param phone (str) Контакты - телефон
         :param promotion (str, optional) Данные о продвижении объявления. Может быть None
 
@@ -134,6 +137,7 @@ class AdvertService:
                 title=title,
                 description=description,
                 price=price,
+                contact=contact,
                 phone=phone,
                 promotion=promotion,
             )

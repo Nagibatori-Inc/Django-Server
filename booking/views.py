@@ -38,7 +38,7 @@ class AdvertViewSet(ModelViewSet):
             data = serializer.validated_data
             return (
                 AdvertService
-                .advertise(**data)
+                .advertise(**data, contact=user)
                 .created()
                 .or_else_send(status.HTTP_422_UNPROCESSABLE_ENTITY)
             )
