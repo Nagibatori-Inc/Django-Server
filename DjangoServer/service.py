@@ -14,11 +14,14 @@ class RestService:
     Fields:
         + response (Response): Необязательное поле,
         нужное для отправки ответа при публикации объявления или его изменения
+        + should_commit (Bool): Статус коммита транзакции в базу данных
 
     Methods:
+        + _finalize_transaction(): Приватный метод для коммита транзакции в базу данных
         + ok(): Если действия с объявлениями прошли успешно, возвращает `200 OK`, иначе продолжает цепочку
         + or_else_send(status_code): Продолжает цепочку создания ответа от АПИ. Возвращает полученный `status_code`,
         если в цепочке не создались требуемые ответы
+        + or_else_4xx(): Методы, вызывающие or_else_send(4xx) с тем кодом, что указан в названии метода
         + respond_or_else_send(response, status_code): Вызывает указанный метод отправки ответа (Response'а),
         используемый в цепочке формирования Response'а, если все действия прошли успешно, иначе ответ со статусом,
         указанным в `status_code`
@@ -26,6 +29,8 @@ class RestService:
     Properties:
         + response(): Возвращает объект ответа
         + response(response): Сеттер для поля `response`
+        + should_commit(): Возвращает статус коммита
+        + should_commit(should_commit): Сеттер для поля `should_commit`
     """
 
     def __init__(self, response: Response = None, should_commit: bool = True):
