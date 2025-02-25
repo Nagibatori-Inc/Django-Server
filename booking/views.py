@@ -27,7 +27,10 @@ class AdvertViewSet(ViewSet):
     def retrieve(self, request, pk=None):
         advert: Advert = get_object_or_404(Advert, pk=pk)
         serializer = self.serializer_class(advert)
-        return Response(serializer.data)
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK,
+        )
 
     def create(self, request, *args, **kwargs):
         user: Profile = get_object_or_404(Profile, user=request.user)
