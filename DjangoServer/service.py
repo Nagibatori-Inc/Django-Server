@@ -38,7 +38,7 @@ class RestService:
     def response(self, response: Response):
         self.__response = response
 
-    def __finalize_response(self):
+    def _finalize_response(self):
         """
         Если уже есть Response, дальнейшие вызовы методов не изменяют его
 
@@ -58,7 +58,7 @@ class RestService:
         if (self.response is None) or (not self.response.status_code != status.HTTP_200_OK):
             self.response = Response(status=status.HTTP_200_OK)
 
-        return self.__finalize_response()
+        return self._finalize_response()
 
     def or_else_send(self, status_code):
         """

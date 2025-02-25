@@ -31,14 +31,6 @@ class AdvertService(RestService):
     @property
     def advert(self):
         return self.__advert
-
-    @property
-    def response(self):
-        return self.__response
-
-    @response.setter
-    def response(self, response: Response):
-        self.__response = response
         
     @transaction.atomic
     def activate(self):
@@ -130,5 +122,4 @@ class AdvertService(RestService):
         if self.response is None and self.advert:
             self.response = Response(status=status.HTTP_201_CREATED)
 
-        return self.__finalize_response()
-    
+        return self._finalize_response()
