@@ -1,5 +1,3 @@
-from http import HTTPMethod
-
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from rest_framework import status
@@ -12,25 +10,26 @@ from rest_framework.viewsets import ViewSet
 from authentication.models import Profile
 from booking.models import Advert
 from booking.serializers import AdvertSerializer
-from booking.service import AdvertService
+from booking.services import AdvertService
+from DjangoServer.utils import HttpMethod
 
 router = DefaultRouter()
 
 
 class AdvertViewSet(ViewSet):
-    @action(methods=HTTPMethod.GET, detail=True)
+    @action(methods=HttpMethod.GET, detail=True)
     def list(self, request):
         queryset = Advert.objects.all()
         serializer_class = AdvertSerializer(queryset, many=True)
         return Response(serializer_class.data)
 
-    @action(methods=HTTPMethod.GET, detail=True)
+    @action(methods=HttpMethod.GET, detail=True)
     def retrieve(self, request, pk=None):
         advert: Advert = get_object_or_404(Advert, pk=pk)
         serializer_class = AdvertSerializer(advert)
         return Response(serializer_class.data)
 
-    @action(methods=HTTPMethod.POST, detail=True)
+    @action(methods=HttpMethod.POST, detail=True)
     def create(self, request, *args, **kwargs):
         user: Profile = get_object_or_404(Profile, user=request.user)
         serializer = AdvertSerializer(data=request.data)
@@ -50,25 +49,25 @@ class AdvertViewSet(ViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-    @action(methods=HTTPMethod.PUT, detail=True)
+    @action(methods=HttpMethod.PUT, detail=True)
     def update(self, request, pk=None):
         pass
 
-    @action(methods=HTTPMethod.PATCH, detail=True)
+    @action(methods=HttpMethod.PATCH, detail=True)
     def activate(self, request, pk=None):
         pass
 
-    @action(methods=HTTPMethod.DELETE, detail=True)
+    @action(methods=HttpMethod.DELETE, detail=True)
     def destroy(self, request, pk=None):
         pass
     
     
 advert_list = AdvertViewSet.as_view({
-    'get': 'list',
-    'post': 'create',
-    'put': 'update',
-    'patch': 'activate',
-    'delete': 'destroy',
+    HttpMethod.GET: 'list',
+    HttpMethod.POST: 'create',
+    HttpMethod.PUT: 'update',
+    HttpMethod.PATCH: 'activate',
+    HttpMethod.DELETE: 'destroy',
 })
 
 router.register(r'adverts', AdvertViewSet.as_view())
