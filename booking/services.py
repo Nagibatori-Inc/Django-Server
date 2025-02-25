@@ -76,8 +76,7 @@ class AdvertService(RestService):
         )
 
         return AdvertService(advert).ok()
-        
-    # TODO: ВСЕ объявления должны публиковаться через этот метод
+
     @staticmethod
     @transaction.atomic
     def advertise(
@@ -90,6 +89,8 @@ class AdvertService(RestService):
     ):
         """
         Метод реализации логики подачи объявления (Публикация объявления)
+
+        # TODO: ВСЕ объявления должны публиковаться через этот метод
 
         :param title (str) Название объявления
         :param description (str) Текст объявления
@@ -156,6 +157,8 @@ class PromotionService(RestService):
     def promote():
         """
         Метод, реализующий логику подключения 'продвижения' полученному (переданному) объявлению
+
+        # TODO: Аналогично, любое продвижение объявления должно создаваться только этим методом
 
         :return:
         """
