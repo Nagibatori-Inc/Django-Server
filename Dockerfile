@@ -14,6 +14,8 @@ COPY ./requirements.txt /app
 RUN pip3 install -r requirements.txt --no-cache-dir
 COPY . /app
 
+RUN chmod +x ./entrypoint.sh
+ENTRYPOINT ["./entrypoint.sh"]
+
 EXPOSE 8080
-ENTRYPOINT ["python"]
-CMD ["manage.py", "runserver", "0.0.0.0:8080"]
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8080"]
