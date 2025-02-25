@@ -57,13 +57,13 @@ class AdvertViewSet(ViewSet):
 
     @action(methods=[HttpMethod.PATCH], detail=True)
     def activate(self, request, pk=None):
-        user: Profile = get_object_or_404(Profile, user=request.user)
+        profile: Profile = get_object_or_404(Profile, user=request.user)
 
         return (
             AdvertService
             .find(
                 advert_pk=pk,
-                user_profile=user,
+                user_profile=profile,
             )
             .activate()
             .ok()
