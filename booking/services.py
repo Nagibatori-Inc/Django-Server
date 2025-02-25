@@ -24,8 +24,8 @@ class AdvertService(RestService):
         + advert(): Возвращает объект текущего объявления над которым производятся операции
     """
     
-    def __init__(self, advert: Advert, response: Response = None):
-        super().__init__(response)
+    def __init__(self, advert: Advert, response: Response = None, should_commit: bool = True):
+        super().__init__(response, should_commit)
         self.__advert = advert
 
     @property
