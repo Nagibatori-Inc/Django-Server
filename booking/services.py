@@ -22,8 +22,6 @@ class AdvertService(RestService):
 
     Properties:
         + advert(): Возвращает объект текущего объявления над которым производятся операции
-        + response(): Возвращает объект ответа
-        + response(response): Сеттер для поля `response`
     """
     
     def __init__(self, advert: Advert, response: Response = None):
