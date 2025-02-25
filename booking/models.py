@@ -73,7 +73,7 @@ class Advert(models.Model):
         Promotion,
         on_delete=models.CASCADE,
         related_name='advert',
-        verbose_name='Объявление',
+        verbose_name='Продвижение',
         null=True,
     )
     
