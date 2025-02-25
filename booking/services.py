@@ -4,7 +4,7 @@ from django.db import transaction
 
 from DjangoServer.service import RestService
 from authentication.models import Profile
-from booking.models import Advert, AdvertStatus
+from booking.models import Advert, AdvertStatus, Promotion
 
 
 class AdvertService(RestService):
@@ -123,3 +123,40 @@ class AdvertService(RestService):
             self.response = Response(status=status.HTTP_201_CREATED)
 
         return self
+
+
+class PromotionService(RestService):
+    """
+    Класс, реализующий бизнес логику работы с моделью продвижения объявления
+
+    Fields:
+        + promotion (Promotion): Продвижение
+
+    Methods:
+        + boost(): Повысить уровень продвижения объявления
+        + promote(): Продвинуть объявление
+    """
+
+    def __init__(self, promotion: Promotion, response: Response = None, should_commit: bool = True):
+        super().__init__(response, should_commit)
+        self.__promotion = promotion
+
+    @property
+    def promotion(self):
+        return self.__promotion
+
+    @promotion.setter
+    def promotion(self, promotion: Promotion):
+        self.__promotion = promotion
+
+    def boost(self):
+        return self
+
+    @staticmethod
+    def promote():
+        """
+        Метод, реализующий логику подключения 'продвижения' полученному (переданному) объявлению
+
+        :return:
+        """
+        pass
