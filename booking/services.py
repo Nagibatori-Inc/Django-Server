@@ -122,4 +122,4 @@ class AdvertService(RestService):
         if self.response is None and self.advert:
             self.response = Response(status=status.HTTP_201_CREATED)
 
-        return self._finalize_response()
+        return self
