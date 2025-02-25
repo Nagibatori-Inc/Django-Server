@@ -160,11 +160,9 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Используется SMSAero https://smsaero.ru/
 
 SMSAERO_EMAIL = config("SMSAERO_EMAIL", default="johndoe@email.com")
-SMSAERO_API_KEY = config("SMSAERO_API_KEY", default="stub")
+SMSAERO_API_KEY = config("SMSAERO_API_KEY", default=None)
 
-SMS_SERVICE = "stub"
-if SMSAERO_API_KEY != "stub":
-    SMS_SERVICE = smsaero.SmsAero(email=SMSAERO_EMAIL, api_key=SMSAERO_API_KEY)
+SMS_MODE = config("SMS_MODE", default="debug")
 
 
 # Время действия одноразового кода (OTP) в минутах
