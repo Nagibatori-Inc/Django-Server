@@ -45,7 +45,7 @@ class AdvertService(RestService):
         return self
         
     @transaction.atomic
-    def change(self, changed_data: dict) -> None: # changed_data пока имеет тип dict, в дальнейшем будет объектом валидационной схемы
+    def change(self, changed_data: dict): # changed_data пока имеет тип dict, в дальнейшем будет объектом валидационной схемы
         advert: Advert = self.advert
         
         advert.title = changed_data['title']
@@ -56,11 +56,13 @@ class AdvertService(RestService):
         advert.activated_at = changed_data['activated_at']
         
         advert.save()
+        return self
         
     @transaction.atomic
-    def remove(self) -> None:
+    def remove(self):
         advert: Advert = self.advert
         advert.delete()
+        return self
 
     @staticmethod
     def find(advert_pk: int, user_profile: Profile):
