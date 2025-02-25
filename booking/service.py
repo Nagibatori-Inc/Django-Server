@@ -1,5 +1,6 @@
 from rest_framework.response import Response
 from rest_framework import status
+from django.db import transaction
 
 from authentication.models import Profile
 from booking.models import Advert, AdvertStatus
@@ -30,14 +31,17 @@ class AdvertService:
         self.__advert = advert
         self.__response = response
         
+    @transaction.atomic
     def activate(self) -> None:
         self.advert.status = AdvertStatus.ACTIVE
         self.advert.save()
         
+    @transaction.atomic
     def deactivate(self) -> None:
         self.advert.status = AdvertStatus.DISABLED
         self.advert.save()
         
+    @transaction.atomic
     def change(self, changed_data: dict) -> None: # changed_data пока имеет тип dict, в дальнейшем будет объектом валидационной схемы
         advert: Advert = self.advert
         
@@ -50,6 +54,7 @@ class AdvertService:
         
         advert.save()
         
+    @transaction.atomic
     def remove(self) -> None:
         advert: Advert = self.advert
         advert.delete()
@@ -110,6 +115,7 @@ class AdvertService:
         
     # TODO: ВСЕ объявления должны публиковаться через этот метод
     @staticmethod
+    @transaction.atomic
     def advertise(
         title: str,
         description: str,
