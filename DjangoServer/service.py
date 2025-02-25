@@ -1,3 +1,4 @@
+from django.db import transaction
 from rest_framework import status
 from rest_framework.response import Response
 
@@ -27,8 +28,9 @@ class RestService:
         + response(response): Сеттер для поля `response`
     """
 
-    def __init__(self, response: Response = None):
+    def __init__(self, response: Response = None, should_commit: bool = True):
         self.__response = response
+        self.__should_commit = should_commit
 
     @property
     def response(self):
@@ -37,6 +39,31 @@ class RestService:
     @response.setter
     def response(self, response: Response):
         self.__response = response
+
+    @property
+    def should_commit(self):
+        return self.__should_commit
+
+    @should_commit.setter
+    def should_commit(self, should_commit: bool):
+        self.__should_commit = should_commit
+
+    def _finalize_transaction(self):
+        """
+        Финализируем транзакцию: коммитим, если всё хорошо, иначе откатываем.
+        """
+        if self.response.status_code in [status.HTTP_200_OK, status.HTTP_201_CREATED]:
+            self.should_commit = True
+        else:
+            self.should_commit = False
+            self.response = Response(status=status.HTTP_400_BAD_REQUEST)
+
+        if self.should_commit:
+            transaction.set_autocommit(True)
+        else:
+            transaction.rollback()
+
+        return self.response
 
     def ok(self):
         """
@@ -74,9 +101,9 @@ class RestService:
         """
         Если кто-то пытается вызвать метод/поле, которого нет,
         но у нас есть self.response, значит, разработчик забыл вызвать or_else_send().
-        Автоматически возвращаем self.response.
+        Автоматически возвращаем `response` и завершаем транзакцию.
         """
         if self.response:
-            return self.response  # Автоматически возвращаем Response
+            return self._finalize_transaction()
 
         raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
