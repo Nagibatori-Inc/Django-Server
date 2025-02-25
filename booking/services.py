@@ -72,10 +72,7 @@ class AdvertService(RestService):
             )
         )
 
-        return AdvertService(
-            advert,
-            response=Response(status=status.HTTP_200_OK)
-        )
+        return AdvertService(advert).ok()
         
     # TODO: ВСЕ объявления должны публиковаться через этот метод
     @staticmethod
