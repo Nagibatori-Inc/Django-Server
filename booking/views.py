@@ -17,19 +17,18 @@ router = DefaultRouter()
 
 
 class AdvertViewSet(ViewSet):
-    @action(methods=HttpMethod.GET, detail=True)
+    queryset = Advert.objects.all()
+    serializer_class = AdvertSerializer
+    
     def list(self, request):
-        queryset = Advert.objects.all()
-        serializer_class = AdvertSerializer(queryset, many=True)
-        return Response(serializer_class.data)
+        serializer = AdvertSerializer(self.queryset, many=True)
+        return Response(serializer.data)
 
-    @action(methods=HttpMethod.GET, detail=True)
     def retrieve(self, request, pk=None):
         advert: Advert = get_object_or_404(Advert, pk=pk)
-        serializer_class = AdvertSerializer(advert)
-        return Response(serializer_class.data)
+        serializer = AdvertSerializer(advert)
+        return Response(serializer.data)
 
-    @action(methods=HttpMethod.POST, detail=True)
     def create(self, request, *args, **kwargs):
         user: Profile = get_object_or_404(Profile, user=request.user)
         serializer = AdvertSerializer(data=request.data)
@@ -49,15 +48,13 @@ class AdvertViewSet(ViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-    @action(methods=HttpMethod.PUT, detail=True)
     def update(self, request, pk=None):
         pass
 
-    @action(methods=HttpMethod.PATCH, detail=True)
+    @action(methods=[HttpMethod.PATCH], detail=True)
     def activate(self, request, pk=None):
         pass
 
-    @action(methods=HttpMethod.DELETE, detail=True)
     def destroy(self, request, pk=None):
         pass
     
@@ -70,4 +67,4 @@ advert_list = AdvertViewSet.as_view({
     HttpMethod.DELETE: 'destroy',
 })
 
-router.register(r'adverts', AdvertViewSet.as_view())
+router.register(r'adverts', AdvertViewSet)
