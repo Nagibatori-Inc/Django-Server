@@ -48,12 +48,18 @@ class AdvertViewSet(ViewSet):
         logger.debug(
             'user got profile',
             user=request.user,
-            data=serializer.data,
             profile=profile
         )
 
         if serializer.is_valid():
             data = serializer.validated_data
+
+            logger.debug(
+                'got data from user',
+                user=request.user,
+                data=data,
+            )
+
             return (
                 AdvertService
                 .advertise(**data, contact=profile)
