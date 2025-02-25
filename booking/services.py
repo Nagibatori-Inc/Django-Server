@@ -70,6 +70,7 @@ class AdvertService(RestService):
                 id=advert_pk,
                 contact=user_profile
             )
+            .first()
         )
 
         return AdvertService(advert).ok()
