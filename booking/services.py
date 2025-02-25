@@ -27,16 +27,30 @@ class AdvertService(RestService):
     def __init__(self, advert: Advert, response: Response = None):
         super().__init__(response)
         self.__advert = advert
+
+    @property
+    def advert(self):
+        return self.__advert
+
+    @property
+    def response(self):
+        return self.__response
+
+    @response.setter
+    def response(self, response: Response):
+        self.__response = response
         
     @transaction.atomic
-    def activate(self) -> None:
+    def activate(self):
         self.advert.status = AdvertStatus.ACTIVE
         self.advert.save()
+        return self
         
     @transaction.atomic
-    def deactivate(self) -> None:
+    def deactivate(self):
         self.advert.status = AdvertStatus.DISABLED
         self.advert.save()
+        return self
         
     @transaction.atomic
     def change(self, changed_data: dict) -> None: # changed_data пока имеет тип dict, в дальнейшем будет объектом валидационной схемы
@@ -56,16 +70,20 @@ class AdvertService(RestService):
         advert: Advert = self.advert
         advert.delete()
 
-    def created(self):
-        """
-        Если объявление создано, возвращает `201 CREATED`
+    @staticmethod
+    def find(advert_pk: int, user_profile: Profile):
+        advert: Advert = (
+            Advert.objects
+            .filter(
+                id=advert_pk,
+                contact=user_profile
+            )
+        )
 
-        :return: Response | AdvertService
-        """
-        if self.response is None and self.advert:
-            self.response = Response(status=status.HTTP_201_CREATED)
-
-        return self.__finalize_response()
+        return AdvertService(
+            advert,
+            response=Response(status=status.HTTP_200_OK)
+        )
         
     # TODO: ВСЕ объявления должны публиковаться через этот метод
     @staticmethod
@@ -102,16 +120,15 @@ class AdvertService(RestService):
                 promotion=promotion,
             )
         )
-        
-    @property
-    def advert(self):
-        return self.__advert
 
-    @property
-    def response(self):
-        return self.__response
+    def created(self):
+        """
+        Если объявление создано, возвращает `201 CREATED`
 
-    @response.setter
-    def response(self, response: Response):
-        self.__response = response
+        :return: Response | AdvertService
+        """
+        if self.response is None and self.advert:
+            self.response = Response(status=status.HTTP_201_CREATED)
+
+        return self.__finalize_response()
     
