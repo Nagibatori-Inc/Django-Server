@@ -1,17 +1,15 @@
-from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.routers import DefaultRouter
-from rest_framework.views import APIView
 from rest_framework.viewsets import ViewSet
 
+from DjangoServer.utils import HttpMethod
 from authentication.models import Profile
 from booking.models import Advert
 from booking.serializers import AdvertSerializer
 from booking.services import AdvertService
-from DjangoServer.utils import HttpMethod
 
 router = DefaultRouter()
 
@@ -56,7 +54,33 @@ class AdvertViewSet(ViewSet):
 
     @action(methods=[HttpMethod.PATCH], detail=True)
     def activate(self, request, pk=None):
-        pass
+        user: Profile = get_object_or_404(Profile, user=request.user)
+
+        return (
+            AdvertService
+            .find(
+                advert_pk=pk,
+                user_profile=user,
+            )
+            .activate()
+            .ok()
+            .or_else_send(status.HTTP_422_UNPROCESSABLE_ENTITY)
+        )
+
+    @action(methods=[HttpMethod.PATCH], detail=True)
+    def deactivate(self, request, pk=None):
+        user: Profile = get_object_or_404(Profile, user=request.user)
+
+        return (
+            AdvertService
+            .find(
+                advert_pk=pk,
+                user_profile=user,
+            )
+            .deactivate()
+            .ok()
+            .or_else_send(status.HTTP_422_UNPROCESSABLE_ENTITY)
+        )
 
     def destroy(self, request, pk=None):
         pass
