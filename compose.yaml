@@ -16,7 +16,7 @@ x-app-variables: &app-variables
 
   DJANGO_SUPERUSER_USERNAME: admin
   DJANGO_SUPERUSER_EMAIL: admin@example.com
-  DJANGO_SUPERUSER_PASSWORD: 123ядаун
+  DJANGO_SUPERUSER_PASSWORD: strongpassword
 
   REST_API_BASE: api/
 services:
