@@ -54,10 +54,21 @@ class AdvertViewSet(ViewSet):
     def update(self, request, pk=None):
         pass
 
-    @action(methods=HTTPMethod.PUT, detail=True)
+    @action(methods=HTTPMethod.PATCH, detail=True)
     def activate(self, request, pk=None):
         pass
 
     @action(methods=HTTPMethod.DELETE, detail=True)
     def destroy(self, request, pk=None):
         pass
+    
+    
+advert_list = AdvertViewSet.as_view({
+    'get': 'list',
+    'post': 'create',
+    'put': 'update',
+    'patch': 'activate',
+    'delete': 'destroy',
+})
+
+router.register(r'adverts', AdvertViewSet.as_view())
