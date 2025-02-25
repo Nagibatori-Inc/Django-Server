@@ -154,6 +154,11 @@ class PromotionService(RestService):
         return self
 
     @staticmethod
+    def find(promotion_pk: int, advert: Advert, user_profile: Profile):
+        pass
+
+    @staticmethod
+    @transaction.atomic
     def promote():
         """
         Метод, реализующий логику подключения 'продвижения' полученному (переданному) объявлению
