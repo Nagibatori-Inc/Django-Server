@@ -64,7 +64,7 @@ class AdvertViewSet(ViewSet):
                 AdvertService
                 .advertise(**data, contact=profile)
                 .created()
-                .or_else_send(status.HTTP_422_UNPROCESSABLE_ENTITY)
+                .or_else_422()
             )
 
         else:
@@ -88,7 +88,7 @@ class AdvertViewSet(ViewSet):
             )
             .activate()
             .ok()
-            .or_else_send(status.HTTP_422_UNPROCESSABLE_ENTITY)
+            .or_else_422()
         )
 
     @action(methods=[HttpMethod.PATCH], detail=True)
@@ -103,7 +103,7 @@ class AdvertViewSet(ViewSet):
             )
             .deactivate()
             .ok()
-            .or_else_send(status.HTTP_422_UNPROCESSABLE_ENTITY)
+            .or_else_422()
         )
 
     def destroy(self, request, pk=None):

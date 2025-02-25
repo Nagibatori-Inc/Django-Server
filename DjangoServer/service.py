@@ -71,7 +71,7 @@ class RestService:
 
         :return: Response | RestService
         """
-        if (self.response is None) or (not self.response.status_code != status.HTTP_200_OK):
+        if self.response is None:
             self.response = Response(status=status.HTTP_200_OK)
 
         return self
@@ -85,6 +85,21 @@ class RestService:
         :return: Response | RestService
         """
         return self.response or Response(status=status_code)
+
+    def or_else_400(self):
+        return self.or_else_send(status.HTTP_400_BAD_REQUEST)
+
+    def or_else_401(self):
+        return self.or_else_send(status.HTTP_401_UNAUTHORIZED)
+
+    def or_else_403(self):
+        return self.or_else_send(status.HTTP_403_FORBIDDEN)
+
+    def or_else_404(self):
+        return self.or_else_send(status.HTTP_404_NOT_FOUND)
+
+    def or_else_422(self):
+        return self.or_else_send(status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     def respond_or_else_send(self, response: callable, status_code):
         """
