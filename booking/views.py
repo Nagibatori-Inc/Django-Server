@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import status
+from rest_framework.authentication import BasicAuthentication
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.routers import DefaultRouter
@@ -15,6 +16,8 @@ router = DefaultRouter()
 
 
 class AdvertViewSet(ViewSet):
+    authentication_classes = BasicAuthentication
+
     queryset = Advert.objects.all()
     serializer_class = AdvertSerializer
     
