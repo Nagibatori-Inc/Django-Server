@@ -26,12 +26,12 @@ class AdvertViewSet(ViewSet):
 
     def retrieve(self, request, pk=None):
         advert: Advert = get_object_or_404(Advert, pk=pk)
-        serializer = AdvertSerializer(advert)
+        serializer = self.serializer_class(advert)
         return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
         user: Profile = get_object_or_404(Profile, user=request.user)
-        serializer = AdvertSerializer(data=request.data)
+        serializer = self.serializer_class(data=request.data)
 
         if serializer.is_valid():
             data = serializer.validated_data
@@ -45,7 +45,7 @@ class AdvertViewSet(ViewSet):
         else:
             return Response(
                 serializer.errors,
-                status=status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_422_UNPROCESSABLE_ENTITY
             )
 
     def update(self, request, pk=None):
