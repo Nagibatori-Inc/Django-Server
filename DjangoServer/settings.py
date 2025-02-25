@@ -47,15 +47,18 @@ ALLOWED_HOSTS = [
 # Application definition
 
 INSTALLED_APPS = [
-    "authentication",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+
     "rest_framework",
-    "knox"
+    "knox",
+
+    'booking.apps.BookingConfig',
+    'authentication.apps.AuthenticationConfig',
 ]
 
 MIDDLEWARE = [
@@ -86,7 +89,6 @@ TEMPLATES = [
         },
     },
 ]
-
 
 WSGI_APPLICATION = "DjangoServer.wsgi.application"
 

@@ -1,12 +1,18 @@
-FROM --platform=$BUILDPLATFORM python:3.7-alpine AS builder
+FROM python:3.9.15-slim-buster AS builder
 
-RUN apk add --no-cache postgresql-dev gcc musl-dev python3-dev
+RUN apt-get update && apt-get upgrade -y \
+  && apt-get install --no-install-recommends -y \
+    git \
+    bash \
+    curl \
+    build-essential \
+    libpq-dev
 
 WORKDIR /app
 
-COPY ../requirements.txt /app
+COPY ./requirements.txt /app
 RUN pip3 install -r requirements.txt --no-cache-dir
-COPY .. /app
+COPY . /app
 
 EXPOSE 8080
 ENTRYPOINT ["python"]

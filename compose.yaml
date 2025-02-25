@@ -13,6 +13,11 @@ x-app-variables: &app-variables
   POSTGRES_DB: booking_platform
   POSTGRES_USER: admin
   POSTGRES_PASSWORD: adminpassword
+
+  DJANGO_SUPERUSER_USERNAME: admin
+  DJANGO_SUPERUSER_EMAIL: admin@example.com
+  DJANGO_SUPERUSER_PASSWORD: 123ядаун
+
   REST_API_BASE: api/
 services:
   db:
@@ -22,8 +27,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ${VEHICLE_BOARD_DB_VOL_PATH:-/opt/volumes/vehicle_board/data}:/var/lib/postgresql/data
-    profiles: [db, backend]
+      - ${VEHICLE_BOARD_DB_VOL_PATH:-./.postgres_data/volumes/vehicle_board/data}:/var/lib/postgresql/data
 
   pgadmin:
     image: dpage/pgadmin4:latest
@@ -33,16 +37,14 @@ services:
       - "5050:80"
     depends_on:
       - db
-    profiles: [db]
 
   app:
     container_name: vehicle_board_api
     build:
       context: .
-      dockerfile: ./Dockerfile
+      dockerfile: Dockerfile
     environment: *app-variables
     ports:
       - "8000:8080"
     depends_on:
       - db
-    profiles: [backend]

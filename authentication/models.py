@@ -22,10 +22,10 @@ class Profile(models.Model):
     + is_deleted: Поле soft delete'a, выставляется на True в случае удаления со стороны пользователя
     """
 
-    PROFILE_TYPE_CHOICES = {
-        "IND": "Частное лицо",
-        "CMP": "Компания"
-    }
+    PROFILE_TYPE_CHOICES = (
+        ("IND", "Частное лицо"),
+        ("CMP", "Компания")
+    )
 
     name = models.CharField(max_length=50, null=True, verbose_name="Имя профиля")
     user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name="profile",
