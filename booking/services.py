@@ -84,6 +84,10 @@ class AdvertService(RestService):
         return AdvertService(advert).ok()
 
     @staticmethod
+    def ranked_list(filters):
+        pass
+
+    @staticmethod
     @transaction.atomic
     @handle_service_exceptions
     def advertise(
