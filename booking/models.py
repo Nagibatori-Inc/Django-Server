@@ -82,7 +82,6 @@ class Advert(models.Model):
         verbose_name='Создано'
     )
     activated_at = models.DateTimeField(
-        auto_now=True, # поле auto_now задает значение datetime.now() когда у объект модели вызывает метод save()
         verbose_name='Активировано',
         null=True
     )

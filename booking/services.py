@@ -42,6 +42,7 @@ class AdvertService(RestService):
     @transaction.atomic
     def activate(self):
         self.advert.status = AdvertStatus.ACTIVE
+        self.advert.activated_at = datetime.now()
         self.advert.save()
         return self
         
