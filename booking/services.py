@@ -188,12 +188,20 @@ class PromotionService(RestService):
             )
             
         else:
-            self.response = Response(
-                { "err_msg": "Не указано объявление или пользователь" },
-                status=status.HTTP_404_NOT_FOUND
+            return PromotionService(
+                Promotion(),
+                response=Response(
+                    { "err_msg": "Не указано объявление или пользователь" },
+                    status=status.HTTP_404_NOT_FOUND
+                ),
             )
             
-        return PromotionService(promotion).ok()
+        return (
+            PromotionService(
+                promotion
+            )
+            .ok()
+        )
 
     @staticmethod
     @transaction.atomic
