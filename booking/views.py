@@ -27,15 +27,9 @@ class AdvertViewSet(ViewSet):
         serializer = self.serializer_class(self.queryset, many=True)
         return Response(serializer.data)
 
-    @action(detail=False, methods=[HttpMethod.GET], url_path='?title={title}&price={price}&promotion={promotion}')
-    def filter(self, request, title=None, price=None, promotion=None):
-        serializer = SearchFilterSerializer(
-            {
-                'title': title,
-                'price': price,
-                'promotion': promotion
-            }
-        )
+    @action(detail=False, methods=[HttpMethod.GET])
+    def filter(self, request):
+        serializer = SearchFilterSerializer(data=request.query_params)
 
         if serializer.is_valid():
             data = serializer.validated_data
