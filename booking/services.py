@@ -222,7 +222,13 @@ class PromotionService(RestService):
     @staticmethod
     @transaction.atomic
     @handle_service_exceptions
-    def promote():
+    def promote(
+            type: str,
+            rate: int,
+            advert: Advert = None,
+            advert_pk: int = None,
+            user_profile: Profile = None,
+    ):
         """
         Метод, реализующий логику подключения 'продвижения' полученному (переданному) объявлению
 
@@ -230,4 +236,44 @@ class PromotionService(RestService):
 
         :return:
         """
-        pass
+        promotion: Promotion
+
+        if advert:
+            promotion = Promotion.objects.create(
+                type=type,
+                rate=rate,
+                advert=advert,
+            )
+
+        elif user_profile and advert_pk:
+            promotion = Promotion.objects.create(
+                type=type,
+                rate=rate,
+                advert=AdvertService.find(
+                    advert_pk,
+                    user_profile
+                ),
+            )
+
+        else:
+            return PromotionService(
+                Promotion(),
+                response=Response(
+                    {"err_msg": "Не указано объявление или пользователь"},
+                    status=status.HTTP_404_NOT_FOUND
+                ),
+            )
+
+        return PromotionService(promotion)
+
+    def created(self):
+        """
+        Если продвижение объявления успешно создано, возвращает `201 CREATED`
+
+        :return: Response | PromotionService
+        """
+        if self.response is None and self.promotion:
+            self.response = Response(status=status.HTTP_201_CREATED)
+
+        return self
+
