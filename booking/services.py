@@ -175,7 +175,10 @@ class PromotionService(RestService):
                     advert=(
                         AdvertService
                         .find(
-                            advert_pk,
+                            Promotion.objects
+                            .get(id=promotion_pk)
+                            .advert
+                            .id,
                             user_profile
                         )
                         .advert
