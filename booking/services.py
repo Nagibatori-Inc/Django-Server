@@ -6,6 +6,7 @@ from DjangoServer.decorators import handle_service_exceptions
 from DjangoServer.service import RestService
 from authentication.models import Profile
 from booking.models import Advert, AdvertStatus, Promotion
+from booking.serializers import SearchFilterSerializer
 
 
 class AdvertService(RestService):
@@ -86,7 +87,7 @@ class AdvertService(RestService):
         return AdvertService(advert).ok()
 
     @staticmethod
-    def ranked_list(filters):
+    def ranked_list(filters: SearchFilterSerializer):
         pass
 
     @staticmethod
