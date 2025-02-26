@@ -51,6 +51,7 @@ class AdvertService(RestService):
     @handle_service_exceptions
     def deactivate(self):
         self.advert.status = AdvertStatus.DISABLED
+        self.advert.activated_at = None
         self.advert.save()
         return self
         
