@@ -75,6 +75,13 @@ class AdvertService(RestService):
     @staticmethod
     @handle_service_exceptions
     def find(advert_pk: int, user_profile: Profile):
+        """
+        Метод, поиска объявления по его идентификатору (первичному ключу) и профилю юзера, подавшего объявление
+
+        :param advert_pk (int) Идентификатор объявления-претендента к продвижению.
+        :param user_profile (Profile) Профиль юзера, которому принадлежит объявление
+        :return: AdvertService
+        """
         advert: Advert = (
             Advert.objects
             .filter(
@@ -113,8 +120,7 @@ class AdvertService(RestService):
         :param phone (str) Контакты - телефон
         :param promotion (str, optional) Данные о продвижении объявления. Может быть None
 
-        Returns:
-            AdvertService: объект сервисной логики работы с объявлениями
+        :returns: AdvertService
         """
         advert: Advert = Advert.objects.create(
             title=title,
@@ -134,7 +140,7 @@ class AdvertService(RestService):
         """
         Если объявление создано, возвращает `201 CREATED`
 
-        :return: Response | AdvertService
+        :return: AdvertService
         """
         if self.response is None and self.advert:
             self.response = Response(status=status.HTTP_201_CREATED)
@@ -174,6 +180,14 @@ class PromotionService(RestService):
     @staticmethod
     @handle_service_exceptions
     def find(promotion_pk: int, advert: Advert = None, user_profile: Profile = None):
+        """
+        Метод, поиска объявления по его идентификатору (первичному ключу) и профилю юзера, подавшего объявление
+
+        :param promotion_pk (int) Идентификатор объекта продвижения
+        :param advert (Advert) Объект модели объявления. Может быть None
+        :param user_profile (Profile) Профиль юзера, которому принадлежит объявление. Может быть None
+        :return: PromotionService
+        """
         promotion: Promotion
         
         if advert:
@@ -235,9 +249,15 @@ class PromotionService(RestService):
         """
         Метод, реализующий логику подключения 'продвижения' полученному (переданному) объявлению
 
+        :param type (str) Тип продвижения
+        :param rate (int) Уровень продвижения
+        :param advert (Advert) Объект модели объявления. Может быть None
+        :param advert_pk (int) Идентификатор объявления-претендента к продвижению. Может быть None
+        :param user_profile (Profile) Профиль юзера, которому принадлежит объявление. Может быть None
+
         TODO: Аналогично, любое продвижение объявления должно создаваться только этим методом
 
-        :return:
+        :return: PromotionService
         """
         promotion: Promotion
 
@@ -273,7 +293,7 @@ class PromotionService(RestService):
         """
         Если продвижение объявления успешно создано, возвращает `201 CREATED`
 
-        :return: Response | PromotionService
+        :return: PromotionService
         """
         if self.response is None and self.promotion:
             self.response = Response(status=status.HTTP_201_CREATED)
