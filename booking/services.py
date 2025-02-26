@@ -6,7 +6,7 @@ from DjangoServer.decorators import handle_service_exceptions
 from DjangoServer.service import RestService
 from authentication.models import Profile
 from booking.models import Advert, AdvertStatus, Promotion
-from booking.serializers import SearchFilterSerializer
+from booking.serializers import SearchFilterSerializer, AdvertSerializer
 
 
 class AdvertService(RestService):
@@ -52,15 +52,22 @@ class AdvertService(RestService):
         
     @transaction.atomic
     @handle_service_exceptions
-    def change(self, changed_data: dict): # changed_data пока имеет тип dict, в дальнейшем будет объектом валидационной схемы
+    def change(self, changed_data: AdvertSerializer):
+        """
+        Метод, поиска объявления по его идентификатору (первичному ключу) и профилю юзера, подавшего объявление
+
+        :param changed_data (AdvertSerializer) Сериализованные данные объявления
+        :return: AdvertService
+        """
         advert: Advert = self.advert
+        validated_data = changed_data.validated_data
         
-        advert.title = changed_data['title']
-        advert.description = changed_data['description']
-        advert.price = changed_data['price']
-        advert.phone = changed_data['phone']
-        advert.promotion = changed_data['promotion']
-        advert.activated_at = changed_data['activated_at']
+        advert.title = validated_data.get('title')
+        advert.description = validated_data.get('description')
+        advert.price = validated_data.get('price')
+        advert.phone = validated_data.get('phone')
+        advert.promotion = validated_data.get('promotion')
+        advert.activated_at = validated_data.get('activated_at')
         
         advert.save()
         return self
@@ -100,41 +107,27 @@ class AdvertService(RestService):
     @staticmethod
     @transaction.atomic
     @handle_service_exceptions
-    def advertise(
-        title: str,
-        description: str,
-        price: float,
-        contact: Profile,
-        phone: str,
-        promotion: str = None,
-    ):
+    def advertise(advert_serialized_data: AdvertSerializer, contact: Profile):
         """
         Метод реализации логики подачи объявления (Публикация объявления)
 
         TODO: ВСЕ объявления должны публиковаться через этот метод
 
-        :param title (str) Название объявления
-        :param description (str) Текст объявления
-        :param price (float) Стоимость услуги
+        :param advert_serialized_data (AdvertSerializer) Сериализованные данные объявления
         :param contact (Profile) Контакты - контактное лицо
-        :param phone (str) Контакты - телефон
-        :param promotion (str, optional) Данные о продвижении объявления. Может быть None
-
         :returns: AdvertService
         """
-        advert: Advert = Advert.objects.create(
-            title=title,
-            description=description,
-            price=price,
-            contact=contact,
-            phone=phone,
-            promotion=promotion,
-        )
+        validated_data = advert_serialized_data.validated_data
 
-        if promotion is None:
-            PromotionService
-        
-        return AdvertService(advert)
+        return AdvertService(
+            Advert.objects.create(
+                title=validated_data.get('title'),
+                description=validated_data.get('description'),
+                price=validated_data.get('price'),
+                phone=validated_data.get('phone'),
+                contact=contact,
+            )
+        )
 
     def created(self):
         """
@@ -249,14 +242,13 @@ class PromotionService(RestService):
         """
         Метод, реализующий логику подключения 'продвижения' полученному (переданному) объявлению
 
+        TODO: Аналогично, любое продвижение объявления должно создаваться только этим методом
+
         :param type (str) Тип продвижения
         :param rate (int) Уровень продвижения
         :param advert (Advert) Объект модели объявления. Может быть None
         :param advert_pk (int) Идентификатор объявления-претендента к продвижению. Может быть None
         :param user_profile (Profile) Профиль юзера, которому принадлежит объявление. Может быть None
-
-        TODO: Аналогично, любое продвижение объявления должно создаваться только этим методом
-
         :return: PromotionService
         """
         promotion: Promotion
