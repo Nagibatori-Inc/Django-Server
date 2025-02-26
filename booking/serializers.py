@@ -20,7 +20,6 @@ class AdvertSerializer(serializers.ModelSerializer):
 
 
 class SearchFilterSerializer(serializers.ModelSerializer):
-    promotion = PromotionSerializer(required=False, read_only=True)
     class Meta:
         model = Advert
-        fields = ['title', 'price', 'promotion']
+        fields = ['title', 'price']
