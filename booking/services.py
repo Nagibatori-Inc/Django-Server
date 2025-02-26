@@ -154,8 +154,43 @@ class PromotionService(RestService):
         return self
 
     @staticmethod
-    def find(promotion_pk: int, advert: Advert, user_profile: Profile):
-        pass
+    def find(promotion_pk: int, advert: Advert = None, user_profile: Profile = None):
+        promotion: Promotion
+        
+        if advert:
+            promotion = (
+                Promotion.objects
+               .filter(
+                    id=promotion_pk,
+                    advert=advert,
+                )
+               .first()
+            )
+        
+        elif user_profile:
+            promotion = (
+                Promotion.objects
+               .filter(
+                    id=promotion_pk,
+                    advert=(
+                        AdvertService
+                        .find(
+                            advert_pk,
+                            user_profile
+                        )
+                        .advert
+                    )
+                )
+               .first()
+            )
+            
+        else:
+            self.response = Response(
+                { "err_msg": "Не указано объявление или пользователь" },
+                status=status.HTTP_404_NOT_FOUND
+            )
+            
+        return PromotionService(promotion).ok()
 
     @staticmethod
     @transaction.atomic
