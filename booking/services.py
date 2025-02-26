@@ -116,17 +116,19 @@ class AdvertService(RestService):
         Returns:
             AdvertService: объект сервисной логики работы с объявлениями
         """
-        
-        return AdvertService(
-            Advert.objects.create(
-                title=title,
-                description=description,
-                price=price,
-                contact=contact,
-                phone=phone,
-                promotion=promotion,
-            )
+        advert: Advert = Advert.objects.create(
+            title=title,
+            description=description,
+            price=price,
+            contact=contact,
+            phone=phone,
+            promotion=promotion,
         )
+
+        if promotion is None:
+            PromotionService
+        
+        return AdvertService(advert)
 
     def created(self):
         """
