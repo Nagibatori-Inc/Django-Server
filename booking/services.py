@@ -107,7 +107,8 @@ class AdvertService(RestService):
             Advert.objects
             .filter(
                 title__icontains=valid_data['title'],
-                price=valid_data['price']
+                price=valid_data['price'],
+                status=AdvertStatus.ACTIVE
             )
             .annotate(
                 promotion_rate=Coalesce(
