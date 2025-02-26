@@ -1,4 +1,9 @@
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import (
+    ObjectDoesNotExist,
+    EmptyResultSet,
+    FieldDoesNotExist,
+    FieldError, PermissionDenied
+)
 from rest_framework import status
 from rest_framework.response import Response
 
@@ -25,7 +30,7 @@ def handle_404(service, method, *args, **kwargs):
     try:
         return method(*args, **kwargs)
 
-    except ObjectDoesNotExist as e:
+    except ObjectDoesNotExist or EmptyResultSet as e:
         service.response = Response(
             {'err_msg': str(e)},
             status=status.HTTP_404_NOT_FOUND
@@ -39,10 +44,22 @@ def handle_service_exceptions(method):
         try:
             return method(*args, **kwargs)
 
-        except ObjectDoesNotExist as e:
+        except ObjectDoesNotExist or EmptyResultSet as e:
             self.response = Response(
                 {'err_msg': str(e)},
                 status=status.HTTP_404_NOT_FOUND
+            )
+
+        except FieldDoesNotExist or FieldError or ValueError as e:
+            self.response = Response(
+                {'err_msg': str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        except PermissionDenied as e:
+            self.response = Response(
+                {'err_msg': str(e)},
+                status=status.HTTP_403_FORBIDDEN
             )
 
         return self
