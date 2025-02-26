@@ -66,7 +66,8 @@ class Advert(models.Model):
         on_delete=models.CASCADE,
         related_name='adverts',
         verbose_name='Контактное лицо',
-        default=None
+        default=None,
+        blank=True,
     )
     phone = models.CharField(max_length=12, verbose_name='Телефон')
     promotion = models.OneToOneField(
@@ -75,6 +76,7 @@ class Advert(models.Model):
         related_name='advert',
         verbose_name='Продвижение',
         null=True,
+        blank=True
     )
     
     created_at = models.DateTimeField(
@@ -83,7 +85,8 @@ class Advert(models.Model):
     )
     activated_at = models.DateTimeField(
         verbose_name='Активировано',
-        null=True
+        null=True,
+        blank=True
     )
     status = models.CharField(
         max_length=16,
