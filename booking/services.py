@@ -109,23 +109,22 @@ class AdvertService(RestService):
         valid_data = filters.validated_data
         queryset = (
             Advert.objects
-            .annotate(
+            .filter(
                 title__icontains=valid_data['title'],
-                price=valid_data['price'],
+                price=valid_data['price']
+            )
+            .annotate(
                 promotion_rate=Coalesce(
                     Subquery(
                         Promotion.objects
-                        .filter(
-                            advert=OuterRef('pk')
-                        )
+                        .filter(advert=OuterRef('pk'))
                         .values('rate')[:1],
                         output_field=IntegerField()
                     ),
                     Value(0)
                 )
             )
-            .order_by('-created_at')
-            .order_by('-promotion_rate')
+            .order_by('-promotion_rate', '-created_at')
         )
 
         return queryset
