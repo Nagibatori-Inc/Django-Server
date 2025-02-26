@@ -10,7 +10,7 @@ import structlog
 from DjangoServer.utils import HttpMethod
 from authentication.models import Profile
 from booking.models import Advert
-from booking.serializers import AdvertSerializer
+from booking.serializers import AdvertSerializer, SearchFilterSerializer
 from booking.services import AdvertService
 
 logger = structlog.get_logger(__name__)
@@ -24,8 +24,22 @@ class AdvertViewSet(ViewSet):
     serializer_class = AdvertSerializer
     
     def list(self, request):
-        serializer = AdvertSerializer(self.queryset, many=True)
+        serializer = self.serializer_class(self.queryset, many=True)
         return Response(serializer.data)
+
+    @action(detail=False, methods=[HttpMethod.GET], url_path='?title={title}&price={price}&promotion={promotion}')
+    def filter(self, request, title=None, price=None, promotion=None):
+        serializer = SearchFilterSerializer(
+            {
+                'title': title,
+                'price': price,
+                'promotion': promotion
+            },
+            many=True
+        )
+
+        if serializer.is_valid():
+            pass
 
     def retrieve(self, request, pk=None):
         advert: Advert = get_object_or_404(Advert, pk=pk)
