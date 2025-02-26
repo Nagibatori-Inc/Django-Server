@@ -47,6 +47,22 @@ class AdvertViewSet(ViewSet):
                 adverts=filtered_adverts,
             )
 
+            serialized_queryset = self.serializer_class(
+                filtered_adverts,
+                many=True
+            )
+
+            return Response(
+                data=serialized_queryset.data,
+                status=status.HTTP_200_OK
+            )
+
+        else:
+            return Response(
+                serializer.errors,
+                status=status.HTTP_422_UNPROCESSABLE_ENTITY
+            )
+
 
     def retrieve(self, request, pk=None):
         advert: Advert = get_object_or_404(Advert, pk=pk)
