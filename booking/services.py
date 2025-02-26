@@ -19,6 +19,8 @@ class AdvertService(RestService):
         + activate: Активирует объявление
         + deactivate: Деактивирует объявление
         + change: изменение объявления (например, изменение описания)
+        + find():
+        + ranked_list():
         + advertise: Публикация объявления
 
     Properties:
@@ -146,6 +148,7 @@ class PromotionService(RestService):
 
     Methods:
         + boost(): Повысить уровень продвижения объявления
+        + find():
         + promote(): Продвинуть объявление
     """
 
