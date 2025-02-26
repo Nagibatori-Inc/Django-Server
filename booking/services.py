@@ -101,6 +101,16 @@ class AdvertService(RestService):
         return AdvertService(advert).ok()
 
     @staticmethod
+    def list():
+        queryset = (
+            Advert.objects
+            .filter(status=AdvertStatus.ACTIVE)
+            .values()
+        )
+
+        return queryset
+
+    @staticmethod
     def ranked_list(filters: SearchFilterSerializer):
         valid_data = filters.validated_data
         queryset = (
