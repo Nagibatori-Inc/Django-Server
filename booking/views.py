@@ -76,7 +76,7 @@ class AdvertViewSet(ViewSet):
 
             return (
                 AdvertService
-                .advertise(**data, contact=profile)
+                .advertise(serializer, contact=profile)
                 .created()
                 .or_else_422()
             )
