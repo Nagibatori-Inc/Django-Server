@@ -8,6 +8,9 @@ RUN apt-get update && apt-get upgrade -y \
     build-essential \
     libpq-dev
 
+RUN git config --global user.email "you@example.com" &&  \
+    git config --global user.name "Your Name"
+
 WORKDIR /app
 
 COPY ./requirements.txt /app
