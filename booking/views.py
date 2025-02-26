@@ -34,12 +34,25 @@ class AdvertViewSet(ViewSet):
                 'title': title,
                 'price': price,
                 'promotion': promotion
-            },
-            many=True
+            }
         )
 
         if serializer.is_valid():
-            pass
+            data = serializer.validated_data
+
+            logger.debug(
+                'got query params from user`s request',
+                user=request.user,
+                params=data,
+            )
+
+            filtered_adverts = AdvertService.ranked_list(serializer)
+
+            logger.debug(
+                'result ranked adverts',
+                adverts=filtered_adverts,
+            )
+
 
     def retrieve(self, request, pk=None):
         advert: Advert = get_object_or_404(Advert, pk=pk)
