@@ -1,3 +1,5 @@
+from functools import wraps
+
 from django.core.exceptions import (
     ObjectDoesNotExist,
     EmptyResultSet,
@@ -40,29 +42,36 @@ def handle_404(service, method, *args, **kwargs):
 
 
 def handle_service_exceptions(method):
-    def wrapper(self, *args, **kwargs):
+    """
+    Декоратор для обработки исключений внутри сервисных методов.
+    """
+    @wraps(method)
+    def wrapper(*args, **kwargs):
+        print(
+            f'method: {method}, args: {args}, kwargs: {kwargs}'
+        )
         try:
             return method(*args, **kwargs)
 
-        except ObjectDoesNotExist or EmptyResultSet as e:
-            self.response = Response(
+        except (ObjectDoesNotExist, EmptyResultSet) as e:
+            response = Response(
                 {'err_msg': str(e)},
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        except FieldDoesNotExist or FieldError or ValueError as e:
-            self.response = Response(
+        except (FieldDoesNotExist, FieldError, ValueError, TypeError) as e:
+            response = Response(
                 {'err_msg': str(e)},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
         except PermissionDenied as e:
-            self.response = Response(
+            response = Response(
                 {'err_msg': str(e)},
                 status=status.HTTP_403_FORBIDDEN
             )
 
-        return self
+        return {}
 
     return wrapper
 

@@ -1,12 +1,11 @@
 from datetime import datetime
 
+from django.db import transaction
 from django.db.models import Subquery, IntegerField, Value, OuterRef
 from django.db.models.functions import Coalesce
-from rest_framework.response import Response
 from rest_framework import status
-from django.db import transaction
+from rest_framework.response import Response
 
-from DjangoServer.decorators import handle_service_exceptions
 from DjangoServer.service import RestService
 from authentication.models import Profile
 from booking.models import Advert, AdvertStatus, Promotion
@@ -41,14 +40,12 @@ class AdvertService(RestService):
         return self.__advert
         
     @transaction.atomic
-    @handle_service_exceptions
     def activate(self):
         self.advert.status = AdvertStatus.ACTIVE
         self.advert.save()
         return self
         
     @transaction.atomic
-    @handle_service_exceptions
     def deactivate(self):
         self.advert.status = AdvertStatus.DISABLED
         self.advert.activated_at = None
@@ -56,7 +53,6 @@ class AdvertService(RestService):
         return self
         
     @transaction.atomic
-    @handle_service_exceptions
     def change(self, changed_data: AdvertSerializer):
         """
         Метод, поиска объявления по его идентификатору (первичному ключу) и профилю юзера, подавшего объявление
@@ -78,14 +74,12 @@ class AdvertService(RestService):
         return self
         
     @transaction.atomic
-    @handle_service_exceptions
     def remove(self):
         advert: Advert = self.advert
         advert.delete()
         return self
 
     @staticmethod
-    @handle_service_exceptions
     def find(advert_pk: int, user_profile: Profile):
         """
         Метод, поиска объявления по его идентификатору (первичному ключу) и профилю юзера, подавшего объявление
@@ -133,7 +127,6 @@ class AdvertService(RestService):
 
     @staticmethod
     @transaction.atomic
-    @handle_service_exceptions
     def advertise(advert_serialized_data: AdvertSerializer, contact: Profile):
         """
         Метод реализации логики подачи объявления (Публикация объявления)
@@ -198,12 +191,10 @@ class PromotionService(RestService):
     def promotion(self, promotion: Promotion):
         self.__promotion = promotion
 
-    @handle_service_exceptions
     def boost(self):
         return self
 
     @staticmethod
-    @handle_service_exceptions
     def find(promotion_pk: int, advert: Advert = None, user_profile: Profile = None):
         """
         Метод, поиска объявления по его идентификатору (первичному ключу) и профилю юзера, подавшего объявление
@@ -263,7 +254,6 @@ class PromotionService(RestService):
 
     @staticmethod
     @transaction.atomic
-    @handle_service_exceptions
     def promote(
             type: str,
             rate: int,
