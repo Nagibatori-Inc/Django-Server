@@ -125,6 +125,7 @@ class AdvertService(RestService):
                 )
             )
             .order_by('-promotion_rate', '-created_at')
+            .values()
         )
 
         return queryset
