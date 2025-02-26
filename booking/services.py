@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from rest_framework.response import Response
 from rest_framework import status
 from django.db import transaction
@@ -119,12 +121,17 @@ class AdvertService(RestService):
         """
         validated_data = advert_serialized_data.validated_data
 
+        if validated_data.get('status') == AdvertStatus.ACTIVE:
+            validated_data['activated_at'] = datetime.now()
+
         return AdvertService(
             Advert.objects.create(
                 title=validated_data.get('title'),
                 description=validated_data.get('description'),
                 price=validated_data.get('price'),
                 phone=validated_data.get('phone'),
+                status=validated_data.get('status', AdvertStatus.DISABLED),
+                activated_at=validated_data.get('activated_at', None),
                 contact=contact,
             )
         )
