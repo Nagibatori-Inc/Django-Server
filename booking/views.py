@@ -9,7 +9,7 @@ import structlog
 
 from DjangoServer.utils import HttpMethod
 from authentication.models import Profile
-from booking.models import Advert
+from booking.models import Advert, AdvertStatus
 from booking.serializers import AdvertSerializer, SearchFilterSerializer
 from booking.services import AdvertService
 
@@ -20,11 +20,13 @@ router = DefaultRouter()
 class AdvertViewSet(ViewSet):
     authentication_classes = (BasicAuthentication, )
 
-    queryset = Advert.objects.all()
     serializer_class = AdvertSerializer
     
     def list(self, request):
-        serializer = self.serializer_class(self.queryset, many=True)
+        serializer = self.serializer_class(
+            AdvertService.list(),
+            many=True
+        )
         return Response(serializer.data)
 
     @action(detail=False, methods=[HttpMethod.GET])
@@ -62,7 +64,6 @@ class AdvertViewSet(ViewSet):
                 serializer.errors,
                 status=status.HTTP_422_UNPROCESSABLE_ENTITY
             )
-
 
     def retrieve(self, request, pk=None):
         advert: Advert = get_object_or_404(Advert, pk=pk)
