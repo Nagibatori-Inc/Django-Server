@@ -14,9 +14,10 @@ class AdvertSerializer(serializers.ModelSerializer):
     promotion = PromotionSerializer(required=False, read_only=True)
     status = serializers.CharField(required=False)
     activated_at = serializers.DateTimeField(required=False)
+    created_at = serializers.DateTimeField(required=False)
     class Meta:
         model = Advert
-        fields = ['title', 'description', 'price', 'phone', 'promotion', 'status', 'activated_at']
+        fields = '__all__'
 
 
 class SearchFilterSerializer(serializers.ModelSerializer):
