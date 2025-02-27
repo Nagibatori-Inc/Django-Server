@@ -21,7 +21,7 @@ class Promotion(models.Model):
     PROMOTION_STATUS_CHOICES = (
         (PromotionStatus.ACTIVE, 'Активно'),
         (PromotionStatus.DISABLED, 'Отключено'),
-    ),
+    )
 
     type = models.CharField(max_length=50)
     rate = models.IntegerField(default=0)
