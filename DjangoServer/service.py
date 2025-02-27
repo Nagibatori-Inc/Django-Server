@@ -1,5 +1,6 @@
 from django.db import transaction
 from rest_framework import status
+from rest_framework import serializers
 from rest_framework.response import Response
 
 
@@ -16,6 +17,7 @@ class RestService:
 
     Methods:
         + _finalize_transaction(): Приватный метод для коммита транзакции в базу данных
+        + serialize(serializer):
         + ok(): Если действия с объявлениями прошли успешно, возвращает `200 OK`, иначе продолжает цепочку
         + or_else_send(status_code): Продолжает цепочку создания ответа от АПИ. Возвращает полученный `status_code`,
         если в цепочке не создались требуемые ответы
@@ -67,6 +69,9 @@ class RestService:
             transaction.rollback()
 
         return self.response
+
+    def serialize(self, serializer: serializers.ModelSerializer):
+        pass
 
     def ok(self):
         """
