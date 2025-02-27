@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Type
 
+import structlog
 from django.db import transaction
 from django.db.models import Subquery, IntegerField, Value, OuterRef, QuerySet
 from django.db.models.functions import Coalesce
@@ -11,6 +12,8 @@ from DjangoServer.service import RestService
 from authentication.models import Profile
 from booking.models import Advert, AdvertStatus, Promotion
 from booking.serializers import SearchFilterSerializer, AdvertSerializer
+
+logger = structlog.get_logger(__name__)
 
 ADVERT_NOT_FOUND = Response(
     { 'err_msg': 'Объявление не найдено' },
@@ -101,6 +104,12 @@ class AdvertService(RestService):
             many=False
         )
         self.ok(serialized_advert)
+
+        logger.debug(
+            'serialized advert data',
+            data=serialized_advert
+        )
+
         return self
 
     @staticmethod
@@ -210,6 +219,12 @@ class AdvertsRecommendationService(RestService):
             many=True
         )
         self.ok(serialized_queryset)
+
+        logger.debug(
+            'serialized adverts queryset',
+            data=serialized_queryset
+        )
+
         return self
 
     @staticmethod
