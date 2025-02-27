@@ -20,6 +20,7 @@ router = DefaultRouter()
 class AdvertViewSet(ViewSet):
     authentication_classes = (BasicAuthentication, )
 
+    queryset = Advert.objects.all()
     serializer_class = AdvertSerializer
     
     def list(self, request):
