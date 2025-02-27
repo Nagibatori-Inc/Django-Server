@@ -103,11 +103,11 @@ class AdvertService(RestService):
             self.advert,
             many=False
         )
-        self.ok(serialized_advert)
+        self.ok(serialized_advert.data)
 
         logger.debug(
             'serialized advert data',
-            data=serialized_advert
+            data=serialized_advert.data
         )
 
         return self
@@ -218,11 +218,11 @@ class AdvertsRecommendationService(RestService):
             self.adverts.values(),
             many=True
         )
-        self.ok(serialized_queryset)
+        self.ok(serialized_queryset.data)
 
         logger.debug(
             'serialized adverts queryset',
-            data=serialized_queryset,
+            data=serialized_queryset.data,
             response=self.response
         )
 
