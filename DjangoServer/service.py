@@ -75,9 +75,9 @@ class RestService:
 
     def ok(self):
         """
-        Если действия с объявлениями прошли успешно, возвращает `200 OK`, иначе продолжает цепочку
+        Если действия с объектами сервиса прошли успешно, возвращает `200 OK`, иначе продолжает цепочку
 
-        :return: Response | RestService
+        :return: RestService
         """
         if self.response is None:
             self.response = Response(status=status.HTTP_200_OK)
