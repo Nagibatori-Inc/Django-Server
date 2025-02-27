@@ -1,10 +1,10 @@
 from datetime import datetime
-from typing import List, Tuple, Union
+from typing import Type
 
 from django.db import transaction
-from django.db.models import Subquery, IntegerField, Value, OuterRef
+from django.db.models import Subquery, IntegerField, Value, OuterRef, QuerySet
 from django.db.models.functions import Coalesce
-from rest_framework import status
+from rest_framework import status, serializers
 from rest_framework.response import Response
 
 from DjangoServer.service import RestService
@@ -115,43 +115,6 @@ class AdvertService(RestService):
         return AdvertService(advert).ok()
 
     @staticmethod
-    def list():
-        queryset = (
-            Advert.objects
-            .filter(status=AdvertStatus.ACTIVE)
-            .values()
-        )
-
-        return queryset
-
-    @staticmethod
-    def ranked_list(filters: SearchFilterSerializer):
-        valid_data = filters.validated_data
-        queryset = (
-            Advert.objects
-            .filter(
-                title__icontains=valid_data['title'],
-                price=valid_data['price'],
-                status=AdvertStatus.ACTIVE
-            )
-            .annotate(
-                promotion_rate=Coalesce(
-                    Subquery(
-                        Promotion.objects
-                        .filter(advert=OuterRef('pk'))
-                        .values('rate')[:1],
-                        output_field=IntegerField()
-                    ),
-                    Value(0)
-                )
-            )
-            .order_by('-promotion_rate', '-created_at')
-            .values()
-        )
-
-        return queryset
-
-    @staticmethod
     @transaction.atomic
     def advertise(advert_serialized_data: AdvertSerializer, contact: Profile):
         """
@@ -206,7 +169,7 @@ class AdvertService(RestService):
 class AdvertsRecommendationService(RestService):
     def __init__(
             self,
-            adverts: Union[Tuple[Advert], List[Advert]] = None,
+            adverts: QuerySet[Advert] = None,
             response: Response = None,
             should_commit: bool = True
     ):
@@ -230,6 +193,52 @@ class AdvertsRecommendationService(RestService):
             return AdvertService(advert).ok()
 
         return AdvertService().not_found()
+
+    @transaction.atomic
+    def serialize(self, serializer: Type[AdvertSerializer]):
+        serialized_queryset = serializer(
+            self.adverts,
+            many=True
+        )
+        self.ok(serialized_queryset)
+        return self
+
+    @staticmethod
+    @transaction.atomic
+    def list():
+        queryset = (
+            Advert.objects
+            .filter(status=AdvertStatus.ACTIVE)
+        )
+
+        return AdvertsRecommendationService(queryset).ok()
+
+    @staticmethod
+    @transaction.atomic
+    def ranked_list(filters: SearchFilterSerializer):
+        valid_data = filters.validated_data
+        queryset = (
+            Advert.objects
+            .filter(
+                title__icontains=valid_data['title'],
+                price=valid_data['price'],
+                status=AdvertStatus.ACTIVE
+            )
+            .annotate(
+                promotion_rate=Coalesce(
+                    Subquery(
+                        Promotion.objects
+                        .filter(advert=OuterRef('pk'))
+                        .values('rate')[:1],
+                        output_field=IntegerField()
+                    ),
+                    Value(0)
+                )
+            )
+            .order_by('-promotion_rate', '-created_at')
+        )
+
+        return AdvertsRecommendationService(queryset).ok()
 
 
 class PromotionService(RestService):
