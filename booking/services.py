@@ -10,7 +10,7 @@ from rest_framework.response import Response
 
 from DjangoServer.service import RestService
 from authentication.models import Profile
-from booking.models import Advert, AdvertStatus, Promotion
+from booking.models import Advert, AdvertStatus, Promotion, Boost
 from booking.serializers import SearchFilterSerializer, AdvertSerializer
 
 logger = structlog.get_logger(__name__)
@@ -291,7 +291,16 @@ class PromotionService(RestService):
     def promotion(self, promotion: Promotion):
         self.__promotion = promotion
 
-    def boost(self):
+    @transaction.atomic
+    def boost(self, how_to_boost: Boost):
+        promotion: Promotion = self.promotion
+        promotion = how_to_boost.boost(promotion=promotion)
+        promotion.save()
+        return self
+        
+    @transaction.atomic
+    def disable(self):
+        promotion: Promotion = self.promotion
         return self
 
     @staticmethod
