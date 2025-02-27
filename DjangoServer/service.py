@@ -1,3 +1,5 @@
+from typing import Type
+
 from django.db import transaction
 from rest_framework import status
 from rest_framework import serializers
@@ -70,17 +72,24 @@ class RestService:
 
         return self.response
 
-    def serialize(self, serializer: serializers.ModelSerializer):
+    def serialize(self, serializer: Type[serializers.ModelSerializer]):
         pass
 
-    def ok(self):
+    def ok(self, body=None):
         """
         Если действия с объектами сервиса прошли успешно, возвращает `200 OK`, иначе продолжает цепочку
 
         :return: RestService
         """
         if self.response is None:
-            self.response = Response(status=status.HTTP_200_OK)
+            if body:
+                self.response = Response(
+                    data=body,
+                    status=status.HTTP_200_OK
+                )
+
+            else:
+                self.response = Response(status=status.HTTP_200_OK)
 
         return self
 
