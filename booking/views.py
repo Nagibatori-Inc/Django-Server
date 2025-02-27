@@ -11,7 +11,7 @@ from DjangoServer.utils import HttpMethod
 from authentication.models import Profile
 from booking.models import Advert, AdvertStatus
 from booking.serializers import AdvertSerializer, SearchFilterSerializer
-from booking.services import AdvertService
+from booking.services import AdvertService, AdvertsRecommendationService
 
 logger = structlog.get_logger(__name__)
 router = DefaultRouter()
@@ -23,11 +23,13 @@ class AdvertViewSet(ViewSet):
     serializer_class = AdvertSerializer
     
     def list(self, request):
-        serializer = self.serializer_class(
-            AdvertService.list(),
-            many=True
+        return (
+            AdvertsRecommendationService
+            .list()
+            .serialize(self.serializer_class)
+            .ok()
+            .or_else_400()
         )
-        return Response(serializer.data)
 
     @action(detail=False, methods=[HttpMethod.GET])
     def filter(self, request):
@@ -42,21 +44,12 @@ class AdvertViewSet(ViewSet):
                 params=data,
             )
 
-            filtered_adverts = AdvertService.ranked_list(serializer)
-
-            logger.debug(
-                'result ranked adverts',
-                adverts=filtered_adverts,
-            )
-
-            serialized_queryset = self.serializer_class(
-                filtered_adverts,
-                many=True
-            )
-
-            return Response(
-                data=serialized_queryset.data,
-                status=status.HTTP_200_OK
+            return (
+                AdvertsRecommendationService
+                .ranked_list(serializer)
+                .serialize(self.serializer_class)
+                .ok()
+                .or_else_400()
             )
 
         else:
@@ -66,11 +59,16 @@ class AdvertViewSet(ViewSet):
             )
 
     def retrieve(self, request, pk=None):
-        advert: Advert = get_object_or_404(Advert, pk=pk)
-        serializer = self.serializer_class(advert)
-        return Response(
-            serializer.data,
-            status=status.HTTP_200_OK,
+        profile: Profile = get_object_or_404(Profile, user=request.user)
+        return (
+            AdvertService
+            .find(
+                advert_pk=pk,
+                user_profile=profile,
+            )
+            .serialize(self.serializer_class)
+            .ok()
+            .or_else_422()
         )
 
     def create(self, request, *args, **kwargs):
