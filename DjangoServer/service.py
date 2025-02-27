@@ -85,6 +85,7 @@ class RestService:
         :return: RestService
         """
         logger.info(
+            'in ok()',
             response=self.response,
             body=body
         )
