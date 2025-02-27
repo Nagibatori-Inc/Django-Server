@@ -1,3 +1,5 @@
+from typing import Dict
+
 from django.db import models
 
 from authentication.models import Profile
@@ -21,6 +23,42 @@ class Promotion(models.Model):
 
     def __str__(self):
         return self.type
+    
+    
+class BoostType:
+    INCREASE = 'increase'
+    SET_ANOTHER = 'set_another'
+
+    
+class Boost:
+    """
+    Буста продвижения конкретного объявления
+
+    Fields:
+        + boost_type (BoostType): Тип буста
+    """
+    def __init__(self, boost_type: BoostType, another: Dict[str, int] = None):
+        self._validate()
+        self.boost_type = boost_type
+        self.another = another
+        
+    def _validate(self):
+        if self.another:
+            if len(self.another) != 1:
+                raise ValueError('dictionary should have exactly have one pair of promotion`s type & rate')
+        
+    def increase(self, promotion: Promotion):
+        promotion.rate += 1
+        
+    def set_another(self, promotion: Promotion):
+        promotion.type = another.keys()[0]
+        promotion.rate = another.values()[0]    
+    
+    def boost(self, promotion: Promotion):
+        if self.boost_type == BoostType.INCREASE:
+            self.increase(promotion)
+        elif self.boost_type == BoostType.SET_ANOTHER:
+            self.set_another(promotion)
 
 
 class AdvertStatus:
