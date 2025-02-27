@@ -1,89 +1,111 @@
-from django.contrib.auth import get_user_model
-from django.http import Http404
-from knox.views import LoginView as KnowLoginView
+from django.contrib.auth.models import User
+from knox.views import LoginView as KnoxLoginView
 from rest_framework import status
+from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.viewsets import ViewSet
 
-from authentication.custom_auth import CustomBasicAuthentication
+from DjangoServer.settings import SMS_MODE, SMSAERO_API_KEY, SMSAERO_EMAIL
+from authentication.misc.custom_auth import CustomBasicAuthentication
 from authentication.models import Profile
 from authentication.permissions import IsProfileOwnerOrReadOnly
-from authentication.serializers import ProfileSerializer, SignUpRequestSerializer, VerificationRequestSerializer
-from authentication.services import VerificationService, SmsRegistrationService
+from authentication.serializers import ProfileSerializer, SignUpRequestSerializer, VerificationRequestSerializer, \
+    PhonePasswordResetInitSerializer
+from authentication.services.profile import ProfileManagerService
+from authentication.services.sms import SmsAeroService
+from authentication.services.token_auth import SmsVerificationService
 from authentication.utils import make_phone_uniform
 
-# TODO set explicit permissions
+sms_service = None
+if SMS_MODE == "production":
+    sms_service = SmsAeroService(api_key=SMSAERO_API_KEY, email=SMSAERO_EMAIL)
 
 
-class OTPVerificationView(APIView):
+class ProfileVerificationView(APIView):
     def post(self, request, *args, **kwargs):
         serializer = VerificationRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         phone = make_phone_uniform(serializer.validated_data.get("phone"))
         otp = serializer.validated_data.get("otp_code")
-        user = get_user_model().objects.get(username=phone)
+        user = get_object_or_404(User, username=phone)
 
-        VerificationService.verify(user, otp)
+        SmsVerificationService(user).verify_otp(otp)
+        ProfileManagerService(user.profile).verify()
 
         return Response("verified successfully", status=status.HTTP_200_OK)
 
 
-class LoginView(KnowLoginView):
+class LoginView(KnoxLoginView):
     authentication_classes = [CustomBasicAuthentication]
 
 
-class SignUpView(APIView):
-    def post(self, request, *args, **kwargs):
+class EmailResetPasswordInitView(APIView):
+    def post(self, request):
+        pass
+
+
+class PhoneResetPasswordInitView(APIView):
+    def post(self, request):
+        serializer = PhonePasswordResetInitSerializer(request.data)
+        serializer.is_valid(raise_exception=True)
+
+        phone = make_phone_uniform(serializer.validated_data.get("phone"))
+        user = get_object_or_404(User, username=phone)
+
+        SmsVerificationService(user, sms_service).send_otp()
+
+        return Response("Verification code sent", status=status.HTTP_200_OK)
+
+
+class ResetPasswordConfirmView(APIView)
+    def post(self, request):
+        pass
+
+class ResetPasswordDoneView(APIView):
+    def post(self, request):
+        pass
+
+
+class ProfileViewSet(ViewSet):
+    permission_classes = [IsProfileOwnerOrReadOnly]
+
+    def create(self, request):
         serializer = SignUpRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        profile, auth_token = SmsRegistrationService().register(serializer.validated_data)
+        auth_token, profile = ProfileManagerService.create(**serializer.validated_data)
+        SmsVerificationService(profile.user, sms_service).send_otp()
 
         return Response({
             "profile": ProfileSerializer(profile).data,
-            "token": auth_token
+            "token": auth_token[1]
         }, status=status.HTTP_201_CREATED)
 
+    def retrieve(self, request, pk=None):
+        profile = get_object_or_404(Profile, pk=pk)
+        return Response(ProfileSerializer(profile).data, status=status.HTTP_200_OK)
 
-class ProfileView(APIView):
-    permission_classes = [IsProfileOwnerOrReadOnly]
-
-    def get_profile(self, pk):
-        try:
-            profile = Profile.objects.get(pk=pk)
-        except Profile.DoesNotExist as ex:
-            raise Http404
-
-        return profile
-
-    def get(self, request, *args, **kwargs):
-        profile_id = kwargs["pk"]
-        profile = self.get_profile(profile_id)
-
-        return Response(ProfileSerializer(profile).data, status.HTTP_200_OK)
-
-    def put(self, request, *args, **kwargs):
-        profile_id = kwargs["pk"]
-        profile = self.get_profile(pk=profile_id)
+    def update(self, request, pk=None):
+        profile = get_object_or_404(Profile, pk=pk)
         self.check_object_permissions(request, profile)
 
-        new_profile_data = request.data
-        if not new_profile_data:
-            return Response({"err_msg": "no data was sent"}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = ProfileSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
 
-        updated_profile = ProfileSerializer(profile, data=new_profile_data)
-        updated_profile.is_valid(raise_exception=True)
-        updated_profile.save()
+        ProfileManagerService(profile).update(**serializer.validated_data)
 
-        return Response(updated_profile.data, status=status.HTTP_200_OK)
+        return Response({
+            "profile": ProfileSerializer(profile).data
+        }, status=status.HTTP_200_OK)
 
-    def delete(self, request, *args, **kwargs):
-        profile_id = kwargs["pk"]
-        profile = self.get_profile(profile_id)
+    def destroy(self, request, pk=None):
+        profile = get_object_or_404(Profile, pk=pk)
         self.check_object_permissions(request, profile)
-        # TODO set user to inactive as well
-        profile.is_deleted = True
-        profile.save()
+
+        ProfileManagerService(profile).soft_delete()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+

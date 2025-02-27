@@ -2,8 +2,8 @@ import datetime
 import secrets
 import string
 
+from django.contrib.auth.models import User
 from django.utils import timezone
-from django.conf import settings
 from django.db import models
 from django.contrib.auth.hashers import make_password as hash_value
 
@@ -28,7 +28,7 @@ class Profile(models.Model):
     }
 
     name = models.CharField(max_length=50, null=True, verbose_name="Имя профиля")
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name="profile",
+    user = models.OneToOneField(User, related_name="profile",
                                 on_delete=models.CASCADE, verbose_name="Пользователь")
     type = models.CharField(max_length=3, choices=PROFILE_TYPE_CHOICES, default="IND", verbose_name="Тип профиля")
     is_deleted = models.BooleanField(default=False, verbose_name="Удален")
@@ -51,10 +51,10 @@ class OneTimePassword(models.Model):
     Properties:
     + has_expired(): Проверка истекла ли валидность кода
     """
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="otps",
+    user = models.ForeignKey(User, related_name="otps",
                              on_delete=models.CASCADE, verbose_name="Пользователь")
     code = models.CharField(max_length=128, default="", verbose_name="Одноразовый код (хэш)")
-    creation_date = models.DateTimeField(default=datetime.datetime.now, verbose_name="Время создания")
+    creation_date = models.DateTimeField(auto_now=True, verbose_name="Время создания")
 
     def save(self, *args, **kwargs) -> str:
         otp = ""
