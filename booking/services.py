@@ -26,7 +26,6 @@ class AdvertService(RestService):
         + find():
         + ranked_list():
         + advertise: Публикация объявления
-        - serialize():
 
     Properties:
         + advert(): Возвращает объект текущего объявления над которым производятся операции
