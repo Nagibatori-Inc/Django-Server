@@ -94,6 +94,15 @@ class AdvertService(RestService):
         advert.delete()
         return self
 
+    @transaction.atomic
+    def serialize(self, serializer: Type[AdvertSerializer]):
+        serialized_advert = serializer(
+            self.advert,
+            many=False
+        )
+        self.ok(serialized_advert)
+        return self
+
     @staticmethod
     def find(advert_pk: int, user_profile: Profile):
         """
