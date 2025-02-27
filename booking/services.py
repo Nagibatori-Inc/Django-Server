@@ -10,7 +10,7 @@ from rest_framework.response import Response
 
 from DjangoServer.service import RestService
 from authentication.models import Profile
-from booking.models import Advert, AdvertStatus, Promotion, Boost
+from booking.models import Advert, AdvertStatus, Promotion, Boost, PromotionStatus
 from booking.serializers import SearchFilterSerializer, AdvertSerializer
 
 logger = structlog.get_logger(__name__)
@@ -94,6 +94,7 @@ class AdvertService(RestService):
     @transaction.atomic
     def remove(self):
         advert: Advert = self.advert
+        self.advert = None
         advert.delete()
         return self
 
@@ -301,6 +302,15 @@ class PromotionService(RestService):
     @transaction.atomic
     def disable(self):
         promotion: Promotion = self.promotion
+        promotion.status = PromotionStatus.DISABLED
+        promotion.save()
+        return self
+    
+    @transaction.atomic
+    def remove(self):
+        promotion: Promotion = self.promotion
+        self.promotion = None
+        promotion.delete()
         return self
 
     @staticmethod
