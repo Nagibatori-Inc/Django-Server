@@ -1,7 +1,6 @@
 from rest_framework import serializers
 
 from booking.models import Advert, Promotion
-from authentication.serializers import ProfileSerializer
 
 
 class PromotionSerializer(serializers.ModelSerializer):
