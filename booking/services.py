@@ -12,6 +12,15 @@ from authentication.models import Profile
 from booking.models import Advert, AdvertStatus, Promotion
 from booking.serializers import SearchFilterSerializer, AdvertSerializer
 
+ADVERT_NOT_FOUND = Response(
+    { 'err_msg': 'Объявление не найдено' },
+    status=status.HTTP_400_BAD_REQUEST,
+)
+PROMOTION_NOT_FOUND = Response(
+    { "err_msg": "Не указано объявление или пользователь" },
+    status=status.HTTP_404_NOT_FOUND
+)
+
 
 class AdvertService(RestService):
     """
@@ -32,7 +41,7 @@ class AdvertService(RestService):
         + advert(): Возвращает объект текущего объявления над которым производятся операции
     """
     
-    def __init__(self, advert: Advert, response: Response = None, should_commit: bool = True):
+    def __init__(self, advert: Advert = None, response: Response = None, should_commit: bool = True):
         super().__init__(response, should_commit)
         self.__advert = advert
 
@@ -63,6 +72,10 @@ class AdvertService(RestService):
         :return: AdvertService
         """
         advert: Advert = self.advert
+
+        if advert is None:
+            self.response = ADVERT_NOT_FOUND
+
         validated_data = changed_data.validated_data
         
         advert.title = validated_data.get('title')
@@ -185,10 +198,7 @@ class AdvertService(RestService):
         :return: RestService
         """
         if self.response is None and self.advert is None:
-            self.response = Response(
-                { 'err_msg': 'Объявление не найдено' },
-                status=status.HTTP_404_NOT_FOUND
-            )
+            self.response = ADVERT_NOT_FOUND
 
         return self
 
@@ -196,7 +206,7 @@ class AdvertService(RestService):
 class AdvertsRecommendationService(RestService):
     def __init__(
             self,
-            adverts: Union[Tuple[Advert], List[Advert]],
+            adverts: Union[Tuple[Advert], List[Advert]] = None,
             response: Response = None,
             should_commit: bool = True
     ):
@@ -219,7 +229,7 @@ class AdvertsRecommendationService(RestService):
         if advert not in self.adverts:
             return AdvertService(advert).ok()
 
-        return AdvertService(Advert()).not_found()
+        return AdvertService().not_found()
 
 
 class PromotionService(RestService):
@@ -235,7 +245,7 @@ class PromotionService(RestService):
         + promote(): Продвинуть объявление
     """
 
-    def __init__(self, promotion: Promotion, response: Response = None, should_commit: bool = True):
+    def __init__(self, promotion: Promotion = None, response: Response = None, should_commit: bool = True):
         super().__init__(response, should_commit)
         self.__promotion = promotion
 
@@ -293,13 +303,7 @@ class PromotionService(RestService):
             )
             
         else:
-            return PromotionService(
-                Promotion(),
-                response=Response(
-                    { "err_msg": "Не указано объявление или пользователь" },
-                    status=status.HTTP_404_NOT_FOUND
-                ),
-            )
+            return PromotionService().not_found()
             
         return (
             PromotionService(
@@ -349,13 +353,7 @@ class PromotionService(RestService):
             )
 
         else:
-            return PromotionService(
-                Promotion(),
-                response=Response(
-                    {"err_msg": "Не указано объявление или пользователь"},
-                    status=status.HTTP_404_NOT_FOUND
-                ),
-            )
+            return PromotionService().not_found()
 
         return PromotionService(promotion)
 
@@ -377,10 +375,7 @@ class PromotionService(RestService):
         :return: RestService
         """
         if self.response is None and self.promotion is None:
-            self.response = Response(
-                {'err_msg': 'Продвижение для объявления не найдено'},
-                status=status.HTTP_404_NOT_FOUND
-            )
+            self.response = PROMOTION_NOT_FOUND
 
         return self
 
