@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import List, Tuple, Union
 
 from django.db import transaction
 from django.db.models import Subquery, IntegerField, Value, OuterRef
@@ -177,6 +178,49 @@ class AdvertService(RestService):
 
         return self
 
+    def not_found(self):
+        """
+        Если объявления не найдены, возвращает `404 NOT FOUND`, иначе продолжает цепочку
+
+        :return: RestService
+        """
+        if self.response is None and self.advert is None:
+            self.response = Response(
+                { 'err_msg': 'Объявление не найдено' },
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        return self
+
+
+class AdvertsRecommendationService(RestService):
+    def __init__(
+            self,
+            adverts: Union[Tuple[Advert], List[Advert]],
+            response: Response = None,
+            should_commit: bool = True
+    ):
+        super().__init__(response, should_commit)
+        self.__adverts = adverts
+
+    @property
+    def adverts(self):
+        return self.__adverts
+
+    def get(self, pk: int, profile: Profile):
+        advert: Advert = (
+            AdvertService.find(
+                advert_pk=pk,
+                user_profile=profile
+            )
+            .advert
+        )
+
+        if advert not in self.adverts:
+            return AdvertService(advert).ok()
+
+        return AdvertService(Advert()).not_found()
+
 
 class PromotionService(RestService):
     """
@@ -323,6 +367,20 @@ class PromotionService(RestService):
         """
         if self.response is None and self.promotion:
             self.response = Response(status=status.HTTP_201_CREATED)
+
+        return self
+
+    def not_found(self):
+        """
+        Если продвижение не найдено, возвращает `404 NOT FOUND`, иначе продолжает цепочку
+
+        :return: RestService
+        """
+        if self.response is None and self.promotion is None:
+            self.response = Response(
+                {'err_msg': 'Продвижение для объявления не найдено'},
+                status=status.HTTP_404_NOT_FOUND
+            )
 
         return self
 
