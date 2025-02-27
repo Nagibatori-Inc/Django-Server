@@ -59,6 +59,8 @@ class Boost:
             self.increase(promotion)
         elif self.boost_type == BoostType.SET_ANOTHER:
             self.set_another(promotion)
+            
+        return promotion
 
 
 class AdvertStatus:
