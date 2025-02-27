@@ -5,6 +5,11 @@ from django.db import models
 from authentication.models import Profile
 
 
+class PromotionStatus:
+    ACTIVE = 'ACTIVE'
+    DISABLED = 'DISABLED'
+
+
 class Promotion(models.Model):
     """
     Модель продвижения объявления
@@ -13,16 +18,35 @@ class Promotion(models.Model):
         + type (CharField): Тип продвижения
         + rate (IntegerField): Уровень продвижения
     """
+    PROMOTION_STATUS_CHOICES = (
+        (PromotionStatus.ACTIVE, 'Активно'),
+        (PromotionStatus.DISABLED, 'Отключено'),
+    ),
 
     type = models.CharField(max_length=50)
     rate = models.IntegerField(default=0)
-
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Создано",
+        blank=True,
+        null=True
+    )
+    status = models.CharField(
+        max_length=16,
+        choices=PROMOTION_STATUS_CHOICES,
+        default=PromotionStatus.DISABLED,
+        verbose_name="Статус",
+    )
     class Meta:
         verbose_name = "Продвижение"
         verbose_name_plural = "Продвижения"
 
     def __str__(self):
         return self.type
+    
+    @property
+    def is_active(self) -> bool:
+        return self.status == PromotionStatus.ACTIVE
     
     
 class BoostType:
