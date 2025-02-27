@@ -84,45 +84,18 @@ class RestService:
 
         :return: RestService
         """
-        logger.info(
-            'in ok()',
-            response=self.response,
-            body=body
-        )
-
         if self.response is None:
-            logger.info(
-                'response is None',
-                response=self.response,
-                body=body
-            )
-
             if body is not None:
-                logger.info(
-                    'body is NOT None',
-                    response=self.response,
-                    body=body
-                )
-
                 self.response = Response(
                     body,
                     status=status.HTTP_200_OK
                 )
 
             else:
-                logger.info(
-                    'body is None',
-                    response=self.response,
-                    body=body
-                )
-
                 self.response = Response(status=status.HTTP_200_OK)
 
-            logger.info(
-                'response is NOT None',
-                response=self.response,
-                body=body
-            )
+        elif body is not None:
+            self.response.data = body
 
         return self
 
