@@ -215,14 +215,15 @@ class AdvertsRecommendationService(RestService):
     @transaction.atomic
     def serialize(self, serializer: Type[AdvertSerializer]):
         serialized_queryset = serializer(
-            self.adverts,
+            self.adverts.values(),
             many=True
         )
         self.ok(serialized_queryset)
 
         logger.debug(
             'serialized adverts queryset',
-            data=serialized_queryset
+            data=serialized_queryset,
+            response=self.response
         )
 
         return self
