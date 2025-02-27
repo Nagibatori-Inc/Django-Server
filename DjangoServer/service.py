@@ -1,9 +1,12 @@
 from typing import Type
 
+import structlog
 from django.db import transaction
 from rest_framework import status
 from rest_framework import serializers
 from rest_framework.response import Response
+
+logger = structlog.get_logger(__name__)
 
 
 class RestService:
@@ -81,15 +84,44 @@ class RestService:
 
         :return: RestService
         """
+        logger.info(
+            response=self.response,
+            body=body
+        )
+
         if self.response is None:
-            if body:
+            logger.info(
+                'response is None',
+                response=self.response,
+                body=body
+            )
+
+            if body is not None:
+                logger.info(
+                    'body is NOT None',
+                    response=self.response,
+                    body=body
+                )
+
                 self.response = Response(
-                    data=body,
+                    body,
                     status=status.HTTP_200_OK
                 )
 
             else:
+                logger.info(
+                    'body is None',
+                    response=self.response,
+                    body=body
+                )
+
                 self.response = Response(status=status.HTTP_200_OK)
+
+            logger.info(
+                'response is NOT None',
+                response=self.response,
+                body=body
+            )
 
         return self
 
