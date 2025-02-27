@@ -78,6 +78,7 @@ class AdvertService(RestService):
 
         if advert is None:
             self.response = ADVERT_NOT_FOUND
+            return self
 
         validated_data = changed_data.validated_data
         
