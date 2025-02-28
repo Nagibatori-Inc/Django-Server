@@ -23,42 +23,6 @@ class AdvertViewSet(ViewSet):
     queryset = Advert.objects.all()
     serializer_class = AdvertSerializer
     
-    def list(self, request):
-        return (
-            AdvertsRecommendationService
-            .list()
-            .serialize(self.serializer_class)
-            .ok()
-            .or_else_400()
-        )
-
-    @action(detail=False, methods=[HttpMethod.GET])
-    def filter(self, request):
-        serializer = SearchFilterSerializer(data=request.query_params)
-
-        if serializer.is_valid():
-            data = serializer.validated_data
-
-            logger.debug(
-                'got query params from user`s request',
-                user=request.user,
-                params=data,
-            )
-
-            return (
-                AdvertsRecommendationService
-                .ranked_list(serializer)
-                .serialize(self.serializer_class)
-                .ok()
-                .or_else_400()
-            )
-
-        else:
-            return Response(
-                serializer.errors,
-                status=status.HTTP_422_UNPROCESSABLE_ENTITY
-            )
-
     def retrieve(self, request, pk=None):
         profile: Profile = get_object_or_404(Profile, user=request.user)
         return (
@@ -177,14 +141,48 @@ class AdvertViewSet(ViewSet):
             .ok()
             .or_else_400()
         )
+        
+        
+class AdvertsRecommendationViewSet(ViewSet):
+    queryset = Advert.objects.all()
+    serializer_class = AdvertSerializer
     
-    
-advert_list = AdvertViewSet.as_view({
-    HttpMethod.GET: 'list',
-    HttpMethod.POST: 'create',
-    HttpMethod.PUT: 'update',
-    HttpMethod.PATCH: 'activate',
-    HttpMethod.DELETE: 'destroy',
-})
+    def list(self, request):
+        return (
+            AdvertsRecommendationService
+            .list()
+            .serialize(self.serializer_class)
+            .ok()
+            .or_else_400()
+        )
 
-router.register(r'adverts', AdvertViewSet)
+    @action(detail=False, methods=[HttpMethod.GET])
+    def filter(self, request):
+        serializer = SearchFilterSerializer(data=request.query_params)
+
+        if serializer.is_valid():
+            data = serializer.validated_data
+
+            logger.debug(
+                'got query params from user`s request',
+                user=request.user,
+                params=data,
+            )
+
+            return (
+                AdvertsRecommendationService
+                .ranked_list(serializer)
+                .serialize(self.serializer_class)
+                .ok()
+                .or_else_400()
+            )
+
+        else:
+            return Response(
+                serializer.errors,
+                status=status.HTTP_422_UNPROCESSABLE_ENTITY
+            )
+
+
+router.register(r'posts', AdvertViewSet)
+router.register(r'adverts', AdvertsRecommendationViewSet)
