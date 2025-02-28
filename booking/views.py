@@ -114,19 +114,15 @@ class AdvertViewSet(ViewSet):
         profile: Profile = get_object_or_404(Profile, user=request.user)
         serializer = self.serializer_class(data=request.data)
         
-        advert_service: AdvertService = (
-            AdvertService
-            .find(
-                advert_pk=pk,
-                user_profile=profile,
-            )
-        )
-        
         if serializer.is_valid():
             data = serializer.validated_data
             
             return (
-                advert_service
+                AdvertService
+                .find(
+                    advert_pk=pk,
+                    user_profile=profile,
+                )
                 .change(data)
                 .ok()
                 .or_else_422()
@@ -169,7 +165,18 @@ class AdvertViewSet(ViewSet):
         )
 
     def destroy(self, request, pk=None):
-        pass
+        user: Profile = get_object_or_404(Profile, user=request.user)
+        
+        return (
+            AdvertService
+            .find(
+                advert_pk=pk,
+                user_profile=user,
+            )
+            .delete()
+            .ok()
+            .or_else_400()
+        )
     
     
 advert_list = AdvertViewSet.as_view({
