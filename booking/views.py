@@ -111,7 +111,32 @@ class AdvertViewSet(ViewSet):
             )
 
     def update(self, request, pk=None):
-        pass
+        profile: Profile = get_object_or_404(Profile, user=request.user)
+        serializer = self.serializer_class(data=request.data)
+        
+        advert_service: AdvertService = (
+            AdvertService
+            .find(
+                advert_pk=pk,
+                user_profile=profile,
+            )
+        )
+        
+        if serializer.is_valid():
+            data = serializer.validated_data
+            
+            return (
+                advert_service
+                .change(data)
+                .ok()
+                .or_else_422()
+            )
+            
+        else:
+            return Response(
+                serializer.errors,
+                status=status.HTTP_422_UNPROCESSABLE_ENTITY
+            )
 
     @action(methods=[HttpMethod.PATCH], detail=True)
     def activate(self, request, pk=None):
