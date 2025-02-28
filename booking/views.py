@@ -23,6 +23,9 @@ class AdvertViewSet(ViewSet):
     queryset = Advert.objects.all()
     serializer_class = AdvertSerializer
     
+    def list(self, request):
+        pass
+    
     def retrieve(self, request, pk=None):
         profile: Profile = get_object_or_404(Profile, user=request.user)
         return (
