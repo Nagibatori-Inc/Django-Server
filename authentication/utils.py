@@ -4,6 +4,7 @@ from authentication.models import Profile
 
 
 def make_phone_uniform(phone: str) -> str:
+    """ Унификатор телефонного номера, приводит его к формату 71234567890"""
     if phone.startswith("+7"):
         return phone[1:]
     elif phone.startswith("+8"):
