@@ -21,11 +21,15 @@ class BaseVerificationService:
     def __init__(self, user: User):
         self.user = user
 
-    def _validate_otp(self, otp: str) -> None:
+    def _get_latest_otp(self) -> OneTimePassword:
         try:
             latest_otp = self.user.otps.latest("creation_date")
         except OneTimePassword.DoesNotExist:
             raise ValidationError(detail={"detail": "user doesn't have any codes"})
+        return latest_otp
+
+    def _validate_otp(self, otp: str) -> None:
+        latest_otp = self._get_latest_otp()
 
         if latest_otp.has_expired:
             raise ValidationError(detail={"detail": "latest otp already expired"})
@@ -55,7 +59,9 @@ class SmsVerificationService(BaseVerificationService):
     def send_otp(self, message_template: str) -> None:
         otp = self._create_otp()
         message = message_template.format(otp)
-        self.sms_service.send_message(self.user.username, message)
+        phone_number = self.user.username
+
+        self.sms_service.send_message(phone_number, message)
 
 
 class EmailVerificationService(BaseVerificationService):
