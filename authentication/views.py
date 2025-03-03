@@ -1,22 +1,17 @@
 from django.contrib.auth.models import User
 from knox.views import LoginView as KnoxLoginView
 from rest_framework import status
-from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ViewSet
-from rest_framework.exceptions import NotFound
 
-from DjangoServer.settings import SMS_MODE, SMSAERO_API_KEY, SMSAERO_EMAIL
 from authentication.misc.custom_auth import CustomBasicAuthentication
 from authentication.models import Profile
 from authentication.permissions import IsProfileOwnerOrReadOnly
 from authentication.selectors import get_profile, get_user_by_phone
-from authentication.serializers import ProfileSerializer, SignUpRequestSerializer, VerificationRequestSerializer, \
-    EmailSerializer, PhoneSerializer
+from authentication.serializers import ProfileSerializer, SignUpRequestSerializer, VerificationRequestSerializer, PhoneSerializer
 from authentication.services.profile import ProfileManagerService
-from authentication.services.sms import SmsAeroService
-from authentication.services.token_auth import SmsVerificationService, EmailVerificationService, BaseVerificationService
+from authentication.services.token_auth import SmsVerificationService
 from authentication.utils import make_phone_uniform
 
 
