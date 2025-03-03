@@ -40,9 +40,13 @@ class ProfileManagerService:
 
         phone = make_phone_uniform(phone)
 
+        # Так как делается soft-delete, для сохранения пользовательских данных (ресурс очень нужный всем и везде),
+        # нужно это учитывать, если пользователь "удалил" аккаунт, а потом решил создать новый, мы просто
+        # обновляем его устаревшие данные и активируем аккаунт снова
         try:
             user = User.objects.select_related("profile").get(username=phone)
             profile = user.profile
+            # Смотрим чтобы не обновили аккаунт активного пользователя
             if user.is_active:
                 raise ValidationError(detail={"detail": "user with that phone already exists"})
 
