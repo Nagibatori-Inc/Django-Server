@@ -6,7 +6,7 @@ from booking.models import Advert, Promotion
 class PromotionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Promotion
-        fields = '__all__'
+        fields = ['type', 'rate', 'status']
 
 
 class AdvertSerializer(serializers.ModelSerializer):
