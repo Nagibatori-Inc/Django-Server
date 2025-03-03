@@ -43,4 +43,8 @@ class SmsDebugService(BaseSmsService):
     """
 
     def send_message(self, phone: str, text: str, **kwargs) -> Dict:
-        raise NotImplementedError("Not yet implemented, need logger")
+        print(text)
+        return {
+            "status": "delivered",
+            "message": text
+        }
