@@ -2,8 +2,13 @@ from django.contrib.auth.models import User
 from rest_framework.exceptions import ValidationError
 from django.contrib.auth.hashers import check_password as compare_otps
 
+from DjangoServer.settings import SMS_MODE, SMSAERO_API_KEY, SMSAERO_EMAIL
 from authentication.models import OneTimePassword
-from authentication.services.sms import BaseSmsService
+from authentication.services.sms import BaseSmsService, SmsAeroService, SmsDebugService
+
+sms_service = SmsDebugService()
+if SMS_MODE == "production":
+    sms_service = SmsAeroService(api_key=SMSAERO_API_KEY, email=SMSAERO_EMAIL)
 
 
 class BaseVerificationService:
@@ -15,10 +20,6 @@ class BaseVerificationService:
     """
     def __init__(self, user: User):
         self.user = user
-
-    def _validate_user(self) -> None:
-        if self.user.profile.is_verified:
-            raise ValidationError(detail={"detail": "user already verified"})
 
     def _validate_otp(self, otp: str) -> None:
         try:
@@ -38,26 +39,24 @@ class BaseVerificationService:
         otp = OneTimePassword(user=self.user).save()
         return otp
 
-    def send_otp(self):
+    def send_otp(self, message_template: str) -> None:
         raise NotImplementedError("Should be implemented in children classes")
 
-    def verify_otp(self, otp: str) -> bool:
-        self._validate_user()
+    def verify_otp(self, otp: str) -> None:
         self._validate_otp(otp)
-
-        return True
 
 
 class SmsVerificationService(BaseVerificationService):
-    # Ugly, but will stay for now
-    def __init__(self, user: User, sms_service: BaseSmsService = None):
+    sms_service: BaseSmsService = sms_service
+
+    def __init__(self, user: User):
         super().__init__(user)
-        self._sms_service = sms_service
 
-    def send_otp(self):
-        if self._sms_service is None:
-            raise AttributeError("No sms_service was provided")
-
+    def send_otp(self, message_template: str) -> None:
         otp = self._create_otp()
-        self._sms_service.send_message(self.user.username, otp)
+        message = message_template.format(otp)
+        self.sms_service.send_message(self.user.username, message)
 
+
+class EmailVerificationService(BaseVerificationService):
+    pass
