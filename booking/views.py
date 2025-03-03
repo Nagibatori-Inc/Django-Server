@@ -9,8 +9,8 @@ import structlog
 
 from DjangoServer.utils import HttpMethod
 from authentication.models import Profile
-from booking.models import Advert, AdvertStatus
-from booking.serializers import AdvertSerializer, SearchFilterSerializer
+from booking.models import Advert, AdvertStatus, Promotion
+from booking.serializers import AdvertSerializer, SearchFilterSerializer, PromotionSerializer
 from booking.services import AdvertService, AdvertsRecommendationService
 
 logger = structlog.get_logger(__name__)
@@ -185,6 +185,31 @@ class AdvertsRecommendationViewSet(ViewSet):
                 serializer.errors,
                 status=status.HTTP_422_UNPROCESSABLE_ENTITY
             )
+            
+            
+class PromotionViewSet(ViewSet):
+    authentication_classes = (BasicAuthentication, )
+    
+    queryset = Promotion.objects.all()
+    serializer_class = PromotionSerializer
+    
+    def list(self, request):
+        pass
+    
+    def retrieve(self, request, pk=None):
+        pass
+    
+    def create(self, request, *args, **kwargs):
+        pass
+    
+    def boost(self, request, pk=None):
+        pass
+    
+    def disable(self, request, pk=None):
+        pass
+    
+    def destroy(self, request, pk=None):
+        pass
 
 
 router.register(r'posts', AdvertViewSet)
