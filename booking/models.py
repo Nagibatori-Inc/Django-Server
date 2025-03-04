@@ -74,8 +74,8 @@ class Boost:
         promotion.rate += 1
         
     def set_another(self, promotion: Promotion):
-        promotion.type = self.another.keys()[0]
-        promotion.rate = self.another.values()[0]
+        promotion.type = list(self.another.keys())[0]
+        promotion.rate = list(self.another.values())[0]
     
     def boost(self, promotion: Promotion):
         if self.boost_type == BoostType.INCREASE:
