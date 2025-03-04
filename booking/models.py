@@ -166,9 +166,9 @@ class Advert(models.Model):
         return self.title
 
     @property
-    def is_active(self):
+    def is_active(self) -> bool:
         return self.status == AdvertStatus.ACTIVE
 
     @property
-    def is_promoted(self):
-        return self.promotion
+    def is_promoted(self) -> bool:
+        return self.promotion is not None
