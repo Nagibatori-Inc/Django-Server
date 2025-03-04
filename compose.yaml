@@ -9,6 +9,7 @@ x-app-variables: &app-variables
   DEBUG: dev
   ALLOWED_HOSTS: http://localhost
   HOST: http://localhost:8000/
+
   DATABASE_HOST: db
   POSTGRES_DB: booking_platform
   POSTGRES_USER: admin
@@ -44,6 +45,7 @@ services:
       context: .
       dockerfile: Dockerfile
     environment: *app-variables
+    # command: create_superuser.sh
     ports:
       - "8000:8080"
     depends_on:
