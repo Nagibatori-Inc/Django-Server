@@ -51,6 +51,10 @@ class AdvertService(RestService):
     @property
     def advert(self):
         return self.__advert
+
+    @advert.setter
+    def advert(self, advert: Optional[Advert]):
+        self.__advert = advert
         
     @transaction.atomic
     def activate(self):
