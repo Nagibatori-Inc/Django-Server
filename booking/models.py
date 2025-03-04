@@ -23,8 +23,8 @@ class Promotion(models.Model):
         (PromotionStatus.DISABLED, 'Отключено'),
     )
 
-    type = models.CharField(max_length=50)
-    rate = models.IntegerField(default=0)
+    type = models.CharField(max_length=50, verbose_name='Тип | Описание продвижения')
+    rate = models.IntegerField(default=0, verbose_name='Уровень продвижения')
     created_at = models.DateTimeField(
         auto_now_add=True,
         verbose_name="Создано",
