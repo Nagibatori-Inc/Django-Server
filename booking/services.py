@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Type
+from typing import Type, Optional
 
 import structlog
 from django.db import transaction
@@ -44,7 +44,7 @@ class AdvertService(RestService):
         + advert(): Возвращает объект текущего объявления над которым производятся операции
     """
     
-    def __init__(self, advert: Advert = None, response: Response = None, should_commit: bool = True):
+    def __init__(self, advert: Optional[Advert] = None, response: Optional[Response] = None, should_commit: bool = True):
         super().__init__(response, should_commit)
         self.__advert = advert
 

@@ -1,4 +1,4 @@
-from typing import Type
+from typing import Type, Optional
 
 import structlog
 from django.db import transaction
@@ -38,7 +38,7 @@ class RestService:
         + should_commit(should_commit): Сеттер для поля `should_commit`
     """
 
-    def __init__(self, response: Response = None, should_commit: bool = True):
+    def __init__(self, response: Optional[Response] = None, should_commit: bool = True):
         self.__response = response
         self.__should_commit = should_commit
 

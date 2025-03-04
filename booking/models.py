@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Optional
 
 from django.db import models
 
@@ -61,7 +61,7 @@ class Boost:
     Fields:
         + boost_type (BoostType): Тип буста
     """
-    def __init__(self, boost_type: BoostType, another: Dict[str, int] = None):
+    def __init__(self, boost_type: BoostType, another: Optional[Dict[str, int]] = None):
         self._validate()
         self.boost_type = boost_type
         self.another = another
