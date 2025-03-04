@@ -67,8 +67,7 @@ class Boost:
         self.another = another
         
     def _validate(self):
-        if self.another:
-            if len(self.another) != 1:
+        if self.another and len(self.another) != 1:
                 raise ValueError('dictionary should have exactly have one pair of promotion`s type & rate')
         
     def increase(self, promotion: Promotion):
