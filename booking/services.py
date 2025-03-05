@@ -345,21 +345,12 @@ class PromotionService(RestService):
         elif user_profile:
             promotion = (
                 Promotion.objects
-               .filter(
+                .filter(
                     id=promotion_pk,
-                    advert=(
-                        AdvertService
-                        .find(
-                            Promotion.objects
-                            .get(id=promotion_pk)
-                            .advert
-                            .id,
-                            user_profile
-                        )
-                        .advert
-                    )
+                    advert__contact=user_profile,
                 )
-               .first()
+                .select_related('advert')
+                .first()
             )
             
         else:
