@@ -1,6 +1,15 @@
-FROM --platform=$BUILDPLATFORM python:3.7-alpine AS builder
+FROM python:3.9.15-slim-buster AS builder
 
-RUN apk add --no-cache postgresql-dev gcc musl-dev python3-dev
+RUN apt-get update && apt-get upgrade -y \
+  && apt-get install --no-install-recommends -y \
+    git \
+    bash \
+    curl \
+    build-essential \
+    libpq-dev
+
+RUN git config --global user.email "you@example.com" &&  \
+    git config --global user.name "Your Name"
 
 WORKDIR /app
 
@@ -8,6 +17,8 @@ COPY ./requirements.txt /app
 RUN pip3 install -r requirements.txt --no-cache-dir
 COPY . /app
 
+RUN chmod +x ./entrypoint.sh
+ENTRYPOINT ["./entrypoint.sh"]
+
 EXPOSE 8080
-ENTRYPOINT ["python"]
-CMD ["manage.py", "runserver", "0.0.0.0:8080"]
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8080"]

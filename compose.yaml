@@ -17,36 +17,36 @@ x-app-variables: &app-variables
 
   DJANGO_SUPERUSER_USERNAME: admin
   DJANGO_SUPERUSER_EMAIL: admin@example.com
-  DJANGO_SUPERUSER_PASSWORD: 123ядаун
+  DJANGO_SUPERUSER_PASSWORD: strongpassword
 
   REST_API_BASE: api/
 services:
-  postgres:
+  db:
     image: postgres:latest
-    container_name: postgres
+    container_name: vehicle_board_db
     environment: *db-variables
     ports:
       - "5432:5432"
     volumes:
-      - ./.postgres_data:/var/lib/postgresql/data
+      - ${VEHICLE_BOARD_DB_VOL_PATH:-./.postgres_data/volumes/vehicle_board/data}:/var/lib/postgresql/data
 
   pgadmin:
     image: dpage/pgadmin4:latest
-    container_name: pgadmin
+    container_name: vehicle_board_pgadmin
     environment: *pgadmin-variables
     ports:
       - "5050:80"
     depends_on:
-      - postgres
+      - db
 
   app:
-    container_name: django-rest-server
+    container_name: vehicle_board_api
     build:
       context: .
       dockerfile: Dockerfile
     environment: *app-variables
     # command: create_superuser.sh
     ports:
-      - 8000:8080
+      - "8000:8080"
     depends_on:
-      - postgres
+      - db
