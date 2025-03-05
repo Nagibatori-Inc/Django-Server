@@ -368,9 +368,9 @@ class PromotionService(RestService):
     def promote(
             type: str,
             rate: int,
-            advert: Advert = None,
-            advert_pk: int = None,
-            user_profile: Profile = None,
+            advert: Optional[Advert] = None,
+            advert_pk: Optional[int] = None,
+            user_profile: Optional[Profile] = None,
     ):
         """
         Метод, реализующий логику подключения 'продвижения' полученному (переданному) объявлению
