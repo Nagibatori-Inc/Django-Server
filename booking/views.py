@@ -147,7 +147,7 @@ class AdvertViewSet(ViewSet):
         
         
 class AdvertsRecommendationViewSet(ViewSet):
-    queryset = Advert.objects.all()
+    queryset = Advert.objects.filter(status=AdvertStatus.ACTIVE)
     serializer_class = AdvertSerializer
     
     def list(self, request):
