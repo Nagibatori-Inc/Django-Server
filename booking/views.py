@@ -212,5 +212,5 @@ class PromotionViewSet(ViewSet):
         pass
 
 
-router.register(r'posts', AdvertViewSet)
+router.register(r'posts', AdvertViewSet, basename='post')
 router.register(r'adverts', AdvertsRecommendationViewSet)
