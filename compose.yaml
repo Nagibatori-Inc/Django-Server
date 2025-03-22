@@ -44,6 +44,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    volumes:
+      - .:/app
     environment: *app-variables
     command: poetry run python manage.py runserver 0.0.0.0:8080
     ports:
