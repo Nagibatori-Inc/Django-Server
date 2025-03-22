@@ -54,19 +54,19 @@ def handle_service_exceptions(method):
             return method(*args, **kwargs)
 
         except (ObjectDoesNotExist, EmptyResultSet) as e:
-            response = Response(
+            response = Response(  # noqa F841
                 {'err_msg': str(e)},
                 status=status.HTTP_404_NOT_FOUND
             )
 
         except (FieldDoesNotExist, FieldError, ValueError, TypeError) as e:
-            response = Response(
+            response = Response(  # noqa F841
                 {'err_msg': str(e)},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
         except PermissionDenied as e:
-            response = Response(
+            response = Response(  # noqa F841
                 {'err_msg': str(e)},
                 status=status.HTTP_403_FORBIDDEN
             )

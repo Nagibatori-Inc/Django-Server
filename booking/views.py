@@ -9,7 +9,7 @@ import structlog
 
 from DjangoServer.utils import HttpMethod
 from authentication.models import Profile
-from booking.models import Advert, AdvertStatus, Promotion
+from booking.models import Advert, Promotion
 from booking.serializers import AdvertSerializer, SearchFilterSerializer, PromotionSerializer
 from booking.services import AdvertService, AdvertsRecommendationService
 

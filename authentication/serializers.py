@@ -1,15 +1,11 @@
-from typing import Dict, Tuple
-
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password as django_password_validate
 from django.core.exceptions import ValidationError
-from django.db import transaction
-from django.shortcuts import get_object_or_404
-from rest_framework import serializers, status
+from rest_framework import serializers
 
 from DjangoServer.validators.misc_validators import PhoneNumberValidator
 from DjangoServer.validators.phone_regex import RUS
-from authentication.models import Profile, OneTimePassword
+from authentication.models import Profile
 from authentication.utils import make_phone_uniform
 
 

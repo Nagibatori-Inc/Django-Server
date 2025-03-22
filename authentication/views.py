@@ -52,7 +52,7 @@ class ProfileView(APIView):
     def get_profile(self, pk):
         try:
             profile = Profile.objects.get(pk=pk)
-        except Profile.DoesNotExist as ex:
+        except Profile.DoesNotExist:
             raise Http404
 
         return profile

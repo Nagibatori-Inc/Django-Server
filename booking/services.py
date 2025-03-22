@@ -5,7 +5,7 @@ import structlog
 from django.db import transaction
 from django.db.models import Subquery, IntegerField, Value, OuterRef, QuerySet
 from django.db.models.functions import Coalesce
-from rest_framework import status, serializers
+from rest_framework import status
 from rest_framework.response import Response
 
 from DjangoServer.service import RestService
