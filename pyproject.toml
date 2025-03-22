@@ -15,7 +15,8 @@ dependencies = [
     "pydantic (>=2.5.3)",
     "django-rest-knox (>=5.0.2)",
     "smsaero-api (>=3.0.0)",
-    "structlog (>=24.4.0)"
+    "structlog (>=24.4.0)",
+    "ruff (>=0.11.2,<0.12.0)"
 ]
 
 
