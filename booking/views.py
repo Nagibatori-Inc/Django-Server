@@ -19,19 +19,18 @@ router = DefaultRouter()
 
 
 class AdvertViewSet(ViewSet):
-    authentication_classes = (BasicAuthentication, )
+    authentication_classes = (BasicAuthentication,)
 
     queryset = Advert.objects.all()
     serializer_class = AdvertSerializer
-    
+
     def list(self, request):
         pass
-    
+
     def retrieve(self, request, pk=None) -> Optional[Response]:
         profile: Profile = get_object_or_404(Profile, user=request.user)
         return (
-            AdvertService
-            .find(
+            AdvertService.find(
                 advert_pk=pk,
                 user_profile=profile,
             )
@@ -50,11 +49,7 @@ class AdvertViewSet(ViewSet):
         profile: Profile = get_object_or_404(Profile, user=request.user)
         serializer = self.serializer_class(data=request.data)
 
-        logger.debug(
-            'user got profile',
-            user=request.user,
-            profile=profile
-        )
+        logger.debug('user got profile', user=request.user, profile=profile)
 
         if serializer.is_valid():
             data = serializer.validated_data
@@ -65,29 +60,20 @@ class AdvertViewSet(ViewSet):
                 data=data,
             )
 
-            return (
-                AdvertService
-                .advertise(serializer, contact=profile)
-                .created()
-                .or_else_422()
-            )
+            return AdvertService.advertise(serializer, contact=profile).created().or_else_422()
 
         else:
-            return Response(
-                serializer.errors,
-                status=status.HTTP_422_UNPROCESSABLE_ENTITY
-            )
+            return Response(serializer.errors, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     def update(self, request, pk=None) -> Optional[Response]:
         profile: Profile = get_object_or_404(Profile, user=request.user)
         serializer = self.serializer_class(data=request.data)
-        
+
         if serializer.is_valid():
             data = serializer.validated_data
-            
+
             return (
-                AdvertService
-                .find(
+                AdvertService.find(
                     advert_pk=pk,
                     user_profile=profile,
                 )
@@ -95,20 +81,16 @@ class AdvertViewSet(ViewSet):
                 .ok()
                 .or_else_422()
             )
-            
+
         else:
-            return Response(
-                serializer.errors,
-                status=status.HTTP_422_UNPROCESSABLE_ENTITY
-            )
+            return Response(serializer.errors, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     @action(methods=['patch'], detail=True)  # type: ignore[type-var]
     def activate(self, request, pk=None) -> Optional[Response]:
         profile: Profile = get_object_or_404(Profile, user=request.user)
 
         return (
-            AdvertService
-            .find(
+            AdvertService.find(
                 advert_pk=pk,
                 user_profile=profile,
             )
@@ -122,8 +104,7 @@ class AdvertViewSet(ViewSet):
         user: Profile = get_object_or_404(Profile, user=request.user)
 
         return (
-            AdvertService
-            .find(
+            AdvertService.find(
                 advert_pk=pk,
                 user_profile=user,
             )
@@ -134,10 +115,9 @@ class AdvertViewSet(ViewSet):
 
     def destroy(self, request, pk=None) -> Optional[Response]:
         user: Profile = get_object_or_404(Profile, user=request.user)
-        
+
         return (
-            AdvertService
-            .find(
+            AdvertService.find(
                 advert_pk=pk,
                 user_profile=user,
             )
@@ -145,20 +125,14 @@ class AdvertViewSet(ViewSet):
             .ok()
             .or_else_400()
         )
-        
-        
+
+
 class AdvertsRecommendationViewSet(ViewSet):
     queryset = Advert.objects.all()
     serializer_class = AdvertSerializer
-    
+
     def list(self, request):
-        return (
-            AdvertsRecommendationService
-            .list()
-            .serialize(self.serializer_class)
-            .ok()
-            .or_else_400()
-        )
+        return AdvertsRecommendationService.list().serialize(self.serializer_class).ok().or_else_400()
 
     @action(detail=False, methods=['get'])
     def filter(self, request):
@@ -174,41 +148,34 @@ class AdvertsRecommendationViewSet(ViewSet):
             )
 
             return (
-                AdvertsRecommendationService
-                .ranked_list(serializer)
-                .serialize(self.serializer_class)
-                .ok()
-                .or_else_400()
+                AdvertsRecommendationService.ranked_list(serializer).serialize(self.serializer_class).ok().or_else_400()
             )
 
         else:
-            return Response(
-                serializer.errors,
-                status=status.HTTP_422_UNPROCESSABLE_ENTITY
-            )
-            
-            
+            return Response(serializer.errors, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
+
 class PromotionViewSet(ViewSet):
-    authentication_classes = (BasicAuthentication, )
-    
+    authentication_classes = (BasicAuthentication,)
+
     queryset = Promotion.objects.all()
     serializer_class = PromotionSerializer
-    
+
     def list(self, request):
         pass
-    
+
     def retrieve(self, request, pk=None):
         pass
-    
+
     def create(self, request, *args, **kwargs):
         pass
-    
+
     def boost(self, request, pk=None):
         pass
-    
+
     def disable(self, request, pk=None):
         pass
-    
+
     def destroy(self, request, pk=None):
         pass
 

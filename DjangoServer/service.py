@@ -86,10 +86,7 @@ class RestService:
         """
         if self.response is None:
             if body is not None:
-                self.response = Response(
-                    body,
-                    status=status.HTTP_200_OK
-                )
+                self.response = Response(body, status=status.HTTP_200_OK)
 
             else:
                 self.response = Response(status=status.HTTP_200_OK)

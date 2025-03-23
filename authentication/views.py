@@ -40,10 +40,9 @@ class SignUpView(APIView):
 
         profile, auth_token = SmsRegistrationService().register(serializer.validated_data)
 
-        return Response({
-            "profile": ProfileSerializer(profile).data,
-            "token": auth_token
-        }, status=status.HTTP_201_CREATED)
+        return Response(
+            {"profile": ProfileSerializer(profile).data, "token": auth_token}, status=status.HTTP_201_CREATED
+        )
 
 
 class ProfileView(APIView):

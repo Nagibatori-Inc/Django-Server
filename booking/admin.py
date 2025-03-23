@@ -9,8 +9,8 @@ class AdvertAdmin(admin.ModelAdmin):
     search_fields = ['title', 'contact__name', 'price']
     list_filter = ['created_at', 'activated_at', 'status']
     readonly_fields = ['contact']
-    
-    
+
+
 @admin.register(Promotion)
 class PromotionAdmin(admin.ModelAdmin):
     list_display = ['type', 'rate']

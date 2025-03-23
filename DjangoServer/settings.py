@@ -38,8 +38,7 @@ ALLOWED_HOSTS = [
     '192.168.0.107',
     '[::1]',
 ] + config(
-    'ALLOWED_HOSTS',
-    default=''
+    'ALLOWED_HOSTS', default=''
 ).split(',')
 
 
@@ -52,10 +51,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-
     "rest_framework",
     "knox",
-
     'booking.apps.BookingConfig',
     'authentication.apps.AuthenticationConfig',
 ]
@@ -75,8 +72,7 @@ ROOT_URLCONF = "DjangoServer.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / 'templates']
-        ,
+        "DIRS": [BASE_DIR / 'templates'],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -170,4 +166,3 @@ SMS_MODE = config("SMS_MODE", default="debug")
 
 # Время действия одноразового кода (OTP) в минутах
 OTP_TTL = config("OTP_TTL", default=10)
-

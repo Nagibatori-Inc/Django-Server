@@ -16,13 +16,10 @@ from booking.serializers import SearchFilterSerializer, AdvertSerializer
 logger = structlog.get_logger(__name__)
 
 ADVERT_NOT_FOUND = Response(
-    { 'err_msg': 'Объявление не найдено' },
+    {'err_msg': 'Объявление не найдено'},
     status=status.HTTP_400_BAD_REQUEST,
 )
-PROMOTION_NOT_FOUND = Response(
-    { "err_msg": "Не указано объявление или пользователь" },
-    status=status.HTTP_404_NOT_FOUND
-)
+PROMOTION_NOT_FOUND = Response({"err_msg": "Не указано объявление или пользователь"}, status=status.HTTP_404_NOT_FOUND)
 
 
 class AdvertService(RestService):
@@ -31,7 +28,7 @@ class AdvertService(RestService):
 
     Fields:
         + advert (Advert): Объявление
-    
+
     Methods:
         + activate: Активирует объявление
         + deactivate: Деактивирует объявление
@@ -43,8 +40,10 @@ class AdvertService(RestService):
     Properties:
         + advert(): Возвращает объект текущего объявления над которым производятся операции
     """
-    
-    def __init__(self, advert: Optional[Advert] = None, response: Optional[Response] = None, should_commit: bool = True):
+
+    def __init__(
+        self, advert: Optional[Advert] = None, response: Optional[Response] = None, should_commit: bool = True
+    ):
         super().__init__(response, should_commit)
         self.__advert = advert
 
@@ -55,21 +54,21 @@ class AdvertService(RestService):
     @advert.setter
     def advert(self, advert: Optional[Advert]):
         self.__advert = advert
-        
+
     @transaction.atomic
     def activate(self):
         self.advert.status = AdvertStatus.ACTIVE
         self.advert.activated_at = datetime.now()
         self.advert.save()
         return self
-        
+
     @transaction.atomic
     def deactivate(self):
         self.advert.status = AdvertStatus.DISABLED
         self.advert.activated_at = None
         self.advert.save()
         return self
-        
+
     @transaction.atomic
     def change(self, changed_data: AdvertSerializer):
         """
@@ -87,17 +86,17 @@ class AdvertService(RestService):
             return self
 
         validated_data = changed_data.validated_data
-        
+
         advert.title = validated_data.get('title')
         advert.description = validated_data.get('description')
         advert.price = validated_data.get('price')
         advert.phone = validated_data.get('phone')
         advert.promotion = validated_data.get('promotion')
         advert.activated_at = validated_data.get('activated_at')
-        
+
         advert.save()
         return self
-        
+
     @transaction.atomic
     def remove(self) -> 'AdvertService':
         advert: Advert = self.advert
@@ -107,16 +106,10 @@ class AdvertService(RestService):
 
     @transaction.atomic
     def serialize(self, serializer: Type[AdvertSerializer]):
-        serialized_advert = serializer(
-            self.advert,
-            many=False
-        )
+        serialized_advert = serializer(self.advert, many=False)
         self.ok(serialized_advert.data)
 
-        logger.debug(
-            'serialized advert data',
-            data=serialized_advert.data
-        )
+        logger.debug('serialized advert data', data=serialized_advert.data)
 
         return self
 
@@ -129,14 +122,7 @@ class AdvertService(RestService):
         :param user_profile (Profile) Профиль юзера, которому принадлежит объявление
         :return: AdvertService
         """
-        advert: Optional[Advert] = (
-            Advert.objects
-            .filter(
-                id=advert_pk,
-                contact=user_profile
-            )
-            .first()
-        )
+        advert: Optional[Advert] = Advert.objects.filter(id=advert_pk, contact=user_profile).first()
 
         return AdvertService(advert).ok()
 
@@ -194,10 +180,10 @@ class AdvertService(RestService):
 
 class AdvertsRecommendationService(RestService):
     def __init__(
-            self,
-            adverts: Optional[QuerySet[Advert]] = None,
-            response: Optional[Response] = None,
-            should_commit: bool = True
+        self,
+        adverts: Optional[QuerySet[Advert]] = None,
+        response: Optional[Response] = None,
+        should_commit: bool = True,
     ):
         super().__init__(response, should_commit)
         self.__adverts = adverts
@@ -207,13 +193,7 @@ class AdvertsRecommendationService(RestService):
         return self.__adverts
 
     def get(self, pk: int, profile: Profile):
-        advert: Advert = (
-            AdvertService.find(
-                advert_pk=pk,
-                user_profile=profile
-            )
-            .advert
-        )
+        advert: Advert = AdvertService.find(advert_pk=pk, user_profile=profile).advert
 
         if advert not in self.adverts:
             return AdvertService(advert).ok()
@@ -222,27 +202,17 @@ class AdvertsRecommendationService(RestService):
 
     @transaction.atomic
     def serialize(self, serializer: Type[AdvertSerializer]):
-        serialized_queryset = serializer(
-            self.adverts.values(),
-            many=True
-        )
+        serialized_queryset = serializer(self.adverts.values(), many=True)
         self.ok(serialized_queryset.data)
 
-        logger.debug(
-            'serialized adverts queryset',
-            data=serialized_queryset.data,
-            response=self.response
-        )
+        logger.debug('serialized adverts queryset', data=serialized_queryset.data, response=self.response)
 
         return self
 
     @staticmethod
     @transaction.atomic
     def list():
-        queryset = (
-            Advert.objects
-            .filter(status=AdvertStatus.ACTIVE)
-        )
+        queryset = Advert.objects.filter(status=AdvertStatus.ACTIVE)
 
         return AdvertsRecommendationService(queryset).ok()
 
@@ -251,21 +221,15 @@ class AdvertsRecommendationService(RestService):
     def ranked_list(filters: SearchFilterSerializer):
         valid_data = filters.validated_data
         queryset = (
-            Advert.objects
-            .filter(
-                title__icontains=valid_data['title'],
-                price=valid_data['price'],
-                status=AdvertStatus.ACTIVE
+            Advert.objects.filter(
+                title__icontains=valid_data['title'], price=valid_data['price'], status=AdvertStatus.ACTIVE
             )
             .annotate(
                 promotion_rate=Coalesce(
                     Subquery(
-                        Promotion.objects
-                        .filter(advert=OuterRef('pk'))
-                        .values('rate')[:1],
-                        output_field=IntegerField()
+                        Promotion.objects.filter(advert=OuterRef('pk')).values('rate')[:1], output_field=IntegerField()
                     ),
-                    Value(0)
+                    Value(0),
                 )
             )
             .order_by('-promotion_rate', '-created_at')
@@ -287,7 +251,9 @@ class PromotionService(RestService):
         + promote(): Продвинуть объявление
     """
 
-    def __init__(self, promotion: Optional[Promotion] = None, response: Optional[Response] = None, should_commit: bool = True):
+    def __init__(
+        self, promotion: Optional[Promotion] = None, response: Optional[Response] = None, should_commit: bool = True
+    ):
         super().__init__(response, should_commit)
         self.__promotion = promotion
 
@@ -305,14 +271,14 @@ class PromotionService(RestService):
         promotion = how_to_boost.boost(promotion=promotion)
         promotion.save()
         return self
-        
+
     @transaction.atomic
     def disable(self):
         promotion: Promotion = self.promotion
         promotion.status = PromotionStatus.DISABLED
         promotion.save()
         return self
-    
+
     @transaction.atomic
     def remove(self):
         promotion: Promotion = self.promotion
@@ -331,46 +297,36 @@ class PromotionService(RestService):
         :return: PromotionService
         """
         promotion: Optional[Promotion]
-        
+
         if advert:
-            promotion = (
-                Promotion.objects
-               .filter(
-                    id=promotion_pk,
-                    advert=advert,
-                )
-               .first()
-            )
-        
+            promotion = Promotion.objects.filter(
+                id=promotion_pk,
+                advert=advert,
+            ).first()
+
         elif user_profile:
             promotion = (
-                Promotion.objects
-                .filter(
+                Promotion.objects.filter(
                     id=promotion_pk,
                     advert__contact=user_profile,
                 )
                 .select_related('advert')
                 .first()
             )
-            
+
         else:
             return PromotionService().not_found()
-            
-        return (
-            PromotionService(
-                promotion
-            )
-            .ok()
-        )
+
+        return PromotionService(promotion).ok()
 
     @staticmethod
     @transaction.atomic
     def promote(
-            type: str,
-            rate: int,
-            advert: Optional[Advert] = None,
-            advert_pk: Optional[int] = None,
-            user_profile: Optional[Profile] = None,
+        type: str,
+        rate: int,
+        advert: Optional[Advert] = None,
+        advert_pk: Optional[int] = None,
+        user_profile: Optional[Profile] = None,
     ):
         """
         Метод, реализующий логику подключения 'продвижения' полученному (переданному) объявлению
@@ -397,10 +353,7 @@ class PromotionService(RestService):
             promotion = Promotion.objects.create(
                 type=type,
                 rate=rate,
-                advert=AdvertService.find(
-                    advert_pk,
-                    user_profile
-                ),
+                advert=AdvertService.find(advert_pk, user_profile),
             )
 
         else:
@@ -429,4 +382,3 @@ class PromotionService(RestService):
             self.response = PROMOTION_NOT_FOUND
 
         return self
-

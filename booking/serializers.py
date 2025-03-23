@@ -14,6 +14,7 @@ class AdvertSerializer(serializers.ModelSerializer):
     status = serializers.CharField(required=False)
     activated_at = serializers.DateTimeField(required=False)
     created_at = serializers.DateTimeField(required=False)
+
     class Meta:
         model = Advert
         fields = '__all__'
