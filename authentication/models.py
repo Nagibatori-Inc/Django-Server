@@ -56,7 +56,7 @@ class OneTimePassword(models.Model):
     code = models.CharField(max_length=128, default="", verbose_name="Одноразовый код (хэш)")
     creation_date = models.DateTimeField(default=datetime.datetime.now, verbose_name="Время создания")
 
-    def save(self, *args, **kwargs) -> str:
+    def save(self, *args, **kwargs):
         otp = ""
         if not self.code:
             otp = OneTimePassword.generate_otp()
@@ -76,7 +76,7 @@ class OneTimePassword(models.Model):
             return True
         return False
 
-    has_expired.fget.short_description = "OTP уже истек"
+    # has_expired.fget.short_description = "OTP уже истек" Чё это???? mypy подсветил
 
     class Meta:
         verbose_name = "Одноразовый код"

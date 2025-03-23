@@ -1,7 +1,7 @@
 from rest_framework import permissions
 
 
-class IsProfileOwnerOrReadOnly(permissions.BasePermission):
+class IsProfileOwnerOrReadOnly(permissions.BasePermission):  # type: ignore[misc]
     """ Разрешение позволяющее менять профиль пользователя только самому пользователю """
 
     def has_object_permission(self, request, view, obj):

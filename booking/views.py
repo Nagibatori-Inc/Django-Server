@@ -1,3 +1,5 @@
+from typing import Optional
+
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.authentication import BasicAuthentication
@@ -7,7 +9,6 @@ from rest_framework.routers import DefaultRouter
 from rest_framework.viewsets import ViewSet
 import structlog
 
-from DjangoServer.utils import HttpMethod
 from authentication.models import Profile
 from booking.models import Advert, Promotion
 from booking.serializers import AdvertSerializer, SearchFilterSerializer, PromotionSerializer
@@ -26,7 +27,7 @@ class AdvertViewSet(ViewSet):
     def list(self, request):
         pass
     
-    def retrieve(self, request, pk=None):
+    def retrieve(self, request, pk=None) -> Optional[Response]:
         profile: Profile = get_object_or_404(Profile, user=request.user)
         return (
             AdvertService
@@ -39,7 +40,7 @@ class AdvertViewSet(ViewSet):
             .or_else_422()
         )
 
-    def create(self, request, *args, **kwargs):
+    def create(self, request, *args, **kwargs) -> Optional[Response]:
         logger.debug(
             'auth user data',
             user=request.user,
@@ -77,7 +78,7 @@ class AdvertViewSet(ViewSet):
                 status=status.HTTP_422_UNPROCESSABLE_ENTITY
             )
 
-    def update(self, request, pk=None):
+    def update(self, request, pk=None) -> Optional[Response]:
         profile: Profile = get_object_or_404(Profile, user=request.user)
         serializer = self.serializer_class(data=request.data)
         
@@ -101,8 +102,8 @@ class AdvertViewSet(ViewSet):
                 status=status.HTTP_422_UNPROCESSABLE_ENTITY
             )
 
-    @action(methods=[HttpMethod.PATCH], detail=True)
-    def activate(self, request, pk=None):
+    @action(methods=['patch'], detail=True)  # type: ignore[type-var]
+    def activate(self, request, pk=None) -> Optional[Response]:
         profile: Profile = get_object_or_404(Profile, user=request.user)
 
         return (
@@ -116,8 +117,8 @@ class AdvertViewSet(ViewSet):
             .or_else_422()
         )
 
-    @action(methods=[HttpMethod.PATCH], detail=True)
-    def deactivate(self, request, pk=None):
+    @action(methods=['patch'], detail=True)  # type: ignore[type-var]
+    def deactivate(self, request, pk=None) -> Optional[Response]:
         user: Profile = get_object_or_404(Profile, user=request.user)
 
         return (
@@ -131,7 +132,7 @@ class AdvertViewSet(ViewSet):
             .or_else_422()
         )
 
-    def destroy(self, request, pk=None):
+    def destroy(self, request, pk=None) -> Optional[Response]:
         user: Profile = get_object_or_404(Profile, user=request.user)
         
         return (
@@ -159,7 +160,7 @@ class AdvertsRecommendationViewSet(ViewSet):
             .or_else_400()
         )
 
-    @action(detail=False, methods=[HttpMethod.GET])
+    @action(detail=False, methods=['get'])
     def filter(self, request):
         serializer = SearchFilterSerializer(data=request.query_params)
 

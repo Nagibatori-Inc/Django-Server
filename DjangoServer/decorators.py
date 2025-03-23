@@ -32,7 +32,7 @@ def handle_404(service, method, *args, **kwargs):
     try:
         return method(*args, **kwargs)
 
-    except ObjectDoesNotExist or EmptyResultSet as e:
+    except ObjectDoesNotExist or EmptyResultSet as e: #  type: ignore[truthy-function]
         service.response = Response(
             {'err_msg': str(e)},
             status=status.HTTP_404_NOT_FOUND

@@ -99,7 +99,7 @@ class AdvertService(RestService):
         return self
         
     @transaction.atomic
-    def remove(self):
+    def remove(self) -> 'AdvertService':
         advert: Advert = self.advert
         self.advert = None
         advert.delete()
@@ -129,7 +129,7 @@ class AdvertService(RestService):
         :param user_profile (Profile) Профиль юзера, которому принадлежит объявление
         :return: AdvertService
         """
-        advert: Advert = (
+        advert: Optional[Advert] = (
             Advert.objects
             .filter(
                 id=advert_pk,
@@ -195,8 +195,8 @@ class AdvertService(RestService):
 class AdvertsRecommendationService(RestService):
     def __init__(
             self,
-            adverts: QuerySet[Advert] = None,
-            response: Response = None,
+            adverts: Optional[QuerySet[Advert]] = None,
+            response: Optional[Response] = None,
             should_commit: bool = True
     ):
         super().__init__(response, should_commit)
@@ -287,7 +287,7 @@ class PromotionService(RestService):
         + promote(): Продвинуть объявление
     """
 
-    def __init__(self, promotion: Promotion = None, response: Response = None, should_commit: bool = True):
+    def __init__(self, promotion: Optional[Promotion] = None, response: Optional[Response] = None, should_commit: bool = True):
         super().__init__(response, should_commit)
         self.__promotion = promotion
 
@@ -321,7 +321,7 @@ class PromotionService(RestService):
         return self
 
     @staticmethod
-    def find(promotion_pk: int, advert: Advert = None, user_profile: Profile = None):
+    def find(promotion_pk: int, advert: Optional[Advert] = None, user_profile: Optional[Profile] = None):
         """
         Метод, поиска объявления по его идентификатору (первичному ключу) и профилю юзера, подавшего объявление
 
@@ -330,7 +330,7 @@ class PromotionService(RestService):
         :param user_profile (Profile) Профиль юзера, которому принадлежит объявление. Может быть None
         :return: PromotionService
         """
-        promotion: Promotion
+        promotion: Optional[Promotion]
         
         if advert:
             promotion = (
