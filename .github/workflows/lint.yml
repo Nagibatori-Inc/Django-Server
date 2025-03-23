@@ -30,7 +30,7 @@ jobs:
       - name: Install dependencies
         run: pip install mypy djangorestframework-types==0.8.0 django-stubs==5.1.3
       - name: Run mypy
-        run: mypy .
+        run: mypy --config-file=./pyproject.toml .
   black:
     runs-on: ubuntu-latest
     steps:

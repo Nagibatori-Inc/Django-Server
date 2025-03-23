@@ -105,7 +105,7 @@ class AdvertService(RestService):
         return self
 
     @transaction.atomic
-    def serialize(self, serializer: Type[AdvertSerializer]):
+    def serialize(self, serializer: Type[AdvertSerializer]):  # type: ignore[override]
         serialized_advert = serializer(self.advert, many=False)
         self.ok(serialized_advert.data)
 
@@ -201,7 +201,7 @@ class AdvertsRecommendationService(RestService):
         return AdvertService().not_found()
 
     @transaction.atomic
-    def serialize(self, serializer: Type[AdvertSerializer]):
+    def serialize(self, serializer: Type[AdvertSerializer]):  # type: ignore[override]
         serialized_queryset = serializer(self.adverts.values(), many=True)
         self.ok(serialized_queryset.data)
 
