@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     "knox",
     'booking.apps.BookingConfig',
     'authentication.apps.AuthenticationConfig',
+    "django_migration_linter",
 ]
 
 MIDDLEWARE = [
