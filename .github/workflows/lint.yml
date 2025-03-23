@@ -28,9 +28,7 @@ jobs:
         with:
           python-version: "3.9.15"
       - name: Install dependencies
-        run: pip install mypy 
-             pip install django-stubs
-             pip install djangorestframework-types
+        run: pip install mypy djangorestframework-types==0.8.0 django-stubs=5.1.3
       - name: Run mypy
         run: mypy .
   black:
