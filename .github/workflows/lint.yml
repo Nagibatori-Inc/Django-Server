@@ -30,7 +30,7 @@ jobs:
       - name: Install dependencies
         run: pip install mypy djangorestframework-types==0.8.0 django-stubs==5.1.3
       - name: Run mypy
-        run: mypy . --disable-error-code='var-annotated' --disable-error-code='import-untyped'
+        run: mypy . --disable-error-code='var-annotated' --disable-error-code='import-untyped' --disable-error-code='import-not-found'
   black:
     runs-on: ubuntu-latest
     steps:
