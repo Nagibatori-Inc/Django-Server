@@ -1,26 +1,33 @@
 import re
+from enum import Enum
 
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password as django_password_validate
 from django.core.exceptions import ValidationError as DjangoValidationError
 
-RUS = r"^(\+7|8|7|\+8)\d{10}"
+
+class PhoneValidationExp(str, Enum):
+    RUS = r"^(\+7|8|7|\+8)\d{10}"
+    BEL = r"^(\+10|9|10|\+9)\d{10}"
 
 
 class PhoneNumberValidator:
-    def __init__(self, re_exp):
-        self.re_exp = re_exp
+    def __init__(self, re_exps: list[str]) -> None:
+        self.re_exps = re_exps
 
-    def __call__(self, phone):
-        phone_valid = re.match(self.re_exp, phone)
-        return phone_valid is not None
+    def __call__(self, phone: str) -> bool:
+        for re_exp in self.re_exps:
+            phone_valid = re.match(re_exp, phone)
+            if phone_valid is not None:
+                return True
+        return False
 
 
-def validate_ru_phone(phone: str) -> None:
-    phone_validator = PhoneNumberValidator(RUS)
+def validate_phone(phone: str, validation_templates: list[PhoneValidationExp]) -> None:
+    phone_validator = PhoneNumberValidator(validation_templates)
     if not phone_validator(phone):
         raise serializers.ValidationError(
-            detail={"detail": "phone number valid"}
+            detail={"detail": "phone number invalid"}
         )
 
 
