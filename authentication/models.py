@@ -37,6 +37,9 @@ class Profile(models.Model):
         verbose_name = "Профиль"
         verbose_name_plural = "Профили"
 
+    def __str__(self):
+        return f"Profile [name='{self.name}', user='{self.user}', type='{self.type}']"
+
 
 class OneTimePassword(models.Model):
     """
