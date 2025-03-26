@@ -1,21 +1,26 @@
+from django.contrib.auth.models import User
 from rest_framework import serializers
 
 from authentication.models import Profile
-from authentication.misc.validators import validate_password, validate_ru_phone, validate_otp
+from authentication.misc.validators import validate_password, validate_phone, validate_otp, PhoneValidationExp
 
 
 class PhoneValidationMixin:
 
-    def validate_phone(self, value):
-        validate_ru_phone(value)
+    def validate_phone(self, value: str) -> str:
+        validate_phone(value, [PhoneValidationExp.RUS, PhoneValidationExp.BEL])
         return value
 
 
 class PasswordValidationMixin:
 
-    def validate_password(self, value):
+    def validate_password(self, value: str) -> str:
         validate_password(value)
         return value
+
+
+class PhoneSerializer(serializers.Serializer, PhoneValidationMixin):
+    phone = serializers.CharField(required=True, max_length=15)
 
 
 class PasswordSerializer(serializers.Serializer, PasswordValidationMixin):
@@ -30,7 +35,7 @@ class VerificationRequestSerializer(serializers.Serializer, PhoneValidationMixin
     phone = serializers.CharField(required=True, max_length=15)
     otp_code = serializers.CharField(required=True, max_length=6)
 
-    def validate_otp_code(self, value):
+    def validate_otp_code(self, value: str) -> str:
         validate_otp(value)
         return value
 
@@ -43,14 +48,22 @@ class SignUpRequestSerializer(serializers.Serializer, PhoneValidationMixin, Pass
     password = serializers.CharField(required=True)
     # Аттрибуты для профиля
     profile_name = serializers.CharField(required=False, max_length=50, allow_null=True)
-    profile_type = serializers.ChoiceField(choices=Profile.PROFILE_TYPE_CHOICES, default="IND")
+    profile_type = serializers.ChoiceField(required=False, choices=Profile.PROFILE_TYPE_CHOICES, default="IND")
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["username", "email", "first_name", "date_joined"]
 
 
 class ProfileOwnerSerializer(serializers.ModelSerializer):
     """Сериализатор, использующийся при удачном создании пользователя и при запросе данных о самом себе"""
+    user = UserSerializer()
+
     class Meta:
         model = Profile
-        fields = ["name", "type"]
+        fields = ["name", "type", "user"]
 
 
 class ProfileSerializer(serializers.ModelSerializer):
