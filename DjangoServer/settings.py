@@ -166,3 +166,6 @@ SMS_MODE = config("SMS_MODE", default="debug")
 # Время действия одноразового кода (OTP) в минутах
 OTP_TTL = config("OTP_TTL", default=10)
 
+# Настройки Celery
+CELERY_BROKER_URL = "redis://localhost:6379/0"
+CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
