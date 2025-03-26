@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 
+from authentication.exceptions import InvalidPhoneError
 from authentication.models import Profile
 
 
@@ -11,7 +12,10 @@ def make_phone_uniform(phone: str) -> str:
         return f"7{phone[2:]}"
     elif phone.startswith("8"):
         return f"7{phone[1:]}"
-    return phone
+    elif phone.startswith("7"):
+        return phone
+    else:
+        raise InvalidPhoneError("Phone starts with invalid code")
 
 
 def update_user(*, user: User, password: str, first_name: str, email: str, is_active: bool) -> None:
