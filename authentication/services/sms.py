@@ -1,6 +1,9 @@
-from typing import Dict
-
 from smsaero import SmsAero
+import structlog
+
+from DjangoServer.settings import SMS_MODE, SMSAERO_API_KEY, SMSAERO_EMAIL
+
+logger = structlog.get_logger(__name__)
 
 
 class BaseSmsService:
@@ -11,7 +14,7 @@ class BaseSmsService:
         + send_message: Отсылает сообщение на указанный номер
     """
 
-    def send_message(self, phone: str, text: str, **kwargs) -> Dict:
+    def send_message(self, phone: str, text: str, **kwargs) -> dict:
         raise NotImplementedError("send_message() should be overridden in child classes")
 
 
@@ -26,7 +29,7 @@ class SmsAeroService(BaseSmsService):
     def __init__(self, api_key: str, email: str):
         self.api = SmsAero(api_key=api_key, email=email)
 
-    def send_message(self, phone: str, text: str, **kwargs) -> Dict:
+    def send_message(self, phone: str, text: str, **kwargs) -> dict:
         phone_repr = int(phone)
         response = self.api.send_sms(number=phone_repr, text=text, **kwargs)
 
@@ -42,9 +45,13 @@ class SmsDebugService(BaseSmsService):
         + send_message: Отсылает сообщение в поток вывода с указанными
     """
 
-    def send_message(self, phone: str, text: str, **kwargs) -> Dict:
-        print(text)
+    def send_message(self, phone: str, text: str, **kwargs) -> dict:
+        logger.info(f"Message with content '{text}' is sent to number {phone}")
         return {
             "status": "delivered",
             "message": text
         }
+
+
+sms_service = SmsDebugService() if SMS_MODE != "production" else SmsAeroService(api_key=SMSAERO_API_KEY,
+                                                                                email=SMSAERO_EMAIL)
