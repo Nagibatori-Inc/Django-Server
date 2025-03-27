@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 
-import smsaero
 from decouple import AutoConfig
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -32,16 +31,8 @@ SECRET_KEY = "django-insecure-jlfaz)s(!fgo^x!y=^kxyr1huxxr^qutvna2ek3#azy_+1t__z
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config("DEBUG", default='dev') == 'debug' or 'dev' or 'development'
 
-ALLOWED_HOSTS = [
-    'localhost',
-    '0.0.0.0',
-    '127.0.0.1',
-    '192.168.0.107',
-    '[::1]',
-] + config(
-    'ALLOWED_HOSTS',
-    default=''
-).split(',')
+ALLOWED_HOSTS = ['localhost', '0.0.0.0', '127.0.0.1', '192.168.0.107', '[::1]']
+ALLOWED_HOSTS += config('ALLOWED_HOSTS', default='').split(',')
 
 
 # Application definition
@@ -53,12 +44,11 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-
     "rest_framework",
     "knox",
-
     'booking.apps.BookingConfig',
     'authentication.apps.AuthenticationConfig',
+    "django_migration_linter",
 ]
 
 MIDDLEWARE = [
@@ -76,8 +66,7 @@ ROOT_URLCONF = "DjangoServer.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / 'templates']
-        ,
+        "DIRS": [BASE_DIR / 'templates'],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -171,4 +160,3 @@ SMS_MODE = config("SMS_MODE", default="debug")
 
 # Время действия одноразового кода (OTP) в минутах
 OTP_TTL = config("OTP_TTL", default=10)
-

@@ -1,5 +1,3 @@
-
-
 def make_phone_uniform(phone: str) -> str:
     if phone.startswith("+7"):
         return phone[1:]

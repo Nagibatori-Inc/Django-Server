@@ -22,14 +22,12 @@ class Profile(models.Model):
     + is_deleted: Поле soft delete'a, выставляется на True в случае удаления со стороны пользователя
     """
 
-    PROFILE_TYPE_CHOICES = (
-        ("IND", "Частное лицо"),
-        ("CMP", "Компания")
-    )
+    PROFILE_TYPE_CHOICES = (("IND", "Частное лицо"), ("CMP", "Компания"))
 
     name = models.CharField(max_length=50, null=True, verbose_name="Имя профиля")
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name="profile",
-                                on_delete=models.CASCADE, verbose_name="Пользователь")
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, related_name="profile", on_delete=models.CASCADE, verbose_name="Пользователь"
+    )
     type = models.CharField(max_length=3, choices=PROFILE_TYPE_CHOICES, default="IND", verbose_name="Тип профиля")
     is_deleted = models.BooleanField(default=False, verbose_name="Удален")
     is_verified = models.BooleanField(default=False, verbose_name="Верифицирован")
@@ -51,12 +49,14 @@ class OneTimePassword(models.Model):
     Properties:
     + has_expired(): Проверка истекла ли валидность кода
     """
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="otps",
-                             on_delete=models.CASCADE, verbose_name="Пользователь")
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, related_name="otps", on_delete=models.CASCADE, verbose_name="Пользователь"
+    )
     code = models.CharField(max_length=128, default="", verbose_name="Одноразовый код (хэш)")
     creation_date = models.DateTimeField(default=datetime.datetime.now, verbose_name="Время создания")
 
-    def save(self, *args, **kwargs) -> str:
+    def save(self, *args, **kwargs):
         otp = ""
         if not self.code:
             otp = OneTimePassword.generate_otp()
@@ -76,9 +76,8 @@ class OneTimePassword(models.Model):
             return True
         return False
 
-    has_expired.fget.short_description = "OTP уже истек"
+    # has_expired.fget.short_description = "OTP уже истек" Чё это???? mypy подсветил
 
     class Meta:
         verbose_name = "Одноразовый код"
         verbose_name_plural = "Одноразовые коды"
-

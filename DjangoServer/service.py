@@ -1,4 +1,4 @@
-from typing import Type, Optional
+from typing import Type, Optional, Callable
 
 import structlog
 from django.db import transaction
@@ -86,10 +86,7 @@ class RestService:
         """
         if self.response is None:
             if body is not None:
-                self.response = Response(
-                    body,
-                    status=status.HTTP_200_OK
-                )
+                self.response = Response(body, status=status.HTTP_200_OK)
 
             else:
                 self.response = Response(status=status.HTTP_200_OK)
@@ -124,7 +121,7 @@ class RestService:
     def or_else_422(self):
         return self.or_else_send(status.HTTP_422_UNPROCESSABLE_ENTITY)
 
-    def respond_or_else_send(self, response: callable, status_code):
+    def respond_or_else_send(self, response: Callable, status_code):
         """
         Вызывает указанный метод отправки ответа (Response'а), используемый в цепочке формирования Response'а,
         если все действия прошли успешно, иначе ответ со статусом, указанным в `status_code`
