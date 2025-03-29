@@ -10,7 +10,7 @@ from rest_framework.viewsets import ViewSet
 import structlog
 
 from authentication.models import Profile
-from booking.models import Advert, Promotion
+from booking.models import Advert, Promotion, AdvertStatus
 from booking.serializers import AdvertSerializer, SearchFilterSerializer, PromotionSerializer
 from booking.services import AdvertService, AdvertsRecommendationService
 
@@ -128,7 +128,7 @@ class AdvertViewSet(ViewSet):
 
 
 class AdvertsRecommendationViewSet(ViewSet):
-    queryset = Advert.objects.all()
+    queryset = Advert.objects.filter(status=AdvertStatus.ACTIVE)
     serializer_class = AdvertSerializer
 
     def list(self, request):
@@ -160,7 +160,7 @@ class PromotionViewSet(ViewSet):
 
     queryset = Promotion.objects.all()
     serializer_class = PromotionSerializer
-
+    
     def list(self, request):
         pass
 
