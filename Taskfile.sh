@@ -7,12 +7,12 @@ function task:dc {
 
 # docker compose exec
 function task:dce {
-  task:dc exec app "$@"
+  task:dc exec "$@"
 }
 
 # docker compose build
 function task:build {
-  task:dc build
+  task:dc build "$@"
 }
 
 # docker compose up
@@ -27,7 +27,7 @@ function task:down {
 
 # manage.py shortcut
 function task:manage {
-  task:dce poetry run python manage.py "$@"
+  task:dce app poetry run python manage.py "$@"
 }
 
 # init project script
@@ -48,6 +48,12 @@ function task:init {
 
   (
     source ./.env
+
+    if [[! $DJANGO_SUPERUSER_USERNAME || ! $DJANGO_SUPERUSER_PASSWORD]]; then
+      echo "Cannot find DJANGO_SUPERUSER_USERNAME or DJANGO_SUPERUSER_PASSWORD env variables."
+      echo "Create .env file with DJANGO_SUPERUSER_USERNAME, DJANGO_SUPERUSER_PASSWORD variables in project root dir."
+      exit 1
+    fi
     task:manage createsuperuser --no-input
   )
 
@@ -62,13 +68,13 @@ function task:test {
 
 # run linters
 function task:lint {
-  task:dce black . --diff --color
+  task:dce app black . --diff --color
   task:dce mypy .
   task:dce ruff check .
 }
 
 # run linters with autofix
-function task:lint_and_fix {
+function task:lint-and-fix {
   task:dce black .
   task:dce mypy .
   task:dce ruff
@@ -76,6 +82,7 @@ function task:lint_and_fix {
 
 # show all tasks
 function task:help {
+  echo "Available tasks:"
   compgen -A function
 }
 
