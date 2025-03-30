@@ -53,7 +53,7 @@ class BoostType:
 
 class Boost:
     """
-    Буста продвижения конкретного объявления
+    Буст продвижения конкретного объявления
 
     Fields:
         + boost_type (BoostType): Тип буста
