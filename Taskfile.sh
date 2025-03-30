@@ -69,15 +69,15 @@ function task:test {
 # run linters
 function task:lint {
   task:dce app black . --diff --color
-  task:dce mypy .
-  task:dce ruff check .
+  task:dce app mypy .
+  task:dce app ruff check .
 }
 
 # run linters with autofix
 function task:lint-and-fix {
-  task:dce black .
-  task:dce mypy .
-  task:dce ruff
+  task:dce app black . --color
+  task:dce app mypy .
+  task:dce app ruff check --fix
 }
 
 # show all tasks
