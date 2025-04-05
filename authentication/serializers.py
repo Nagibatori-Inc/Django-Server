@@ -19,25 +19,25 @@ class PasswordValidationMixin:
         return value
 
 
-class PhoneSerializer(serializers.Serializer, PhoneValidationMixin):
-    phone = serializers.CharField(required=True, max_length=15)
-
-
-class PasswordSerializer(serializers.Serializer, PasswordValidationMixin):
-    password = serializers.CharField(required=True)
-
-
-class EmailSerializer(serializers.Serializer):
-    email = serializers.EmailField(required=True)
-
-
-class VerificationRequestSerializer(serializers.Serializer, PhoneValidationMixin):
-    phone = serializers.CharField(required=True, max_length=15)
-    otp_code = serializers.CharField(required=True, max_length=6)
+class OTPValidationMixin:
 
     def validate_otp_code(self, value: str) -> str:
         validate_otp(value)
         return value
+
+
+class PhoneSerializer(serializers.Serializer, PhoneValidationMixin):
+    phone = serializers.CharField(required=True, max_length=15)
+
+
+class PasswordResetSerializer(serializers.Serializer, PasswordValidationMixin, OTPValidationMixin):
+    password = serializers.CharField(required=True)
+    otp_code = serializers.CharField(required=True, max_length=6)
+
+
+class VerificationRequestSerializer(serializers.Serializer, PhoneValidationMixin, OTPValidationMixin):
+    phone = serializers.CharField(required=True, max_length=15)
+    otp_code = serializers.CharField(required=True, max_length=6)
 
 
 class SignUpRequestSerializer(serializers.Serializer, PhoneValidationMixin, PasswordValidationMixin):
@@ -54,7 +54,7 @@ class SignUpRequestSerializer(serializers.Serializer, PhoneValidationMixin, Pass
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["username", "email", "first_name", "date_joined"]
+        fields = ["username", "email", "first_name"]
 
 
 class ProfileOwnerSerializer(serializers.ModelSerializer):
