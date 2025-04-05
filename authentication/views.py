@@ -1,19 +1,19 @@
-from django.contrib.auth.models import User
 from knox.views import LoginView as KnoxLoginView
 from rest_framework import status
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ViewSet
 
 from authentication.misc.custom_auth import CustomBasicAuthentication
-from authentication.models import Profile
 from authentication.permissions import IsProfileOwnerOrReadOnly
-from authentication.selectors import get_profile, get_user_by_phone
-from authentication.serializers import ProfileSerializer, SignUpRequestSerializer, VerificationRequestSerializer, PhoneSerializer
-from authentication.services.profile import ProfileManagerService
-from authentication.services.token_auth import SmsVerificationService
+from authentication.selectors import get_profile_with_user, get_user_with_profile_by_phone, get_otp_with_user_by_code
+from authentication.serializers import ProfileSerializer, SignUpRequestSerializer, VerificationRequestSerializer, \
+    PhoneSerializer, PasswordResetSerializer
+from authentication.services.profile import ProfileManagerService, PasswordManagerService
+from authentication.services.verification import BaseVerificationService
+from authentication.tasks import send_sms_task
 from authentication.utils import make_phone_uniform
-
 
 MESSAGE_TEMPLATE = "Зубастый ректум приглашает вас, код {0}"
 
@@ -24,32 +24,18 @@ class LoginView(KnoxLoginView):
 
 class ProfileVerificationView(APIView):
     def post(self, request, *args, **kwargs):
-        # Пока использует только смс верификацию, потом добавим емыло
         serializer = VerificationRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        phone: str = make_phone_uniform(serializer.validated_data.get("phone"))
-        otp: str = serializer.validated_data.get("otp_code")
-        user: User = get_user_by_phone(phone)
-        profile: Profile = user.profile
+        phone = make_phone_uniform(serializer.validated_data.get("phone"))
+        otp = serializer.validated_data.get("otp_code")
+        user = get_user_with_profile_by_phone(phone)
+        profile = user.profile
 
-        SmsVerificationService(user).verify_otp(otp)
+        BaseVerificationService(user).verify_otp(otp)
         ProfileManagerService(profile).verify()
 
         return Response("verified successfully", status=status.HTTP_200_OK)
-
-
-# class EmailResetPasswordInitView(APIView):
-#     def post(self, request):
-#         serializer = EmailSerializer(request.data)
-#         serializer.is_valid(raise_exception=True)
-#
-#         email = serializer.validated_data.get("email")
-#         user = get_object_or_404(User, email=email)
-#
-#         # Enter email verification service
-#
-#         return Response("verification code sent", status=status.HTTP_200_OK)
 
 
 class SendVerificationCodeView(APIView):
@@ -57,35 +43,47 @@ class SendVerificationCodeView(APIView):
         serializer = PhoneSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        phone: str = make_phone_uniform(serializer.validated_data.get("phone"))
-        user: User = get_user_by_phone(phone)
-
-        SmsVerificationService(user).send_otp(message_template=MESSAGE_TEMPLATE)
+        phone = make_phone_uniform(serializer.validated_data.get("phone"))
+        user = get_user_with_profile_by_phone(phone)
+        otp = BaseVerificationService(user).create_otp()
+        send_sms_task.delay(phone, MESSAGE_TEMPLATE.format(otp))
 
         return Response("verification code sent", status=status.HTTP_200_OK)
 
 
-# class ResetPasswordConfirmView(APIView):
-#     def post(self, request):
-#         serializer = VerificationRequestSerializer(request.data)
-#         serializer.is_valid(raise_exception=True)
-#
-#         phone = make_phone_uniform(serializer.validated_data.get("phone"))
-#         otp = serializer.validated_data.get("otp_code")
-#         user = get_object_or_404(User, username=phone)
-#
-#         BaseVerificationService(user).verify_otp(otp)
-#
-#         return Response("verified successfully", status=status.HTTP_200_OK)
-#
-#
-# class ResetPasswordDoneView(APIView):
-#     def post(self, request):
-#         pass
+class ResetPasswordValidateTokenView(APIView):
+    def post(self, request: Request):
+        serializer = VerificationRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        phone = make_phone_uniform(serializer.validated_data.get("phone"))
+        user = get_user_with_profile_by_phone(phone)
+        otp = serializer.validated_data.get("otp_code")
+
+        BaseVerificationService(user).verify_otp(otp)
+
+        return Response({"detail": "token is valid"}, status=status.HTTP_200_OK)
+
+
+class ResetPasswordConfirmView(APIView):
+    def post(self, request: Request):
+        serializer = PasswordResetSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        password = serializer.validated_data.get("password")
+        otp_code = serializer.validated_data.get("otp_code")
+
+        otp = get_otp_with_user_by_code(otp_code)
+        user = otp.user
+
+        BaseVerificationService(user).verify_otp(otp_code)
+        PasswordManagerService(user).reset_password(new_password=password)
+
+        return Response({"detail": "password changed"}, status=status.HTTP_200_OK)
 
 
 class SignUpView(APIView):
-    def post(self, request):
+    def post(self, request: Request):
         serializer = SignUpRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -101,16 +99,16 @@ class SignUpView(APIView):
 class ProfileViewSet(ViewSet):
     permission_classes = [IsProfileOwnerOrReadOnly]
 
-    def retrieve(self, request, pk=None):
-        profile: Profile = get_profile(pk)
+    def retrieve(self, request: Request, pk: int = None):
+        profile = get_profile_with_user(pk)
         serialized_profile = ProfileSerializer(profile).data
 
         return Response({
             "profile": serialized_profile
         }, status=status.HTTP_200_OK)
 
-    def update(self, request, pk=None):
-        profile: Profile = get_profile(pk)
+    def update(self, request: Request, pk: int = None):
+        profile = get_profile_with_user(pk)
         self.check_object_permissions(request, profile)
 
         serializer = ProfileSerializer(data=request.data)
@@ -124,12 +122,10 @@ class ProfileViewSet(ViewSet):
             "profile": serialized_profile
         }, status=status.HTTP_200_OK)
 
-    def destroy(self, request, pk=None):
-        profile: Profile = get_profile(pk)
+    def destroy(self, request: Request, pk: int = None):
+        profile = get_profile_with_user(pk)
         self.check_object_permissions(request, profile)
 
         ProfileManagerService(profile).soft_delete()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
