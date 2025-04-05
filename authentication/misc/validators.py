@@ -8,7 +8,7 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 
 class PhoneValidationExp(str, Enum):
     RUS = r"^(\+7|8|7|\+8)\d{10}"
-    BEL = r"^(\+10|9|10|\+9)\d{10}"
+    BEL = r"^(\+10|9|10|\+9)\d{10}" # Просто пример
 
 
 class PhoneNumberValidator:
