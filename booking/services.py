@@ -8,6 +8,7 @@ from django.db.models.functions import Coalesce
 from rest_framework import status
 from rest_framework.response import Response
 
+from DjangoServer.helpers.datetime import renew_for_month
 from DjangoServer.service import RestService
 from authentication.models import Profile
 from booking.models import Advert, AdvertStatus, Promotion, Boost, PromotionStatus
@@ -133,7 +134,7 @@ class AdvertService(RestService):
 
         if validated_data.get('status') == AdvertStatus.ACTIVE:
             validated_data['activated_at'] = datetime.now()
-            validated_data['active_until'] = datetime.now()
+            validated_data['active_until'] = renew_for_month(datetime.now())
 
         return AdvertService(advert_serialized_data.save())
 

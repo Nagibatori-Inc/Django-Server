@@ -16,10 +16,7 @@ class AdvertSerializer(serializers.ModelSerializer):
     created_at = serializers.DateTimeField(required=False)
 
     def create(self, validated_data):
-        return Advert.objects.create(
-            **validated_data,
-            contact=self.context.get('contact', None)
-        )
+        return Advert.objects.create(**validated_data, contact=self.context.get('contact', None))
 
     def update(self, instance, validated_data):
         for field, value in validated_data.items():
