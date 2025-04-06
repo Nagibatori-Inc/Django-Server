@@ -130,7 +130,9 @@ class Advert(models.Model):
     )
     phone = models.CharField(max_length=12, verbose_name='Телефон')
 
-    location = models.CharField(max_length=255, verbose_name='Местоположение', default='Неизвестно') #TODO: пока charfield, позже сделаем модель локации
+    location = models.CharField(
+        max_length=255, verbose_name='Местоположение', default='Неизвестно'
+    )  # TODO: пока charfield, позже сделаем модель локации
     promotion = models.OneToOneField(
         Promotion, on_delete=models.CASCADE, related_name='advert', verbose_name='Продвижение', null=True, blank=True
     )
