@@ -145,12 +145,7 @@ class AdvertService(RestService):
 
         return AdvertService(
             Advert.objects.create(
-                title=validated_data.get('title'),
-                description=validated_data.get('description'),
-                price=validated_data.get('price'),
-                phone=validated_data.get('phone'),
-                status=validated_data.get('status', AdvertStatus.DISABLED),
-                activated_at=validated_data.get('activated_at', None),
+                **validated_data,
                 contact=contact,
             )
         )
