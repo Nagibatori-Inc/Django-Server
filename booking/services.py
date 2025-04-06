@@ -85,16 +85,7 @@ class AdvertService(RestService):
             self.response = ADVERT_NOT_FOUND
             return self
 
-        validated_data = changed_data.validated_data
-
-        advert.title = validated_data.get('title')
-        advert.description = validated_data.get('description')
-        advert.price = validated_data.get('price')
-        advert.phone = validated_data.get('phone')
-        advert.promotion = validated_data.get('promotion')
-        advert.activated_at = validated_data.get('activated_at')
-
-        advert.save()
+        self.advert = changed_data.save()
         return self
 
     @transaction.atomic
@@ -142,13 +133,9 @@ class AdvertService(RestService):
 
         if validated_data.get('status') == AdvertStatus.ACTIVE:
             validated_data['activated_at'] = datetime.now()
+            validated_data['active_until'] = datetime.now()
 
-        return AdvertService(
-            Advert.objects.create(
-                **validated_data,
-                contact=contact,
-            )
-        )
+        return AdvertService(advert_serialized_data.save())
 
     def created(self):
         """
