@@ -27,13 +27,13 @@ class BaseVerificationService:
     def _validate_otp(self, otp: str) -> None:
         latest_otp = self._get_latest_otp()
 
-        if latest_otp.has_expired:
-            raise ValidationError(detail={"detail": "latest otp already expired"})
-
         otp_valid = compare_otps(otp, latest_otp.code)
 
         if not otp_valid:
             raise ValidationError(detail={"detail": "otp doesn't match"})
+
+        if latest_otp.has_expired:
+            raise ValidationError(detail={"detail": "latest otp already expired"})
 
     def create_otp(self) -> str:
         otp = OneTimePassword(user=self.user).save()
