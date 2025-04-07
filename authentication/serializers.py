@@ -4,23 +4,27 @@ from rest_framework import serializers
 from authentication.models import Profile
 from authentication.misc.validators import validate_password, validate_phone, validate_otp, PhoneValidationExp
 
+# Можно заметить, что поля повторяются и, в целом, для них можно сделать mixin'ы или type alias'ы,
+# но сразу не будет видно какие аттрибуты обрабатываются этим сериализатором, что не очень хорошо
+# для читаемости
+
 
 class PhoneValidationMixin:
-
+    """Mixin для валидации телефонного номера"""
     def validate_phone(self, value: str) -> str:
         validate_phone(value, [PhoneValidationExp.RUS, PhoneValidationExp.BEL])
         return value
 
 
 class PasswordValidationMixin:
-
+    """Mixin для валидации пароля"""
     def validate_password(self, value: str) -> str:
         validate_password(value)
         return value
 
 
 class OTPValidationMixin:
-
+    """Mixin для валидации OTP кода"""
     def validate_otp_code(self, value: str) -> str:
         validate_otp(value)
         return value
@@ -30,7 +34,8 @@ class PhoneSerializer(serializers.Serializer, PhoneValidationMixin):
     phone = serializers.CharField(required=True, max_length=15)
 
 
-class PasswordResetSerializer(serializers.Serializer, PasswordValidationMixin, OTPValidationMixin):
+class PasswordResetSerializer(serializers.Serializer, PasswordValidationMixin, OTPValidationMixin, PhoneValidationMixin):
+    phone = serializers.CharField(required=True, max_length=15)
     password = serializers.CharField(required=True)
     otp_code = serializers.CharField(required=True, max_length=6)
 
@@ -64,6 +69,16 @@ class ProfileOwnerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = ["name", "type", "user"]
+
+    # Убираем вложенность
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+
+        user_data = representation.pop("user")
+        user_data["phone"] = user_data.pop("username")
+
+        representation.update(user_data)
+        return representation
 
 
 class ProfileSerializer(serializers.ModelSerializer):
