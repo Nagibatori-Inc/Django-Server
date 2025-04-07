@@ -82,7 +82,7 @@ class ProfileManagerService:
                 raise ValidationError(detail={"detail": "user with that phone already exists"})
 
             ProfileManagerService._update_user(user=user, password=password, first_name=first_name, email=email, is_active=True)
-            ProfileManagerService._update_profile(profile=profile, profile_name=profile_name, profile_type=profile_type, is_deleted=False)
+            ProfileManagerService._update_profile(profile=profile, name=profile_name, type=profile_type, is_deleted=False)
 
         except User.DoesNotExist:
             user = User(username=phone, first_name=first_name, email=email)
@@ -99,7 +99,7 @@ class ProfileManagerService:
 
     @transaction.atomic
     def update(self, phone: str | None = None, email: str | None = None, first_name: str | None = None, name: str | None = None, type: str | None = None) -> None:
-        ProfileManagerService._update_profile(profile=self.profile, profile_name=name, profile_type=type, is_deleted=False)
+        ProfileManagerService._update_profile(profile=self.profile, name=name, type=type, is_deleted=False)
         ProfileManagerService._update_user(user=self.profile.user, username=phone, first_name=first_name, email=email)
 
     def verify(self) -> None:
