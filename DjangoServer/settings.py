@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 
-import smsaero
 from decouple import AutoConfig
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -164,9 +163,11 @@ SMSAERO_API_KEY = config("SMSAERO_API_KEY", default=None)
 
 SMS_MODE = config("SMS_MODE", default="debug")
 
+# Шаблон отправляемого сообщения верификации (где {0} - это одноразовый код)
+MESSAGE_TEMPLATE = "Ваш код, {0}"
 
 # Время действия одноразового кода (OTP) в минутах
-OTP_TTL = config("OTP_TTL", default=10)
+OTP_TTL = config("OTP_TTL", default=1)
 
 # Настройки Celery
 CELERY_BROKER_URL = "redis://localhost:6379/0"
