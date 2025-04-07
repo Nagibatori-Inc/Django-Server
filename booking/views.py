@@ -2,7 +2,7 @@ from typing import Optional
 
 from django.shortcuts import get_object_or_404
 from rest_framework import status
-from rest_framework.authentication import BasicAuthentication
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.routers import DefaultRouter
@@ -19,7 +19,7 @@ router = DefaultRouter()
 
 
 class AdvertViewSet(ViewSet):
-    authentication_classes = (BasicAuthentication,)
+    permission_classes = (IsAuthenticated,)
 
     queryset = Advert.objects.all()
     serializer_class = AdvertSerializer
@@ -128,6 +128,8 @@ class AdvertViewSet(ViewSet):
 
 
 class AdvertsRecommendationViewSet(ViewSet):
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
     queryset = Advert.objects.filter(status=AdvertStatus.ACTIVE)
     serializer_class = AdvertSerializer
 
@@ -156,7 +158,7 @@ class AdvertsRecommendationViewSet(ViewSet):
 
 
 class PromotionViewSet(ViewSet):
-    authentication_classes = (BasicAuthentication,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     queryset = Promotion.objects.all()
     serializer_class = PromotionSerializer
