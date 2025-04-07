@@ -11,10 +11,7 @@ class IsProfileOwnerOrReadOnly(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
 
-        user: User = request.user
-        if not user.is_authenticated:
-            return False
+        user = request.user
+        is_profile_owner = obj.user == user
 
-        is_user_profile = user.profile == obj
-
-        return is_user_profile
+        return is_profile_owner
