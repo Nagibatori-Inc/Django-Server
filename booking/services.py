@@ -18,7 +18,11 @@ logger = structlog.get_logger(__name__)
 
 ADVERT_NOT_FOUND = Response(
     {'err_msg': 'Объявление не найдено'},
-    status=status.HTTP_400_BAD_REQUEST,
+    status=status.HTTP_404_NOT_FOUND,
+)
+ADVERTS_NOT_FOUND = Response(
+    {'err_msg': 'Объявления не найдены'},
+    status=status.HTTP_404_NOT_FOUND,
 )
 PROMOTION_NOT_FOUND = Response({"err_msg": "Не указано объявление или пользователь"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -182,19 +186,22 @@ class AdvertsRecommendationService(RestService):
         self.__adverts = adverts
 
     @property
-    def adverts(self):
+    def adverts(self) -> Optional[QuerySet[Advert]]:
         return self.__adverts
 
-    def _get(self, pk: int, profile: Profile):
+    def _get(self, pk: int, profile: Profile) -> AdvertService:
         advert: Optional[Advert] = AdvertService.find(advert_pk=pk, user_profile=profile).advert
 
-        if advert not in self.adverts or advert is None:
-            return AdvertService().not_found()
+        if advert and self.adverts and advert in self.adverts:
+            return AdvertService(advert).ok()
 
-        return AdvertService(advert).ok()
+        return AdvertService().not_found()
 
     @transaction.atomic
     def serialize(self, serializer: Type[AdvertSerializer]):  # type: ignore[override]
+        if self.adverts is None:
+            return self.not_found()
+
         serialized_queryset = serializer(self.adverts.values(), many=True)
         self.ok(serialized_queryset.data)
 
@@ -232,6 +239,9 @@ class AdvertsRecommendationService(RestService):
             .order_by('-promotion_rate', '-created_at')
         )
 
+        if len(queryset) == 0:
+            return AdvertsRecommendationService().not_found()
+
         return AdvertsRecommendationService(queryset).ok()
 
     def not_found(self) -> 'AdvertsRecommendationService':
@@ -266,36 +276,50 @@ class PromotionService(RestService):
         self.__promotion = promotion
 
     @property
-    def promotion(self):
+    def promotion(self) -> Optional[Promotion]:
         return self.__promotion
 
     @promotion.setter
-    def promotion(self, promotion: Promotion):
+    def promotion(self, promotion: Promotion) -> None:
         self.__promotion = promotion
 
     @transaction.atomic
-    def boost(self, how_to_boost: Boost):
-        promotion: Promotion = self.promotion
+    def boost(self, how_to_boost: Boost) -> 'PromotionService':
+        promotion: Optional[Promotion] = self.promotion
+        if promotion is None:
+            self.not_found()
+            return self
+
         promotion = how_to_boost.boost(promotion=promotion)
-        promotion.save()
+        promotion.save()  # type: ignore
         return self
 
     @transaction.atomic
-    def disable(self):
+    def disable(self) -> 'PromotionService':
         promotion = self.promotion
+        if promotion is None:
+            self.not_found()
+            return self
+
         promotion.status = PromotionStatus.DISABLED
         promotion.save()
         return self
 
     @transaction.atomic
-    def remove(self):
+    def remove(self) -> 'PromotionService':
         promotion = self.promotion
+        if promotion is None:
+            self.not_found()
+            return self
+
         self.promotion = None
         promotion.delete()
         return self
 
     @staticmethod
-    def find(promotion_pk: int, advert: Optional[Advert] = None, user_profile: Optional[Profile] = None):
+    def find(
+        promotion_pk: int, advert: Optional[Advert] = None, user_profile: Optional[Profile] = None
+    ) -> 'PromotionService':
         """
         Метод, поиска объявления по его идентификатору (первичному ключу) и профилю юзера, подавшего объявление
 
@@ -335,7 +359,7 @@ class PromotionService(RestService):
         advert: Optional[Advert] = None,
         advert_pk: Optional[int] = None,
         user_profile: Optional[Profile] = None,
-    ):
+    ) -> 'PromotionService':
         """
         Метод, реализующий логику подключения 'продвижения' полученному (переданному) объявлению
 
@@ -369,7 +393,7 @@ class PromotionService(RestService):
 
         return PromotionService(promotion)
 
-    def created(self):
+    def created(self) -> 'PromotionService':
         """
         Если продвижение объявления успешно создано, возвращает `201 CREATED`
 
@@ -380,7 +404,7 @@ class PromotionService(RestService):
 
         return self
 
-    def not_found(self):
+    def not_found(self) -> 'PromotionService':
         """
         Если продвижение не найдено, возвращает `404 NOT FOUND`, иначе продолжает цепочку
 

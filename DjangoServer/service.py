@@ -43,26 +43,26 @@ class RestService:
         self.__should_commit = should_commit
 
     @property
-    def response(self):
+    def response(self) -> Optional[Response]:
         return self.__response
 
     @response.setter
-    def response(self, response: Response):
+    def response(self, response: Response) -> None:
         self.__response = response
 
     @property
-    def should_commit(self):
+    def should_commit(self) -> bool:
         return self.__should_commit
 
     @should_commit.setter
-    def should_commit(self, should_commit: bool):
+    def should_commit(self, should_commit: bool) -> None:
         self.__should_commit = should_commit
 
-    def _finalize_transaction(self):
+    def _finalize_transaction(self) -> Optional[Response]:
         """
         Финализируем транзакцию: коммитим, если всё хорошо, иначе откатываем.
         """
-        if self.response.status_code in [status.HTTP_200_OK, status.HTTP_201_CREATED]:
+        if self.response and self.response.status_code in [status.HTTP_200_OK, status.HTTP_201_CREATED]:
             self.should_commit = True
         else:
             self.should_commit = False
@@ -96,7 +96,7 @@ class RestService:
 
         return self
 
-    def or_else_send(self, status_code):
+    def or_else_send(self, status_code) -> Optional[Response]:
         """
         Продолжает цепочку создания ответа от АПИ. Возвращает полученный `status_code`,
         если в цепочке не создались требуемые ответы
@@ -106,22 +106,22 @@ class RestService:
         """
         return self.response or Response(status=status_code)
 
-    def or_else_400(self):
+    def or_else_400(self) -> Optional[Response]:
         return self.or_else_send(status.HTTP_400_BAD_REQUEST)
 
-    def or_else_401(self):
+    def or_else_401(self) -> Optional[Response]:
         return self.or_else_send(status.HTTP_401_UNAUTHORIZED)
 
-    def or_else_403(self):
+    def or_else_403(self) -> Optional[Response]:
         return self.or_else_send(status.HTTP_403_FORBIDDEN)
 
-    def or_else_404(self):
+    def or_else_404(self) -> Optional[Response]:
         return self.or_else_send(status.HTTP_404_NOT_FOUND)
 
-    def or_else_422(self):
+    def or_else_422(self) -> Optional[Response]:
         return self.or_else_send(status.HTTP_422_UNPROCESSABLE_ENTITY)
 
-    def respond_or_else_send(self, response: Callable, status_code):
+    def respond_or_else_send(self, response: Callable, status_code) -> Optional[Response]:
         """
         Вызывает указанный метод отправки ответа (Response'а), используемый в цепочке формирования Response'а,
         если все действия прошли успешно, иначе ответ со статусом, указанным в `status_code`
