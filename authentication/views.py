@@ -93,7 +93,7 @@ class SignUpView(APIView):
         serializer.is_valid(raise_exception=True)
 
         auth_token, profile = ProfileManagerService.create(**serializer.validated_data)
-        serialized_profile = ProfileSerializer(profile).data
+        serialized_profile = ProfileOwnerSerializer(profile).data
 
         return Response({
             "profile": serialized_profile,
