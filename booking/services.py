@@ -234,6 +234,17 @@ class AdvertsRecommendationService(RestService):
 
         return AdvertsRecommendationService(queryset).ok()
 
+    def not_found(self) -> 'AdvertsRecommendationService':
+        """
+        Если объявления не найдены, возвращает `404 NOT FOUND`, иначе продолжает цепочку
+
+        :return: RestService
+        """
+        if self.response is None and self.adverts is None:
+            self.response = ADVERTS_NOT_FOUND
+
+        return self
+
 
 class PromotionService(RestService):
     """
