@@ -7,8 +7,7 @@ from knox.models import AuthToken
 from rest_framework.exceptions import ValidationError
 
 from authentication.models import Profile
-from authentication.utils import make_phone_uniform, update_user, update_profile, create_user, create_profile
-
+from authentication.utils import make_phone_uniform
 
 class PasswordManagerService:
     def __init__(self, user: User):
@@ -33,6 +32,38 @@ class ProfileManagerService:
         self.profile = profile
 
     @staticmethod
+    def _update_user(*, user: User, **update_data) -> None:
+        for name in update_data:
+            new_val = update_data[name]
+
+            if new_val is None:
+                del update_data[name]
+                continue
+
+            if name == "password":
+                user.set_password(raw_password=new_val)
+                continue
+
+            setattr(user, name, new_val)
+
+        fields_to_update = list(update_data.keys())
+        user.save(update_fields=fields_to_update)
+
+    @staticmethod
+    def _update_profile(*, profile: Profile, **update_data) -> None:
+        for name in update_data:
+            new_val = update_data[name]
+
+            if new_val is None:
+                del update_data[name]
+                continue
+
+            setattr(profile, name, new_val)
+
+        fields_to_update = list(update_data.keys())
+        profile.save(update_fields=fields_to_update)
+
+    @staticmethod
     @transaction.atomic
     def create(phone: str, password: str, first_name: str, email: str, profile_name: str, profile_type: str) -> Tuple[str, Profile]:
         user: User
@@ -50,23 +81,26 @@ class ProfileManagerService:
             if user.is_active:
                 raise ValidationError(detail={"detail": "user with that phone already exists"})
 
-            update_user(user=user, password=password, first_name=first_name, email=email, is_active=True)
-            update_profile(profile=profile, profile_name=profile_name, profile_type=profile_type, is_deleted=False)
+            ProfileManagerService._update_user(user=user, password=password, first_name=first_name, email=email, is_active=True)
+            ProfileManagerService._update_profile(profile=profile, profile_name=profile_name, profile_type=profile_type, is_deleted=False)
 
         except User.DoesNotExist:
-            user = create_user(phone=phone, password=password, first_name=first_name, email=email)
-            profile = create_profile(user=user, profile_type=profile_type, profile_name=profile_name)
+            user = User(username=phone, first_name=first_name, email=email)
+            profile = Profile(user=user, name=profile_name, type=profile_type)
+            user.set_password(raw_password=password)
+
+            user.save()
+            profile.save()
 
         auth_token = AuthToken.objects.create(user)
         auth_token_val = auth_token[1]
 
         return auth_token_val, profile
 
-    def update(self, name: str, type: str) -> None:
-        self.profile.name = name
-        self.profile.type = type
-
-        self.profile.save(update_fields=["name", "type"])
+    @transaction.atomic
+    def update(self, phone: str | None = None, email: str | None = None, first_name: str | None = None, name: str | None = None, type: str | None = None) -> None:
+        ProfileManagerService._update_profile(profile=self.profile, profile_name=name, profile_type=type, is_deleted=False)
+        ProfileManagerService._update_user(user=self.profile.user, username=phone, first_name=first_name, email=email)
 
     def verify(self) -> None:
         if self.profile.is_verified:
