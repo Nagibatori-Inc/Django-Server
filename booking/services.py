@@ -49,29 +49,29 @@ class AdvertService(RestService):
         self.__advert = advert
 
     @property
-    def advert(self):
+    def advert(self) -> Advert:
         return self.__advert
 
     @advert.setter
-    def advert(self, advert: Optional[Advert]):
+    def advert(self, advert: Optional[Advert]) -> None:
         self.__advert = advert
 
     @transaction.atomic
-    def activate(self):
+    def activate(self) -> 'AdvertService':
         self.advert.status = AdvertStatus.ACTIVE
         self.advert.activated_at = datetime.now()
         self.advert.save()
         return self
 
     @transaction.atomic
-    def deactivate(self):
+    def deactivate(self) -> 'AdvertService':
         self.advert.status = AdvertStatus.DISABLED
         self.advert.activated_at = None
         self.advert.save()
         return self
 
     @transaction.atomic
-    def change(self, changed_data: AdvertSerializer):
+    def change(self, changed_data: AdvertSerializer) -> 'AdvertService':
         """
         Метод, изменения объявления по его идентификатору (первичному ключу) и профилю юзера, подавшего объявление
         По сути планируется применять когда юзер на веб аппе меняет поля объявления на соответствующей страничке ->
@@ -97,7 +97,7 @@ class AdvertService(RestService):
         return self
 
     @transaction.atomic
-    def serialize(self, serializer: Type[AdvertSerializer]):  # type: ignore[override]
+    def serialize(self, serializer: Type[AdvertSerializer]) -> 'AdvertService':  # type: ignore[override]
         serialized_advert = serializer(self.advert, many=False)
         self.ok(serialized_advert.data)
 
@@ -106,7 +106,7 @@ class AdvertService(RestService):
         return self
 
     @staticmethod
-    def find(advert_pk: int, user_profile: Profile):
+    def find(advert_pk: int, user_profile: Profile) -> 'AdvertService':
         """
         Метод, поиска объявления по его идентификатору (первичному ключу) и профилю юзера, подавшего объявление
 
@@ -120,7 +120,7 @@ class AdvertService(RestService):
 
     @staticmethod
     @transaction.atomic
-    def advertise(advert_serialized_data: AdvertSerializer, contact: Profile):
+    def advertise(advert_serialized_data: AdvertSerializer, contact: Profile) -> 'AdvertService':
         """
         Метод реализации логики подачи объявления (Публикация объявления)
 
@@ -138,7 +138,7 @@ class AdvertService(RestService):
 
         return AdvertService(advert_serialized_data.save(contact=contact))
 
-    def created(self):
+    def created(self) -> 'AdvertService':
         """
         Если объявление создано, возвращает `201 CREATED`
 
@@ -149,7 +149,7 @@ class AdvertService(RestService):
 
         return self
 
-    def not_found(self):
+    def not_found(self) -> 'AdvertService':
         """
         Если объявления не найдены, возвращает `404 NOT FOUND`, иначе продолжает цепочку
 
