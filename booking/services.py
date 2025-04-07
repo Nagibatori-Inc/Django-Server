@@ -175,10 +175,10 @@ class AdvertsRecommendationService(RestService):
     def adverts(self):
         return self.__adverts
 
-    def get(self, pk: int, profile: Profile):
+    def _get(self, pk: int, profile: Profile):
         advert: Advert = AdvertService.find(advert_pk=pk, user_profile=profile).advert
 
-        if advert not in self.adverts:
+        if advert in self.adverts:
             return AdvertService(advert).ok()
 
         return AdvertService().not_found()
@@ -191,6 +191,10 @@ class AdvertsRecommendationService(RestService):
         logger.debug('serialized adverts queryset', data=serialized_queryset.data, response=self.response)
 
         return self
+
+    @transaction.atomic
+    def view_ad(self, pk: int, profile: Profile):
+        return self._get(pk, profile)
 
     @staticmethod
     @transaction.atomic
