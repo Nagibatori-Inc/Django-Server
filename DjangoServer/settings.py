@@ -31,16 +31,8 @@ SECRET_KEY = "django-insecure-jlfaz)s(!fgo^x!y=^kxyr1huxxr^qutvna2ek3#azy_+1t__z
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config("DEBUG", default='dev') == 'debug' or 'dev' or 'development'
 
-ALLOWED_HOSTS = [
-    'localhost',
-    '0.0.0.0',
-    '127.0.0.1',
-    '192.168.0.107',
-    '[::1]',
-] + config(
-    'ALLOWED_HOSTS',
-    default=''
-).split(',')
+ALLOWED_HOSTS = ['localhost', '0.0.0.0', '127.0.0.1', '192.168.0.107', '[::1]']
+ALLOWED_HOSTS += config('ALLOWED_HOSTS', default='').split(',')
 
 
 # Application definition
@@ -58,6 +50,7 @@ INSTALLED_APPS = [
 
     'booking.apps.BookingConfig',
     'authentication.apps.AuthenticationConfig',
+    "django_migration_linter",
 ]
 
 MIDDLEWARE = [
@@ -75,8 +68,7 @@ ROOT_URLCONF = "DjangoServer.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / 'templates']
-        ,
+        "DIRS": [BASE_DIR / 'templates'],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [

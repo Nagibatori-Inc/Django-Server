@@ -8,12 +8,17 @@ RUN apt-get update && apt-get upgrade -y \
     build-essential \
     libpq-dev
 
+RUN git config --global user.email "you@example.com" &&  \
+    git config --global user.name "Your Name"
+
+RUN pip install -U pip && \
+    curl -sSL https://install.python-poetry.org | python3 -
+
+ENV PATH="/root/.local/bin:$PATH"
+
 WORKDIR /app
 
-COPY ./requirements.txt /app
-RUN pip3 install -r requirements.txt --no-cache-dir
+COPY ./pyproject.toml ./poetry.lock /app/
+RUN poetry config virtualenvs.create false  &&\
+    poetry install --no-ansi --no-root --no-cache
 COPY . /app
-
-EXPOSE 8080
-ENTRYPOINT ["python"]
-CMD ["manage.py", "runserver", "0.0.0.0:8080"]

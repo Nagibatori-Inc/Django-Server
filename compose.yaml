@@ -9,10 +9,16 @@ x-app-variables: &app-variables
   DEBUG: dev
   ALLOWED_HOSTS: http://localhost
   HOST: http://localhost:8000/
+
   DATABASE_HOST: db
   POSTGRES_DB: booking_platform
   POSTGRES_USER: admin
   POSTGRES_PASSWORD: adminpassword
+
+  DJANGO_SUPERUSER_USERNAME: admin
+  DJANGO_SUPERUSER_EMAIL: admin@example.com
+  DJANGO_SUPERUSER_PASSWORD: strongpassword
+
   REST_API_BASE: api/
 services:
   db:
@@ -41,6 +47,7 @@ services:
       context: .
       dockerfile: ./Dockerfile
     environment: *app-variables
+    command: poetry run python manage.py runserver 0.0.0.0:8080
     ports:
       - "8000:8080"
     depends_on:
