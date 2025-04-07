@@ -136,7 +136,7 @@ class AdvertService(RestService):
             validated_data['activated_at'] = datetime.now()
             validated_data['active_until'] = renew_for_month(datetime.now())
 
-        return AdvertService(advert_serialized_data.save())
+        return AdvertService(advert_serialized_data.save(contact=contact))
 
     def created(self):
         """
