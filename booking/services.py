@@ -49,7 +49,7 @@ class AdvertService(RestService):
         self.__advert = advert
 
     @property
-    def advert(self) -> Advert:
+    def advert(self) -> Optional[Advert]:
         return self.__advert
 
     @advert.setter
@@ -58,6 +58,10 @@ class AdvertService(RestService):
 
     @transaction.atomic
     def activate(self) -> 'AdvertService':
+        if self.advert is None:
+            self.not_found()
+            return self
+
         self.advert.status = AdvertStatus.ACTIVE
         self.advert.activated_at = datetime.now()
         self.advert.save()
@@ -65,6 +69,10 @@ class AdvertService(RestService):
 
     @transaction.atomic
     def deactivate(self) -> 'AdvertService':
+        if self.advert is None:
+            self.not_found()
+            return self
+
         self.advert.status = AdvertStatus.DISABLED
         self.advert.activated_at = None
         self.advert.save()
@@ -80,10 +88,8 @@ class AdvertService(RestService):
         :param changed_data (AdvertSerializer) Сериализованные данные объявления
         :return: AdvertService
         """
-        advert: Advert = self.advert
-
-        if advert is None:
-            self.response = ADVERT_NOT_FOUND
+        if self.advert is None:
+            self.not_found()
             return self
 
         self.advert = changed_data.save()
@@ -91,7 +97,11 @@ class AdvertService(RestService):
 
     @transaction.atomic
     def remove(self) -> 'AdvertService':
-        advert: Advert = self.advert
+        advert: Optional[Advert] = self.advert
+        if advert is None:
+            self.not_found()
+            return self
+
         self.advert = None
         advert.delete()
         return self
@@ -176,12 +186,12 @@ class AdvertsRecommendationService(RestService):
         return self.__adverts
 
     def _get(self, pk: int, profile: Profile):
-        advert: Advert = AdvertService.find(advert_pk=pk, user_profile=profile).advert
+        advert: Optional[Advert] = AdvertService.find(advert_pk=pk, user_profile=profile).advert
 
-        if advert in self.adverts:
-            return AdvertService(advert).ok()
+        if advert not in self.adverts or advert is None:
+            return AdvertService().not_found()
 
-        return AdvertService().not_found()
+        return AdvertService(advert).ok()
 
     @transaction.atomic
     def serialize(self, serializer: Type[AdvertSerializer]):  # type: ignore[override]
