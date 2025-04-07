@@ -257,14 +257,14 @@ class PromotionService(RestService):
 
     @transaction.atomic
     def disable(self):
-        promotion: Promotion = self.promotion
+        promotion = self.promotion
         promotion.status = PromotionStatus.DISABLED
         promotion.save()
         return self
 
     @transaction.atomic
     def remove(self):
-        promotion: Promotion = self.promotion
+        promotion = self.promotion
         self.promotion = None
         promotion.delete()
         return self
