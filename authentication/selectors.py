@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework.exceptions import NotFound
 
-from authentication.models import Profile, OneTimePassword
+from authentication.models import Profile
 
 
 def get_profile_with_user(pk: int = None) -> Profile:

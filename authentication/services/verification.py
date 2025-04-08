@@ -2,9 +2,7 @@ from django.contrib.auth.models import User
 from rest_framework.exceptions import ValidationError
 from django.contrib.auth.hashers import check_password as compare_otps
 
-from DjangoServer.settings import SMS_MODE, SMSAERO_API_KEY, SMSAERO_EMAIL
 from authentication.models import OneTimePassword
-from authentication.services.sms import BaseSmsService, SmsAeroService, SmsDebugService
 
 
 class BaseVerificationService:
