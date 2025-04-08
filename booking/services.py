@@ -226,7 +226,16 @@ class AdvertsRecommendationService(RestService):
         valid_data = filters.validated_data
         queryset = (
             Advert.objects.filter(
-                title__icontains=valid_data['title'], price=valid_data['price'], status=AdvertStatus.ACTIVE
+                **{
+                    k: v
+                    for k, v in {
+                        'price__gte': valid_data.get('min_price', None),
+                        'price__lte': valid_data.get('max_price', None),
+                    }.items()
+                    if v is not None
+                },
+                title__icontains=valid_data.get('title', ''),
+                status=AdvertStatus.ACTIVE,
             )
             .annotate(
                 promotion_rate=Coalesce(
