@@ -239,7 +239,7 @@ class AdvertsRecommendationService(RestService):
             .order_by('-promotion_rate', '-created_at')
         )
 
-        if len(queryset) == 0:
+        if len(queryset) == 0 or queryset is None:
             return AdvertsRecommendationService().not_found()
 
         return AdvertsRecommendationService(queryset).ok()
