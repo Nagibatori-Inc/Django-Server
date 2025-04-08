@@ -1,4 +1,4 @@
-FROM python:3.9.15-slim-buster AS builder
+FROM python:3.10.2-slim-buster AS builder
 
 RUN apt-get update && apt-get upgrade -y \
   && apt-get install --no-install-recommends -y \
@@ -19,6 +19,8 @@ ENV PATH="/root/.local/bin:$PATH"
 WORKDIR /app
 
 COPY ./pyproject.toml ./poetry.lock /app/
-RUN poetry config virtualenvs.create false  &&\
+RUN poetry config virtualenvs.create false && \
+    poetry lock  && \
     poetry install --no-ansi --no-root --no-cache
+
 COPY . /app
