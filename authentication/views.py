@@ -1,4 +1,3 @@
-from knox.auth import TokenAuthentication
 from knox.views import LoginView as KnoxLoginView
 from rest_framework import status
 from rest_framework.decorators import action
@@ -11,8 +10,14 @@ from rest_framework.viewsets import ViewSet
 from authentication.misc.custom_auth import CustomBasicAuthentication
 from authentication.permissions import IsProfileOwnerOrReadOnly
 from authentication.selectors import get_profile_with_user, get_user_with_profile_by_phone
-from authentication.serializers import ProfileSerializer, SignUpRequestSerializer, VerificationRequestSerializer, \
-    PhoneSerializer, PasswordResetSerializer, ProfileOwnerSerializer
+from authentication.serializers import (
+    ProfileSerializer,
+    SignUpRequestSerializer,
+    VerificationRequestSerializer,
+    PhoneSerializer,
+    PasswordResetSerializer,
+    ProfileOwnerSerializer,
+)
 from authentication.services.profile import ProfileManagerService, PasswordManagerService
 from authentication.services.verification import BaseVerificationService
 from authentication.tasks import send_sms_task
@@ -26,6 +31,7 @@ class LoginView(KnoxLoginView):
 
 class ProfileVerificationView(APIView):
     """View, использующийся для верификации профиля пользователя по OTP коду"""
+
     def post(self, request, *args, **kwargs):
         serializer = VerificationRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -43,6 +49,7 @@ class ProfileVerificationView(APIView):
 
 class SendVerificationCodeView(APIView):
     """View, использующийся для отправки OTP кода пользователю"""
+
     def post(self, request):
         serializer = PhoneSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -57,6 +64,7 @@ class SendVerificationCodeView(APIView):
 
 class ResetPasswordValidateTokenView(APIView):
     """View, использующийся для валидации OTP кода, без каких либо побочных эффектов"""
+
     def post(self, request: Request):
         serializer = VerificationRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -72,6 +80,7 @@ class ResetPasswordValidateTokenView(APIView):
 
 class ResetPasswordConfirmView(APIView):
     """View, использующийся для смены пароля"""
+
     def post(self, request: Request):
         serializer = PasswordResetSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -95,29 +104,26 @@ class SignUpView(APIView):
         auth_token, profile = ProfileManagerService.create(**serializer.validated_data)
         serialized_profile = ProfileOwnerSerializer(profile).data
 
-        return Response({
-            "profile": serialized_profile,
-            "token": auth_token
-        }, status=status.HTTP_201_CREATED)
+        return Response({"profile": serialized_profile, "token": auth_token}, status=status.HTTP_201_CREATED)
 
 
 class ProfileViewSet(ViewSet):
     permission_classes = [IsProfileOwnerOrReadOnly]
 
-    @action(detail=False, methods=['get'], permission_classes=(IsAuthenticated, ), url_path='my_profile')
+    @action(detail=False, methods=['get'], permission_classes=(IsAuthenticated,), url_path='my_profile')
     def get_my_profile(self, request: Request):
-        profile = request.user.profile
+        profile = request.user.profile  # type: ignore
         serialized_profile = ProfileOwnerSerializer(profile).data
 
         return Response(serialized_profile, status=status.HTTP_200_OK)
 
-    def retrieve(self, request: Request, pk: int | None = None):
+    def retrieve(self, request: Request, pk: int):
         profile = get_profile_with_user(pk)
         serialized_profile = ProfileSerializer(profile).data
 
         return Response(serialized_profile, status=status.HTTP_200_OK)
 
-    def update(self, request: Request, pk: int | None = None):
+    def update(self, request: Request, pk: int):
         profile = get_profile_with_user(pk)
         self.check_object_permissions(request, profile)
 
@@ -130,7 +136,7 @@ class ProfileViewSet(ViewSet):
 
         return Response(serialized_profile, status=status.HTTP_200_OK)
 
-    def destroy(self, request: Request, pk: int | None = None):
+    def destroy(self, request: Request, pk: int):
         profile = get_profile_with_user(pk)
         self.check_object_permissions(request, profile)
 

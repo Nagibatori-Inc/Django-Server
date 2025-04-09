@@ -2,12 +2,13 @@ from typing import Tuple
 
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.models import User
-from django.db import transaction, IntegrityError
+from django.db import transaction
 from knox.models import AuthToken
 from rest_framework.exceptions import ValidationError
 
 from authentication.models import Profile
 from authentication.utils import make_phone_uniform
+
 
 class PasswordManagerService:
     def __init__(self, user: User):
@@ -16,9 +17,7 @@ class PasswordManagerService:
     def _check_if_password_same(self, new_password: str) -> None:
         old_password_hash = self.user.password
         if check_password(new_password, old_password_hash):
-            raise ValidationError(
-                detail={"detail": "new password is the same as the old one"}
-            )
+            raise ValidationError(detail={"detail": "new password is the same as the old one"})
 
     def reset_password(self, new_password: str) -> None:
         self._check_if_password_same(new_password)
@@ -65,7 +64,9 @@ class ProfileManagerService:
 
     @staticmethod
     @transaction.atomic
-    def create(phone: str, password: str, first_name: str, email: str, profile_name: str, profile_type: str) -> Tuple[str, Profile]:
+    def create(
+        phone: str, password: str, first_name: str, email: str, profile_name: str, profile_type: str
+    ) -> Tuple[str, Profile]:
         user: User
         profile: Profile
 
@@ -81,8 +82,12 @@ class ProfileManagerService:
             if user.is_active:
                 raise ValidationError(detail={"detail": "user with that phone already exists"})
 
-            ProfileManagerService._update_user(user=user, password=password, first_name=first_name, email=email, is_active=True)
-            ProfileManagerService._update_profile(profile=profile, name=profile_name, type=profile_type, is_deleted=False)
+            ProfileManagerService._update_user(
+                user=user, password=password, first_name=first_name, email=email, is_active=True
+            )
+            ProfileManagerService._update_profile(
+                profile=profile, name=profile_name, type=profile_type, is_deleted=False
+            )
 
         except User.DoesNotExist:
             user = User(username=phone, first_name=first_name, email=email)
@@ -98,7 +103,14 @@ class ProfileManagerService:
         return auth_token_val, profile
 
     @transaction.atomic
-    def update(self, phone: str | None = None, email: str | None = None, first_name: str | None = None, name: str | None = None, type: str | None = None) -> None:
+    def update(
+        self,
+        phone: str | None = None,
+        email: str | None = None,
+        first_name: str | None = None,
+        name: str | None = None,
+        type: str | None = None,
+    ) -> None:
         ProfileManagerService._update_profile(profile=self.profile, name=name, type=type, is_deleted=False)
         ProfileManagerService._update_user(user=self.profile.user, username=phone, first_name=first_name, email=email)
 

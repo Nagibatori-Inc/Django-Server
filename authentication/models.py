@@ -22,10 +22,7 @@ class Profile(models.Model):
     + is_deleted: Поле soft delete'a, выставляется на True в случае удаления со стороны пользователя
     """
 
-    PROFILE_TYPE_CHOICES = (
-        ("IND", "Частное лицо"),
-        ("CMP", "Компания")
-    )
+    PROFILE_TYPE_CHOICES = (("IND", "Частное лицо"), ("CMP", "Компания"))
 
     name = models.CharField(max_length=50, null=True, verbose_name="Имя профиля")
     user = models.OneToOneField(User, related_name="profile", on_delete=models.CASCADE, verbose_name="Пользователь")
@@ -53,11 +50,12 @@ class OneTimePassword(models.Model):
     Properties:
     + has_expired(): Проверка истекла ли валидность кода
     """
+
     user = models.ForeignKey(User, related_name="otps", on_delete=models.CASCADE, verbose_name="Пользователь")
     code = models.CharField(max_length=128, default="", verbose_name="Одноразовый код (хэш)")
     creation_date = models.DateTimeField(auto_now=True, verbose_name="Время создания")
 
-    def save(self, *args, **kwargs) -> str:
+    def save(self, *args, **kwargs) -> str:  # type: ignore
         otp = ""
         if not self.code:
             otp = OneTimePassword.generate_otp()
@@ -77,9 +75,8 @@ class OneTimePassword(models.Model):
             return True
         return False
 
-    has_expired.fget.short_description = "OTP уже истек"
+    has_expired.fget.short_description = "OTP уже истек"  # type: ignore
 
     class Meta:
         verbose_name = "Одноразовый код"
         verbose_name_plural = "Одноразовые коды"
-

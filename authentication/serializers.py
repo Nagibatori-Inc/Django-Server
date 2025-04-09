@@ -11,6 +11,7 @@ from authentication.misc.validators import validate_password, validate_phone, va
 
 class PhoneValidationMixin:
     """Mixin для валидации телефонного номера"""
+
     def validate_phone(self, value: str) -> str:
         validate_phone(value, [PhoneValidationExp.RUS, PhoneValidationExp.BEL])
         return value
@@ -18,6 +19,7 @@ class PhoneValidationMixin:
 
 class PasswordValidationMixin:
     """Mixin для валидации пароля"""
+
     def validate_password(self, value: str) -> str:
         validate_password(value)
         return value
@@ -25,6 +27,7 @@ class PasswordValidationMixin:
 
 class OTPValidationMixin:
     """Mixin для валидации OTP кода"""
+
     def validate_otp_code(self, value: str) -> str:
         validate_otp(value)
         return value
@@ -34,7 +37,9 @@ class PhoneSerializer(serializers.Serializer, PhoneValidationMixin):
     phone = serializers.CharField(required=True, max_length=15)
 
 
-class PasswordResetSerializer(serializers.Serializer, PasswordValidationMixin, OTPValidationMixin, PhoneValidationMixin):
+class PasswordResetSerializer(
+    serializers.Serializer, PasswordValidationMixin, OTPValidationMixin, PhoneValidationMixin
+):
     phone = serializers.CharField(required=True, max_length=15)
     password = serializers.CharField(required=True)
     otp_code = serializers.CharField(required=True, max_length=6)
@@ -64,6 +69,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 class ProfileOwnerSerializer(serializers.ModelSerializer):
     """Сериализатор, использующийся при удачном создании пользователя и при запросе данных о самом себе"""
+
     user = UserSerializer()
 
     class Meta:
@@ -83,6 +89,7 @@ class ProfileOwnerSerializer(serializers.ModelSerializer):
 
 class ProfileSerializer(serializers.ModelSerializer):
     """Сериализатор, используемый для получения данных о профиле иного (не себя) пользователя"""
+
     # Добавить вложенного юзера
     class Meta:
         model = Profile

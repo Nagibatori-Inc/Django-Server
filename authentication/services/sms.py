@@ -47,11 +47,9 @@ class SmsDebugService(BaseSmsService):
 
     def send_message(self, phone: str, text: str, **kwargs) -> dict:
         logger.info(f"Message with content '{text}' is sent to number {phone}")
-        return {
-            "status": "delivered",
-            "message": text
-        }
+        return {"status": "delivered", "message": text}
 
 
-sms_service = SmsDebugService() if SMS_MODE != "production" else SmsAeroService(api_key=SMSAERO_API_KEY,
-                                                                                email=SMSAERO_EMAIL)
+sms_service = (
+    SmsDebugService() if SMS_MODE != "production" else SmsAeroService(api_key=SMSAERO_API_KEY, email=SMSAERO_EMAIL)
+)

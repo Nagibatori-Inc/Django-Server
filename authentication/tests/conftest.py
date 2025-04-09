@@ -1,5 +1,5 @@
 import pytest
-from model_bakery.recipe import Recipe
+from typing import Generator
 
 from rest_framework.test import APIClient
 from model_bakery import baker
@@ -8,7 +8,7 @@ from authentication.models import Profile
 
 
 @pytest.fixture(scope="function")
-def api_client() -> APIClient:
+def api_client() -> Generator[APIClient]:
     yield APIClient()
 
 
@@ -18,6 +18,5 @@ def mock_views_permissions():
 
 
 @pytest.fixture(scope="function")
-def default_profile() -> Profile:
+def default_profile() -> Generator[Profile]:
     yield baker.make_recipe("authentication.tests.profile_daniil")
-

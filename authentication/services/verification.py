@@ -12,6 +12,7 @@ class BaseVerificationService:
     Methods:
         + verify:
     """
+
     def __init__(self, user: User):
         self.user = user
 

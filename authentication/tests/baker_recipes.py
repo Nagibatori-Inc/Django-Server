@@ -7,5 +7,3 @@ profile_daniil = Recipe(
     name="Даниил",
     user__username="79183100755",
 )
-
-
