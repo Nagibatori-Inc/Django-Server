@@ -1,6 +1,5 @@
 from rest_framework import serializers
 
-from authentication.serializers import ProfileSerializer
 from booking.models import Advert, Promotion
 
 
@@ -15,30 +14,6 @@ class AdvertSerializer(serializers.ModelSerializer):
     status = serializers.CharField(required=False)
     activated_at = serializers.DateTimeField(required=False)
     created_at = serializers.DateTimeField(required=False)
-
-    def create(self, validated_data):
-        return Advert.objects.create(**validated_data)
-
-    class Meta:
-        model = Advert
-        fields = '__all__'
-
-
-# TODO: remove this, cause redundant -> `create` & `update` already exist ModelSerializer
-class AdvertUpdateSerializer(AdvertSerializer):
-    title = serializers.CharField(required=False)
-    description = serializers.CharField(required=False)
-    price = serializers.DecimalField(required=False, max_digits=11, decimal_places=2)
-    contact = ProfileSerializer(required=False)
-    phone = serializers.CharField(required=False)
-    location = serializers.CharField(required=False)
-    views = serializers.IntegerField(required=False)
-
-    def update(self, instance, validated_data):
-        for field, value in validated_data.items():
-            setattr(instance, field, value)
-        instance.save()
-        return instance
 
     class Meta:
         model = Advert
