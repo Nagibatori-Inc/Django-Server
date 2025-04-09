@@ -14,6 +14,9 @@ repos:
     rev: ''
     hooks:
     -   id: mypy
+#        additional_dependencies:
+#            - django-stubs
+#            - djangorestframework-stubs
 
 -   repo: https://github.com/psf/black-pre-commit-mirror
     rev: 25.1.0
