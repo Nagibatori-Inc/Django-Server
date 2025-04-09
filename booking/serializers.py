@@ -23,7 +23,7 @@ class AdvertSerializer(serializers.ModelSerializer):
         model = Advert
         fields = '__all__'
 
-
+# TODO: remove this, cause redundant -> `create` & `update` already exist ModelSerializer
 class AdvertUpdateSerializer(AdvertSerializer):
     title = serializers.CharField(required=False)
     description = serializers.CharField(required=False)
