@@ -89,7 +89,7 @@ class AdvertService(RestService):
         По сути планируется применять когда юзер на веб аппе меняет поля объявления на соответствующей страничке ->
         тогда кидается запрос и в дело вступает этот метод
 
-        :param changed_data (AdvertUpdateSerializer) Сериализованные данные объявления
+        :param changed_data (AdvertSerializer) Сериализованные данные объявления
         :return: AdvertService
         """
         if self.advert is None and self.response is None:
