@@ -7,7 +7,6 @@ pytestmark = pytest.mark.unit
 
 
 class TestPhoneValidation:
-
     @pytest.mark.parametrize(
         "phone",
         [
