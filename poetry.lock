@@ -590,6 +590,30 @@ files = [
 django = ">=4.2"
 
 [[package]]
+name = "djangorestframework-stubs"
+version = "3.15.3"
+description = "PEP-484 stubs for django-rest-framework"
+optional = false
+python-versions = ">=3.9"
+groups = ["main"]
+files = [
+    {file = "djangorestframework_stubs-3.15.3-py3-none-any.whl", hash = "sha256:3add29ac343292ffc926a3f3984af42de237cca214c69ca0489d124315a803bc"},
+    {file = "djangorestframework_stubs-3.15.3.tar.gz", hash = "sha256:e7bdec722d98b8a8049bad9f8bb5ead0931f4f64010ffb3c4538c9ae0f35ef2a"},
+]
+
+[package.dependencies]
+django-stubs = ">=5.1.3"
+requests = ">=2.0.0"
+types-PyYAML = ">=5.4.3"
+types-requests = ">=0.1.12"
+typing-extensions = ">=3.10.0"
+
+[package.extras]
+compatible-mypy = ["django-stubs[compatible-mypy]", "mypy (>=1.12,<1.16)"]
+coreapi = ["coreapi (>=2.0.0)"]
+markdown = ["types-Markdown (>=0.1.5)"]
+
+[[package]]
 name = "djangorestframework-types"
 version = "0.8.0"
 description = "Type stubs for Django Rest Framework"
@@ -1449,6 +1473,21 @@ files = [
 ]
 
 [[package]]
+name = "types-requests"
+version = "2.32.0.20250328"
+description = "Typing stubs for requests"
+optional = false
+python-versions = ">=3.9"
+groups = ["main"]
+files = [
+    {file = "types_requests-2.32.0.20250328-py3-none-any.whl", hash = "sha256:72ff80f84b15eb3aa7a8e2625fffb6a93f2ad5a0c20215fc1dcfa61117bcb2a2"},
+    {file = "types_requests-2.32.0.20250328.tar.gz", hash = "sha256:c9e67228ea103bd811c96984fac36ed2ae8da87a36a633964a21f199d60baf32"},
+]
+
+[package.dependencies]
+urllib3 = ">=2"
+
+[[package]]
 name = "typing-extensions"
 version = "4.12.2"
 description = "Backported and Experimental Type Hints for Python 3.8+"
@@ -1532,4 +1571,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10.2,<4.0"
-content-hash = "5b35364d71cb83b8ca16e23c879914e0913c6060258820a4ade05c071842d05b"
+content-hash = "a4c4045a9bdfccfd6252a8e7caeed52d5bc85cdde86a7c7cc8c30c744327237e"
