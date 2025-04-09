@@ -44,10 +44,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-
     "rest_framework",
     "knox",
-
     'booking.apps.BookingConfig',
     'authentication.apps.AuthenticationConfig',
     "django_migration_linter",
