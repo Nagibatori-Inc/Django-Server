@@ -218,7 +218,7 @@ class AdvertsRecommendationService(RestService):
     def list():
         queryset = Advert.objects.filter(status=AdvertStatus.ACTIVE)
 
-        return AdvertsRecommendationService(queryset).ok() # TODO: what the hack is this warnings?
+        return AdvertsRecommendationService(queryset).ok()  # TODO: what the hack is this warnings?
 
     @staticmethod
     @transaction.atomic
@@ -251,7 +251,7 @@ class AdvertsRecommendationService(RestService):
         if len(queryset) == 0 or queryset is None:
             return AdvertsRecommendationService().not_found()
 
-        return AdvertsRecommendationService(queryset).ok() # TODO: what the hack is this warnings?
+        return AdvertsRecommendationService(queryset).ok()  # TODO: what the hack is this warnings?
 
     def not_found(self) -> 'AdvertsRecommendationService':
         """
