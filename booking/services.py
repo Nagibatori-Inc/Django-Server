@@ -92,7 +92,7 @@ class AdvertService(RestService):
         :param changed_data (AdvertUpdateSerializer) Сериализованные данные объявления
         :return: AdvertService
         """
-        if self.advert is None:
+        if self.advert is None and self.response is None:
             self.not_found()
             return self
 
@@ -129,6 +129,9 @@ class AdvertService(RestService):
         :return: AdvertService
         """
         advert: Optional[Advert] = Advert.objects.filter(id=advert_pk, contact=user_profile).first()
+
+        if advert is None:
+            return AdvertService().not_found()
 
         return AdvertService(advert).ok()
 
