@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from authentication.serializers import ProfileSerializer
 from booking.models import Advert, Promotion
 
 
@@ -17,6 +18,20 @@ class AdvertSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return Advert.objects.create(**validated_data)
+
+    class Meta:
+        model = Advert
+        fields = '__all__'
+
+
+class AdvertUpdateSerializer(AdvertSerializer):
+    title = serializers.CharField(required=False)
+    description = serializers.CharField(required=False)
+    price = serializers.DecimalField(required=False, max_digits=11, decimal_places=2)
+    contact = ProfileSerializer(required=False)
+    phone = serializers.CharField(required=False)
+    location = serializers.CharField(required=False)
+    views = serializers.IntegerField(required=False)
 
     def update(self, instance, validated_data):
         for field, value in validated_data.items():
