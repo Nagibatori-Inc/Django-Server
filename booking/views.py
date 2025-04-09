@@ -11,7 +11,7 @@ import structlog
 
 from authentication.models import Profile
 from booking.models import Advert, Promotion, AdvertStatus
-from booking.serializers import AdvertSerializer, SearchFilterSerializer, PromotionSerializer
+from booking.serializers import AdvertSerializer, SearchFilterSerializer, PromotionSerializer, AdvertUpdateSerializer
 from booking.services import AdvertService, AdvertsRecommendationService
 
 logger = structlog.get_logger(__name__)
@@ -68,17 +68,15 @@ class AdvertViewSet(ViewSet):
 
     def update(self, request, pk=None) -> Optional[Response]:
         profile: Profile = get_object_or_404(Profile, user=request.user)
-        serializer = self.serializer_class(data=request.data)
+        serializer = AdvertUpdateSerializer(data=request.data)
 
         if serializer.is_valid():
-            data = serializer.validated_data
-
             return (
                 AdvertService.find(
                     advert_pk=pk,
                     user_profile=profile,
                 )
-                .change(data)
+                .change(serializer)
                 .ok()
                 .or_else_422()
             )
