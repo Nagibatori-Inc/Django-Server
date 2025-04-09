@@ -136,7 +136,7 @@ class Advert(models.Model):
     promotion = models.OneToOneField(
         Promotion, on_delete=models.CASCADE, related_name='advert', verbose_name='Продвижение', null=True, blank=True
     )
-    views = models.IntegerField(verbose_name='Просмотры', default=0)
+    views = models.PositiveIntegerField(verbose_name='Просмотры', default=0)
     created_at = models.DateTimeField(
         auto_now_add=True, verbose_name='Создано'  # поле auto_now_add ставит datetime.now() когда объект только создан
     )
