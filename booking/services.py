@@ -8,6 +8,7 @@ from django.db.models.functions import Coalesce
 from rest_framework import status
 from rest_framework.response import Response
 
+from DjangoServer.helpers.datetime import renew_for_month
 from DjangoServer.service import RestService
 from authentication.models import Profile
 from booking.models import Advert, AdvertStatus, Promotion, Boost, PromotionStatus
@@ -17,7 +18,11 @@ logger = structlog.get_logger(__name__)
 
 ADVERT_NOT_FOUND = Response(
     {'err_msg': 'Объявление не найдено'},
-    status=status.HTTP_400_BAD_REQUEST,
+    status=status.HTTP_404_NOT_FOUND,
+)
+ADVERTS_NOT_FOUND = Response(
+    {'err_msg': 'Объявления не найдены'},
+    status=status.HTTP_404_NOT_FOUND,
 )
 PROMOTION_NOT_FOUND = Response({"err_msg": "Не указано объявление или пользователь"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -48,29 +53,37 @@ class AdvertService(RestService):
         self.__advert = advert
 
     @property
-    def advert(self):
+    def advert(self) -> Optional[Advert]:
         return self.__advert
 
     @advert.setter
-    def advert(self, advert: Optional[Advert]):
+    def advert(self, advert: Optional[Advert]) -> None:
         self.__advert = advert
 
     @transaction.atomic
-    def activate(self):
+    def activate(self) -> 'AdvertService':
+        if self.advert is None:
+            self.not_found()
+            return self
+
         self.advert.status = AdvertStatus.ACTIVE
         self.advert.activated_at = datetime.now()
         self.advert.save()
         return self
 
     @transaction.atomic
-    def deactivate(self):
+    def deactivate(self) -> 'AdvertService':
+        if self.advert is None:
+            self.not_found()
+            return self
+
         self.advert.status = AdvertStatus.DISABLED
         self.advert.activated_at = None
         self.advert.save()
         return self
 
     @transaction.atomic
-    def change(self, changed_data: AdvertSerializer):
+    def change(self, changed_data: AdvertSerializer) -> 'AdvertService':
         """
         Метод, изменения объявления по его идентификатору (первичному ключу) и профилю юзера, подавшего объявление
         По сути планируется применять когда юзер на веб аппе меняет поля объявления на соответствующей страничке ->
@@ -79,33 +92,27 @@ class AdvertService(RestService):
         :param changed_data (AdvertSerializer) Сериализованные данные объявления
         :return: AdvertService
         """
-        advert: Advert = self.advert
-
-        if advert is None:
-            self.response = ADVERT_NOT_FOUND
+        if self.advert is None and self.response is None:
+            self.not_found()
             return self
 
-        validated_data = changed_data.validated_data
-
-        advert.title = validated_data.get('title')
-        advert.description = validated_data.get('description')
-        advert.price = validated_data.get('price')
-        advert.phone = validated_data.get('phone')
-        advert.promotion = validated_data.get('promotion')
-        advert.activated_at = validated_data.get('activated_at')
-
-        advert.save()
+        changed_data.instance = self.advert
+        self.advert = changed_data.save()
         return self
 
     @transaction.atomic
     def remove(self) -> 'AdvertService':
-        advert: Advert = self.advert
+        advert: Optional[Advert] = self.advert
+        if advert is None:
+            self.not_found()
+            return self
+
         self.advert = None
         advert.delete()
         return self
 
     @transaction.atomic
-    def serialize(self, serializer: Type[AdvertSerializer]):  # type: ignore[override]
+    def serialize(self, serializer: Type[AdvertSerializer]) -> 'AdvertService':  # type: ignore[override]
         serialized_advert = serializer(self.advert, many=False)
         self.ok(serialized_advert.data)
 
@@ -114,7 +121,7 @@ class AdvertService(RestService):
         return self
 
     @staticmethod
-    def find(advert_pk: int, user_profile: Profile):
+    def find(advert_pk: int, user_profile: Profile) -> 'AdvertService':
         """
         Метод, поиска объявления по его идентификатору (первичному ключу) и профилю юзера, подавшего объявление
 
@@ -124,11 +131,14 @@ class AdvertService(RestService):
         """
         advert: Optional[Advert] = Advert.objects.filter(id=advert_pk, contact=user_profile).first()
 
+        if advert is None:
+            return AdvertService().not_found()
+
         return AdvertService(advert).ok()
 
     @staticmethod
     @transaction.atomic
-    def advertise(advert_serialized_data: AdvertSerializer, contact: Profile):
+    def advertise(advert_serialized_data: AdvertSerializer, contact: Profile) -> 'AdvertService':
         """
         Метод реализации логики подачи объявления (Публикация объявления)
 
@@ -142,20 +152,11 @@ class AdvertService(RestService):
 
         if validated_data.get('status') == AdvertStatus.ACTIVE:
             validated_data['activated_at'] = datetime.now()
+            validated_data['active_until'] = renew_for_month(datetime.now())
 
-        return AdvertService(
-            Advert.objects.create(
-                title=validated_data.get('title'),
-                description=validated_data.get('description'),
-                price=validated_data.get('price'),
-                phone=validated_data.get('phone'),
-                status=validated_data.get('status', AdvertStatus.DISABLED),
-                activated_at=validated_data.get('activated_at', None),
-                contact=contact,
-            )
-        )
+        return AdvertService(advert_serialized_data.save(contact=contact))
 
-    def created(self):
+    def created(self) -> 'AdvertService':
         """
         Если объявление создано, возвращает `201 CREATED`
 
@@ -166,7 +167,7 @@ class AdvertService(RestService):
 
         return self
 
-    def not_found(self):
+    def not_found(self) -> 'AdvertService':
         """
         Если объявления не найдены, возвращает `404 NOT FOUND`, иначе продолжает цепочку
 
@@ -189,19 +190,22 @@ class AdvertsRecommendationService(RestService):
         self.__adverts = adverts
 
     @property
-    def adverts(self):
+    def adverts(self) -> Optional[QuerySet[Advert]]:
         return self.__adverts
 
-    def get(self, pk: int, profile: Profile):
-        advert: Advert = AdvertService.find(advert_pk=pk, user_profile=profile).advert
+    def _get(self, pk: int, profile: Profile) -> AdvertService:
+        advert: Optional[Advert] = AdvertService.find(advert_pk=pk, user_profile=profile).advert
 
-        if advert not in self.adverts:
+        if advert and self.adverts and advert in self.adverts:
             return AdvertService(advert).ok()
 
         return AdvertService().not_found()
 
     @transaction.atomic
     def serialize(self, serializer: Type[AdvertSerializer]):  # type: ignore[override]
+        if self.adverts is None:
+            return self.not_found()
+
         serialized_queryset = serializer(self.adverts.values(), many=True)
         self.ok(serialized_queryset.data)
 
@@ -209,12 +213,16 @@ class AdvertsRecommendationService(RestService):
 
         return self
 
+    @transaction.atomic
+    def view_ad(self, pk: int, profile: Profile):
+        return self._get(pk, profile)
+
     @staticmethod
     @transaction.atomic
     def list():
         queryset = Advert.objects.filter(status=AdvertStatus.ACTIVE)
 
-        return AdvertsRecommendationService(queryset).ok()
+        return AdvertsRecommendationService(queryset).ok()  # TODO: what the hack is this warnings?
 
     @staticmethod
     @transaction.atomic
@@ -222,7 +230,16 @@ class AdvertsRecommendationService(RestService):
         valid_data = filters.validated_data
         queryset = (
             Advert.objects.filter(
-                title__icontains=valid_data['title'], price=valid_data['price'], status=AdvertStatus.ACTIVE
+                **{
+                    k: v
+                    for k, v in {
+                        'price__gte': valid_data.get('min_price', None),
+                        'price__lte': valid_data.get('max_price', None),
+                    }.items()
+                    if v is not None
+                },
+                title__icontains=valid_data.get('title', ''),
+                status=AdvertStatus.ACTIVE,
             )
             .annotate(
                 promotion_rate=Coalesce(
@@ -235,7 +252,21 @@ class AdvertsRecommendationService(RestService):
             .order_by('-promotion_rate', '-created_at')
         )
 
-        return AdvertsRecommendationService(queryset).ok()
+        if len(queryset) == 0 or queryset is None:
+            return AdvertsRecommendationService().not_found()
+
+        return AdvertsRecommendationService(queryset).ok()  # TODO: what the hack is this warnings?
+
+    def not_found(self) -> 'AdvertsRecommendationService':
+        """
+        Если объявления не найдены, возвращает `404 NOT FOUND`, иначе продолжает цепочку
+
+        :return: RestService
+        """
+        if self.response is None and self.adverts is None:
+            self.response = ADVERTS_NOT_FOUND
+
+        return self
 
 
 class PromotionService(RestService):
@@ -258,36 +289,50 @@ class PromotionService(RestService):
         self.__promotion = promotion
 
     @property
-    def promotion(self):
+    def promotion(self) -> Optional[Promotion]:
         return self.__promotion
 
     @promotion.setter
-    def promotion(self, promotion: Promotion):
+    def promotion(self, promotion: Promotion) -> None:
         self.__promotion = promotion
 
     @transaction.atomic
-    def boost(self, how_to_boost: Boost):
-        promotion: Promotion = self.promotion
+    def boost(self, how_to_boost: Boost) -> 'PromotionService':
+        promotion: Optional[Promotion] = self.promotion
+        if promotion is None:
+            self.not_found()
+            return self
+
         promotion = how_to_boost.boost(promotion=promotion)
-        promotion.save()
+        promotion.save()  # type: ignore
         return self
 
     @transaction.atomic
-    def disable(self):
-        promotion: Promotion = self.promotion
+    def disable(self) -> 'PromotionService':
+        promotion = self.promotion
+        if promotion is None:
+            self.not_found()
+            return self
+
         promotion.status = PromotionStatus.DISABLED
         promotion.save()
         return self
 
     @transaction.atomic
-    def remove(self):
-        promotion: Promotion = self.promotion
+    def remove(self) -> 'PromotionService':
+        promotion = self.promotion
+        if promotion is None:
+            self.not_found()
+            return self
+
         self.promotion = None
         promotion.delete()
         return self
 
     @staticmethod
-    def find(promotion_pk: int, advert: Optional[Advert] = None, user_profile: Optional[Profile] = None):
+    def find(
+        promotion_pk: int, advert: Optional[Advert] = None, user_profile: Optional[Profile] = None
+    ) -> 'PromotionService':
         """
         Метод, поиска объявления по его идентификатору (первичному ключу) и профилю юзера, подавшего объявление
 
@@ -327,7 +372,7 @@ class PromotionService(RestService):
         advert: Optional[Advert] = None,
         advert_pk: Optional[int] = None,
         user_profile: Optional[Profile] = None,
-    ):
+    ) -> 'PromotionService':
         """
         Метод, реализующий логику подключения 'продвижения' полученному (переданному) объявлению
 
@@ -361,7 +406,7 @@ class PromotionService(RestService):
 
         return PromotionService(promotion)
 
-    def created(self):
+    def created(self) -> 'PromotionService':
         """
         Если продвижение объявления успешно создано, возвращает `201 CREATED`
 
@@ -372,7 +417,7 @@ class PromotionService(RestService):
 
         return self
 
-    def not_found(self):
+    def not_found(self) -> 'PromotionService':
         """
         Если продвижение не найдено, возвращает `404 NOT FOUND`, иначе продолжает цепочку
 

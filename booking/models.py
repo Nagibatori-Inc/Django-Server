@@ -129,17 +129,23 @@ class Advert(models.Model):
         blank=True,
     )
     phone = models.CharField(max_length=12, verbose_name='Телефон')
+
+    location = models.CharField(
+        max_length=255, verbose_name='Местоположение', default='Неизвестно'
+    )  # TODO: пока charfield, позже сделаем модель локации
     promotion = models.OneToOneField(
         Promotion, on_delete=models.CASCADE, related_name='advert', verbose_name='Продвижение', null=True, blank=True
     )
-
+    views = models.PositiveIntegerField(verbose_name='Просмотры', default=0)
     created_at = models.DateTimeField(
         auto_now_add=True, verbose_name='Создано'  # поле auto_now_add ставит datetime.now() когда объект только создан
     )
+
     activated_at = models.DateTimeField(verbose_name='Активировано', null=True, blank=True)
     status = models.CharField(
         max_length=16, choices=ADVERT_STATUS_CHOICES, default=AdvertStatus.DISABLED, verbose_name='Статус'
     )
+    active_until = models.DateTimeField(verbose_name='Активно до', null=True, blank=True)
 
     class Meta:
         verbose_name = 'Объявление'
