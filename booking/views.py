@@ -160,7 +160,7 @@ class PromotionViewSet(ViewSet):
 
     queryset = Promotion.objects.all()
     serializer_class = PromotionSerializer
-    
+
     def list(self, request):
         pass
 
