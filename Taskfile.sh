@@ -25,9 +25,14 @@ function task:down {
   task:dc down --remove-orphans
 }
 
+# poetry shortcut
+function task:poetry {
+  task:dce app poetry "$@"
+}
+
 # manage.py shortcut
 function task:manage {
-  task:dce app poetry run python manage.py "$@"
+  task:poetry run python manage.py "$@"
 }
 
 # init project script
@@ -49,7 +54,7 @@ function task:init {
   (
     source ./.env
 
-    if [[! $DJANGO_SUPERUSER_USERNAME || ! $DJANGO_SUPERUSER_PASSWORD]]; then
+    if [[ ! $DJANGO_SUPERUSER_USERNAME || ! $DJANGO_SUPERUSER_PASSWORD ]]; then
       echo "Cannot find DJANGO_SUPERUSER_USERNAME or DJANGO_SUPERUSER_PASSWORD env variables."
       echo "Create .env file with DJANGO_SUPERUSER_USERNAME, DJANGO_SUPERUSER_PASSWORD variables in project root dir."
       exit 1
