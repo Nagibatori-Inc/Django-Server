@@ -219,7 +219,7 @@ class AdvertsRecommendationViewSet(ViewSet):
     )
     @action(detail=False, methods=['get'])
     def filter(self, request):
-        serializer = SearchFilterSerializer(data=request.query_params)
+        serializer = SearchFilterSerializer(data=request.query_params, partial=True)
 
         if serializer.is_valid():
             data = serializer.validated_data
