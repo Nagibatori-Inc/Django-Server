@@ -1,0 +1,9 @@
+name: deploy
+on:
+  push:
+    branches: [ "dev" ]
+
+jobs:
+  build:
+
+  deploy:
