@@ -4,6 +4,7 @@ import pytest
 from django.urls import reverse
 from model_bakery import baker
 from rest_framework.test import APIClient
+import rest_framework.status as status
 from authentication.models import Profile
 
 pytestmark = pytest.mark.django_db
@@ -24,10 +25,13 @@ class TestProfileViewSet:
         url = reverse(self.basename, kwargs={"pk": default_profile.id})  # type: ignore[attr-defined]
         response = api_client.get(url)
 
-        assert response.status_code == 200
+        assert response.status_code == status.HTTP_200_OK
         assert json.loads(response.content) == expected_json
 
-    @pytest.mark.parametrize("logged_in_user, status_code", [("owner", 200), ("non-owner", 403), ("none", 403)])
+    @pytest.mark.parametrize(
+        "logged_in_user, status_code",
+        [("owner", status.HTTP_200_OK), ("non-owner", status.HTTP_403_FORBIDDEN), ("none", status.HTTP_403_FORBIDDEN)],
+    )
     def test_update(self, api_client: APIClient, default_profile: Profile, logged_in_user: str, status_code: int):
 
         auth_user = {
@@ -47,7 +51,14 @@ class TestProfileViewSet:
         if logged_in_user == "owner":
             assert json.loads(response.content) == updated_data
 
-    @pytest.mark.parametrize("logged_in_user, status_code", [("owner", 204), ("non-owner", 403), ("none", 403)])
+    @pytest.mark.parametrize(
+        "logged_in_user, status_code",
+        [
+            ("owner", status.HTTP_204_NO_CONTENT),
+            ("non-owner", status.HTTP_403_FORBIDDEN),
+            ("none", status.HTTP_403_FORBIDDEN),
+        ],
+    )
     def test_destroy(self, api_client: APIClient, default_profile: Profile, logged_in_user: str, status_code: int):
 
         auth_user = {
