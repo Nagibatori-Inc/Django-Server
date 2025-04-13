@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, Optional
 
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.models import User
@@ -67,9 +67,6 @@ class ProfileManagerService:
     def create(
         phone: str, password: str, first_name: str, email: str, profile_name: str, profile_type: str
     ) -> Tuple[str, Profile]:
-        user: User
-        profile: Profile
-
         phone = make_phone_uniform(phone)
 
         # Так как делается soft-delete, для сохранения пользовательских данных (ресурс очень нужный всем и везде),
@@ -77,7 +74,7 @@ class ProfileManagerService:
         # обновляем его устаревшие данные и активируем аккаунт снова
         try:
             user = User.objects.select_related("profile").get(username=phone)
-            profile = user.profile
+            profile = user.profile  # ignore: type[attr-defined]
             # Смотрим чтобы не обновили аккаунт активного пользователя
             if user.is_active:
                 raise ValidationError(detail={"detail": "user with that phone already exists"})
@@ -105,11 +102,11 @@ class ProfileManagerService:
     @transaction.atomic
     def update(
         self,
-        phone: str | None = None,
-        email: str | None = None,
-        first_name: str | None = None,
-        name: str | None = None,
-        type: str | None = None,
+        phone: Optional[str] = None,
+        email: Optional[str] = None,
+        first_name: Optional[str] = None,
+        name: Optional[str] = None,
+        type: Optional[str] = None,
     ) -> None:
         ProfileManagerService._update_profile(profile=self.profile, name=name, type=type, is_deleted=False)
         ProfileManagerService._update_user(user=self.profile.user, username=phone, first_name=first_name, email=email)

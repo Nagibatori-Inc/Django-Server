@@ -21,7 +21,7 @@ class TestProfileViewSet:
         expected_json = {"profile": {"name": default_profile.name, "type": default_profile.type}}
 
         # Получаем профиль
-        url = reverse(self.basename, kwargs={"pk": default_profile.id})
+        url = reverse(self.basename, kwargs={"pk": default_profile.id})  # ignore: type[attr-defined]
         response = api_client.get(url)
 
         assert response.status_code == 200
@@ -40,7 +40,7 @@ class TestProfileViewSet:
         if logged_in_user != "none":
             api_client.force_authenticate(user=auth_user[logged_in_user])
 
-        url = reverse(self.basename, kwargs={"pk": default_profile.id})
+        url = reverse(self.basename, kwargs={"pk": default_profile.id})  # ignore: type[attr-defined]
         response = api_client.put(url, data=updated_data["profile"], format="json")
 
         assert response.status_code == status_code
@@ -58,7 +58,7 @@ class TestProfileViewSet:
         if logged_in_user != "none":
             api_client.force_authenticate(user=auth_user[logged_in_user])
 
-        url = reverse(self.basename, kwargs={"pk": default_profile.id})
+        url = reverse(self.basename, kwargs={"pk": default_profile.id})  # ignore: type[attr-defined]
 
         # Удаляем профиль
         response = api_client.delete(url)
