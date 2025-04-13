@@ -74,7 +74,7 @@ class ProfileManagerService:
         # обновляем его устаревшие данные и активируем аккаунт снова
         try:
             user = User.objects.select_related("profile").get(username=phone)
-            profile = user.profile  # ignore: type[attr-defined]
+            profile = user.profile  # type: ignore[attr-defined]
             # Смотрим чтобы не обновили аккаунт активного пользователя
             if user.is_active:
                 raise ValidationError(detail={"detail": "user with that phone already exists"})

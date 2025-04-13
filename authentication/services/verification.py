@@ -18,7 +18,7 @@ class BaseVerificationService:
 
     def _get_latest_otp(self) -> OneTimePassword:
         try:
-            latest_otp = self.user.otps.latest("creation_date")  # ignore: type[attr-defined]
+            latest_otp = self.user.otps.latest("creation_date")  # type: ignore[attr-defined]
         except OneTimePassword.DoesNotExist:
             raise ValidationError(detail={"detail": "user doesn't have any codes"})
         return latest_otp
