@@ -1,4 +1,4 @@
-FROM python:3.10.2-slim-buster AS builder
+FROM python:3.9.15-slim-buster AS builder
 
 RUN apt-get update && apt-get upgrade -y \
   && apt-get install --no-install-recommends -y \

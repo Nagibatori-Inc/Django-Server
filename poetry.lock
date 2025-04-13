@@ -719,6 +719,7 @@ files = [
 
 [package.dependencies]
 amqp = ">=5.1.1,<6.0.0"
+typing-extensions = {version = "4.12.2", markers = "python_version < \"3.10\""}
 tzdata = {version = "2025.2", markers = "python_version >= \"3.9\""}
 vine = "5.1.0"
 
@@ -1570,5 +1571,5 @@ files = [
 
 [metadata]
 lock-version = "2.1"
-python-versions = ">=3.10.2,<4.0"
-content-hash = "a4c4045a9bdfccfd6252a8e7caeed52d5bc85cdde86a7c7cc8c30c744327237e"
+python-versions = ">=3.9.15,<4.0"
+content-hash = "490e5b80a15a26974e6db0f9be51d2200a594b776eb4ee0d92ad22ae3dbd766e"
