@@ -1,7 +1,8 @@
+from knox.auth import TokenAuthentication
 from knox.views import LoginView as KnoxLoginView
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -108,9 +109,15 @@ class SignUpView(APIView):
 
 
 class ProfileViewSet(ViewSet):
-    permission_classes = [IsProfileOwnerOrReadOnly]
+    permission_classes = [IsProfileOwnerOrReadOnly, IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
 
-    @action(detail=False, methods=['get'], permission_classes=(IsAuthenticated,), url_path='my_profile')
+    def get_permissions(self):
+        if self.action in ("update", "destroy", "get_my_profile"):
+            return super().get_permissions()
+        return [AllowAny()]
+
+    @action(detail=False, methods=['get'], url_path='my_profile')
     def get_my_profile(self, request: Request):
         profile = request.user.profile  # type: ignore
         serialized_profile = ProfileOwnerSerializer(profile).data
