@@ -2,7 +2,7 @@ from typing import Optional
 
 from django.shortcuts import get_object_or_404
 from rest_framework import status
-from rest_framework.authentication import BasicAuthentication
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.routers import DefaultRouter
@@ -19,13 +19,14 @@ router = DefaultRouter()
 
 
 class AdvertViewSet(ViewSet):
-    authentication_classes = (BasicAuthentication,)
+    permission_classes = (IsAuthenticated,)
 
     queryset = Advert.objects.all()
     serializer_class = AdvertSerializer
 
     def list(self, request):
-        pass
+        profile: Profile = get_object_or_404(Profile, user=request.user)
+        return self.serializer_class(self.queryset.filter(contact=profile)).data
 
     def retrieve(self, request, pk=None) -> Optional[Response]:
         profile: Profile = get_object_or_404(Profile, user=request.user)
@@ -67,17 +68,15 @@ class AdvertViewSet(ViewSet):
 
     def update(self, request, pk=None) -> Optional[Response]:
         profile: Profile = get_object_or_404(Profile, user=request.user)
-        serializer = self.serializer_class(data=request.data)
+        serializer = AdvertSerializer(data=request.data, partial=True)
 
         if serializer.is_valid():
-            data = serializer.validated_data
-
             return (
                 AdvertService.find(
                     advert_pk=pk,
                     user_profile=profile,
                 )
-                .change(data)
+                .change(serializer)
                 .ok()
                 .or_else_422()
             )
@@ -128,6 +127,8 @@ class AdvertViewSet(ViewSet):
 
 
 class AdvertsRecommendationViewSet(ViewSet):
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
     queryset = Advert.objects.filter(status=AdvertStatus.ACTIVE)
     serializer_class = AdvertSerializer
 
@@ -156,7 +157,7 @@ class AdvertsRecommendationViewSet(ViewSet):
 
 
 class PromotionViewSet(ViewSet):
-    authentication_classes = (BasicAuthentication,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     queryset = Promotion.objects.all()
     serializer_class = PromotionSerializer
