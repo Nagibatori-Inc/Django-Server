@@ -29,6 +29,11 @@ class Profile(models.Model):
     type = models.CharField(max_length=3, choices=PROFILE_TYPE_CHOICES, default="IND", verbose_name="Тип профиля")
     is_deleted = models.BooleanField(default=False, verbose_name="Удален")
     is_verified = models.BooleanField(default=False, verbose_name="Верифицирован")
+    liked_adverts = models.ManyToManyField(
+        to='booking.Advert',
+        verbose_name='Понравившиеся объявления',
+        related_name='users_likes',
+    )
 
     class Meta:
         verbose_name = "Профиль"
