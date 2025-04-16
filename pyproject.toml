@@ -41,7 +41,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.mypy]
 disable_error_code = ["var-annotated", "import-untyped"]
-plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]
+exclude = ["DjangoServer/__init__.py"]
 
 [tool.django-stubs]
 django_settings_module = "DjangoServer.settings"
