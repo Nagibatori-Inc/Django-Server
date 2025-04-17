@@ -122,7 +122,7 @@ class AdvertViewSet(ViewSet):
         else:
             return Response(serializer.errors, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
-    @extend_schema(
+    @extend_schema(  # type: ignore[type-var]
         description='Активировать объявление',
         request={},
         responses={
@@ -145,7 +145,7 @@ class AdvertViewSet(ViewSet):
             .or_else_422()
         )
 
-    @extend_schema(
+    @extend_schema(  # type: ignore[type-var]
         description='Деактивировать объявление',
         request={},
         responses={
