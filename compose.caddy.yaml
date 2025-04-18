@@ -4,8 +4,6 @@ services:
     restart: unless-stopped
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
-      - ${SERVER_PATH:.}/static:/var/www/django/static
-      - ${SERVER_PATH:.}/media:/var/www/django/media
       - ./.docker/caddy-config:/config
       - ./.docker/caddy-data:/data
     ports:
