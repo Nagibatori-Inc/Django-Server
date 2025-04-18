@@ -1,7 +1,12 @@
+x-caddy-variables: &caddy-variables
+  $WEB_APP_CORS: http://localhost:3000
+  WEB_APP_HOST: http://localhost:3000
+  API_HOST: http://localhost:8000
 services:
   caddy:
     image: caddy:2.6-alpine
     restart: unless-stopped
+    environment: *caddy-variables
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
       - ./.docker/caddy-config:/config
