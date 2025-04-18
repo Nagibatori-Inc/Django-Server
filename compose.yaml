@@ -58,7 +58,7 @@ services:
     command: sh -c "poetry run python manage.py runserver 0.0.0.0:8080 && 
                     celery -A DjangoServer worker --loglevel=INFO"
     ports:
-      - "8000:8080"
+      - "80:8080"
     depends_on:
       - db
       - redis
