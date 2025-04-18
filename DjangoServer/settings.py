@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "django_migration_linter",
     'corsheaders',
     'drf_spectacular',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
