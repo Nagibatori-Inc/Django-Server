@@ -1,0 +1,58 @@
+(cors) {
+	@cors_preflight method OPTIONS
+	@cors header Origin {args.0}
+
+	handle @cors_preflight {
+		header Access-Control-Allow-Origin "{args.0}"
+		header Access-Control-Allow-Credentials "true"
+		header Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE"
+		header Access-Control-Allow-Headers "Authorization,Content-Type"
+		header Access-Control-Max-Age "3600"
+		header Vary Origin
+		header Vary Referer
+		header Vary x-origin
+		respond "" 204
+	}
+
+	handle @cors {
+		header Access-Control-Allow-Origin "{args.0}"
+		header Access-Control-Expose-Headers "Link"
+		header Vary Origin
+		header Vary Referer
+		header Vary x-origin
+	}
+}
+
+{$WEB_APP_HOST} {
+	handle {
+		header /no-cache* >Cache-Control nocache
+		reverse_proxy {
+			to webapp:3000
+			header_up Host {upstream_hostport}
+			header_up X-Forwarded-For {host}
+		}
+	}
+
+	encode gzip
+
+	log {
+		output stdout
+	}
+}
+
+{$API_HOST} {
+	header Strict-Transport-Security max-age=31536000;
+
+	header -Server
+
+	handle {
+		import cors {$WEB_APP_CORS}
+		reverse_proxy api
+	}
+
+	encode gzip
+
+	log {
+		output stdout
+	}
+}
