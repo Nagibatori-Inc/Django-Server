@@ -10,7 +10,7 @@ services:
     image: postgres:latest
     container_name: postgres
     environment: *db-variables
-    ports:
+    ports: # TODO: Здесь специально остваил открытыми порты, чтобы можно было сделать override для докер контейнеров (типо открыть порты для локальной разработки)
       - "5432:5432"
     volumes:
       - ./.postgres_data:/var/lib/postgresql/data
