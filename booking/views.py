@@ -14,7 +14,7 @@ from authentication.models import Profile
 from booking.models import Advert, Promotion, AdvertStatus
 from booking.serializers import AdvertSerializer, SearchFilterSerializer, PromotionSerializer
 from booking.services import AdvertService, AdvertsRecommendationService
-from common.swagger.schema import DEFAULT_PRIVATE_API_ERRORS_WITH_404_SCHEMA_RESPONSES
+from common.swagger.schema import DEFAULT_PRIVATE_API_ERRORS_WITH_404_SCHEMA_RESPONSES, SWAGGER_NO_RESPONSE_BODY
 
 logger = structlog.get_logger(__name__)
 router = DefaultRouter()
@@ -99,7 +99,7 @@ class AdvertViewSet(ViewSet):
         description='Изменить объявление',
         request=AdvertSerializer,
         responses={
-            status.HTTP_200_OK: OpenApiResponse(),
+            status.HTTP_200_OK: SWAGGER_NO_RESPONSE_BODY,
             **DEFAULT_PRIVATE_API_ERRORS_WITH_404_SCHEMA_RESPONSES,
             status.HTTP_422_UNPROCESSABLE_ENTITY: OpenApiResponse(description='Unprocessable Entity'),
         },
@@ -126,7 +126,7 @@ class AdvertViewSet(ViewSet):
         description='Активировать объявление',
         request={},
         responses={
-            status.HTTP_200_OK: OpenApiResponse(),
+            status.HTTP_200_OK: SWAGGER_NO_RESPONSE_BODY,
             **DEFAULT_PRIVATE_API_ERRORS_WITH_404_SCHEMA_RESPONSES,
             status.HTTP_422_UNPROCESSABLE_ENTITY: OpenApiResponse(description='Unprocessable Entity'),
         },
@@ -149,7 +149,7 @@ class AdvertViewSet(ViewSet):
         description='Деактивировать объявление',
         request={},
         responses={
-            status.HTTP_200_OK: OpenApiResponse(),
+            status.HTTP_200_OK: SWAGGER_NO_RESPONSE_BODY,
             **DEFAULT_PRIVATE_API_ERRORS_WITH_404_SCHEMA_RESPONSES,
             status.HTTP_422_UNPROCESSABLE_ENTITY: OpenApiResponse(description='Unprocessable Entity'),
         },
@@ -172,7 +172,7 @@ class AdvertViewSet(ViewSet):
         description='Удалить объявление',
         request={},
         responses={
-            status.HTTP_200_OK: OpenApiResponse(),
+            status.HTTP_200_OK: SWAGGER_NO_RESPONSE_BODY,
             **DEFAULT_PRIVATE_API_ERRORS_WITH_404_SCHEMA_RESPONSES,
         },
     )
