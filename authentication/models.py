@@ -2,8 +2,8 @@ import datetime
 import secrets
 import string
 
+from django.contrib.auth.models import User
 from django.utils import timezone
-from django.conf import settings
 from django.db import models
 from django.contrib.auth.hashers import make_password as hash_value
 
@@ -25,16 +25,22 @@ class Profile(models.Model):
     PROFILE_TYPE_CHOICES = (("IND", "Частное лицо"), ("CMP", "Компания"))
 
     name = models.CharField(max_length=50, null=True, verbose_name="Имя профиля")
-    user = models.OneToOneField(
-        settings.AUTH_USER_MODEL, related_name="profile", on_delete=models.CASCADE, verbose_name="Пользователь"
-    )
+    user = models.OneToOneField(User, related_name="profile", on_delete=models.CASCADE, verbose_name="Пользователь")
     type = models.CharField(max_length=3, choices=PROFILE_TYPE_CHOICES, default="IND", verbose_name="Тип профиля")
     is_deleted = models.BooleanField(default=False, verbose_name="Удален")
     is_verified = models.BooleanField(default=False, verbose_name="Верифицирован")
+    liked_adverts = models.ManyToManyField(
+        to='booking.Advert',
+        verbose_name='Понравившиеся объявления',
+        related_name='users_likes',
+    )
 
     class Meta:
         verbose_name = "Профиль"
         verbose_name_plural = "Профили"
+
+    def __str__(self):
+        return f"Profile [name='{self.name}', user='{self.user}', type='{self.type}']"
 
 
 class OneTimePassword(models.Model):
@@ -50,13 +56,11 @@ class OneTimePassword(models.Model):
     + has_expired(): Проверка истекла ли валидность кода
     """
 
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, related_name="otps", on_delete=models.CASCADE, verbose_name="Пользователь"
-    )
+    user = models.ForeignKey(User, related_name="otps", on_delete=models.CASCADE, verbose_name="Пользователь")
     code = models.CharField(max_length=128, default="", verbose_name="Одноразовый код (хэш)")
-    creation_date = models.DateTimeField(default=datetime.datetime.now, verbose_name="Время создания")
+    creation_date = models.DateTimeField(auto_now=True, verbose_name="Время создания")
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs) -> str:  # type: ignore
         otp = ""
         if not self.code:
             otp = OneTimePassword.generate_otp()
@@ -76,7 +80,7 @@ class OneTimePassword(models.Model):
             return True
         return False
 
-    # has_expired.fget.short_description = "OTP уже истек" Чё это???? mypy подсветил
+    has_expired.fget.short_description = "OTP уже истек"  # type: ignore
 
     class Meta:
         verbose_name = "Одноразовый код"

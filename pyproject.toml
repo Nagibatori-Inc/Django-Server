@@ -22,6 +22,16 @@ dependencies = [
     "djangorestframework-types (==0.8.0)",
     "black (>=25.1.0,<26.0.0)",
     "django-migration-linter (>=5.1.0,<6.0.0)",
+    "pytest (>=8.3.4)",
+    "model-bakery (>=1.20.4)",
+    "pytest-django (>=4.10.0)",
+    "pytest-cov (>=6.0.0)",
+    "pytest-mock (>=3.14.0)",
+    "requests-mock (>=1.12.1)",
+    "django-mock-queries (>=2.3.0)",
+    "celery (>=5.4.0)",
+    "redis (>=5.2.1)",
+    "djangorestframework-stubs (>=3.15.3,<4.0.0)",
 ]
 
 
@@ -31,6 +41,10 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.mypy]
 disable_error_code = ["var-annotated", "import-untyped"]
+exclude = ["DjangoServer/__init__.py"]
+
+[tool.django-stubs]
+django_settings_module = "DjangoServer.settings"
 
 [tool.black]
 line-length = 120
