@@ -1,0 +1,2 @@
+class InvalidPhoneError(ValueError):
+    pass

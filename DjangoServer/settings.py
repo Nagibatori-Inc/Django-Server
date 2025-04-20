@@ -159,6 +159,12 @@ SMSAERO_API_KEY = config("SMSAERO_API_KEY", default=None)
 
 SMS_MODE = config("SMS_MODE", default="debug")
 
+# Шаблон отправляемого сообщения верификации (где {0} - это одноразовый код)
+MESSAGE_TEMPLATE = "Ваш код, {0}"
 
 # Время действия одноразового кода (OTP) в минутах
-OTP_TTL = config("OTP_TTL", default=10)
+OTP_TTL = config("OTP_TTL", default=1)
+
+# Настройки Celery
+CELERY_BROKER_URL = "redis://localhost:6379/0"
+CELERY_RESULT_BACKEND = "redis://localhost:6379/0"

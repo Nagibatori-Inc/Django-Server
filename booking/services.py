@@ -391,14 +391,14 @@ class PromotionService(RestService):
             promotion = Promotion.objects.create(
                 type=type,
                 rate=rate,
-                advert=advert,
+                advert=advert,  # type: ignore[misc]
             )
 
         elif user_profile and advert_pk:
             promotion = Promotion.objects.create(
                 type=type,
                 rate=rate,
-                advert=AdvertService.find(advert_pk, user_profile),
+                advert=AdvertService.find(advert_pk, user_profile),  # type: ignore[misc]
             )
 
         else:

@@ -28,7 +28,8 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ${VEHICLE_BOARD_DB_VOL_PATH:-./.postgres_data/volumes/vehicle_board/data}:/var/lib/postgresql/data
+      - ${VEHICLE_BOARD_DB_VOL_PATH:-./.docker/.postgres_data/volumes/vehicle_board/data}:/var/lib/postgresql/data
+    profiles: [db, backend]
 
   pgadmin:
     image: dpage/pgadmin4:latest
@@ -38,17 +39,30 @@ services:
       - "5050:80"
     depends_on:
       - db
+    profiles: [db]
 
   app:
     container_name: vehicle_board_api
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: ./Dockerfile
     volumes:
       - .:/app
     environment: *app-variables
-    command: poetry run python manage.py runserver 0.0.0.0:8080
+    command: sh -c "poetry run python manage.py runserver 0.0.0.0:8080 && 
+                    celery -A DjangoServer worker --loglevel=INFO"
     ports:
       - "8000:8080"
     depends_on:
       - db
+      - redis
+    profiles: [backend]
+
+  redis:
+    image: redis:latest
+    container_name: vehicle_board_redis
+    volumes:
+      - ${VEHICLE_BOARD_REDIS_VOL_PATH:-./.docker/.redis_data/volumes/vehicle_board/data}:/data
+    ports:
+      - "6379:6379"
+    profiles: [backend, db]

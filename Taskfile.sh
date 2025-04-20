@@ -2,7 +2,7 @@
 
 # docker compose
 function task:dc {
-  docker compose -f "compose.yaml" "$@"
+  docker compose -f "compose.yaml" --profile backend "$@"
 }
 
 # docker compose exec
