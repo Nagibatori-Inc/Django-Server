@@ -1,6 +1,7 @@
+from drf_spectacular.utils import extend_schema, inline_serializer
 from knox.auth import TokenAuthentication
 from knox.views import LoginView as KnoxLoginView
-from rest_framework import status
+from rest_framework import status, serializers
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.request import Request
@@ -24,12 +25,41 @@ from authentication.services.verification import BaseVerificationService
 from authentication.tasks import send_sms_task
 from authentication.utils import make_phone_uniform
 from DjangoServer.settings import MESSAGE_TEMPLATE
+from common.swagger.schema import (
+    SWAGGER_NO_RESPONSE_BODY,
+    DEFAULT_PRIVATE_API_ERRORS_SCHEMA_RESPONSES,
+    DEFAULT_PUBLIC_API_ERRORS_WITH_404_SCHEMA_RESPONSES,
+    DEFAULT_PUBLIC_API_SCHEMA_RESPONSES,
+)
+
+AUTHENTIFICATION_SWAGGER_TAG = 'Авторизация'
 
 
+@extend_schema(
+    tags=[AUTHENTIFICATION_SWAGGER_TAG],
+    description='Войти',
+    request={},
+    responses={
+        status.HTTP_200_OK: inline_serializer(
+            name='LoginResponse',
+            fields={'expiry': serializers.DateTimeField(), 'token': serializers.CharField()},
+        ),
+        **DEFAULT_PRIVATE_API_ERRORS_SCHEMA_RESPONSES,
+    },
+)
 class LoginView(KnoxLoginView):
     authentication_classes = [CustomBasicAuthentication]
 
 
+@extend_schema(
+    tags=[AUTHENTIFICATION_SWAGGER_TAG],
+    description='Верификация профиля по OTP коду',
+    request=VerificationRequestSerializer,
+    responses={
+        status.HTTP_200_OK: SWAGGER_NO_RESPONSE_BODY,
+        **DEFAULT_PUBLIC_API_ERRORS_WITH_404_SCHEMA_RESPONSES,
+    },
+)
 class ProfileVerificationView(APIView):
     """View, использующийся для верификации профиля пользователя по OTP коду"""
 
@@ -48,6 +78,15 @@ class ProfileVerificationView(APIView):
         return Response(status=status.HTTP_200_OK)
 
 
+@extend_schema(
+    tags=[AUTHENTIFICATION_SWAGGER_TAG],
+    description='Отправить OTP код пользователю',
+    request=PhoneSerializer,
+    responses={
+        status.HTTP_200_OK: SWAGGER_NO_RESPONSE_BODY,
+        **DEFAULT_PUBLIC_API_ERRORS_WITH_404_SCHEMA_RESPONSES,
+    },
+)
 class SendVerificationCodeView(APIView):
     """View, использующийся для отправки OTP кода пользователю"""
 
@@ -63,6 +102,15 @@ class SendVerificationCodeView(APIView):
         return Response(status=status.HTTP_200_OK)
 
 
+@extend_schema(
+    tags=[AUTHENTIFICATION_SWAGGER_TAG],
+    description='Валидация OTP кода',
+    request=VerificationRequestSerializer,
+    responses={
+        status.HTTP_200_OK: SWAGGER_NO_RESPONSE_BODY,
+        **DEFAULT_PUBLIC_API_ERRORS_WITH_404_SCHEMA_RESPONSES,
+    },
+)
 class ResetPasswordValidateTokenView(APIView):
     """View, использующийся для валидации OTP кода, без каких либо побочных эффектов"""
 
@@ -79,6 +127,15 @@ class ResetPasswordValidateTokenView(APIView):
         return Response(status=status.HTTP_200_OK)
 
 
+@extend_schema(
+    tags=[AUTHENTIFICATION_SWAGGER_TAG],
+    description='Смена пароля',
+    request=PasswordResetSerializer,
+    responses={
+        status.HTTP_200_OK: SWAGGER_NO_RESPONSE_BODY,
+        **DEFAULT_PUBLIC_API_ERRORS_WITH_404_SCHEMA_RESPONSES,
+    },
+)
 class ResetPasswordConfirmView(APIView):
     """View, использующийся для смены пароля"""
 
@@ -97,6 +154,18 @@ class ResetPasswordConfirmView(APIView):
         return Response(status=status.HTTP_200_OK)
 
 
+@extend_schema(
+    tags=[AUTHENTIFICATION_SWAGGER_TAG],
+    description='Зарегистрироваться',
+    request=SignUpRequestSerializer,
+    responses={
+        status.HTTP_201_CREATED: inline_serializer(
+            name='SignUpSerializer',
+            fields={'profile': ProfileOwnerSerializer(), 'token': serializers.CharField()},
+        ),
+        **DEFAULT_PUBLIC_API_SCHEMA_RESPONSES,
+    },
+)
 class SignUpView(APIView):
     def post(self, request: Request):
         serializer = SignUpRequestSerializer(data=request.data)

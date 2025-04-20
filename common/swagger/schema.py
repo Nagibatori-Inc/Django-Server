@@ -1,7 +1,7 @@
 from drf_spectacular.utils import OpenApiResponse
 from rest_framework import status
 
-SWAGGER_NO_RESPONSE_BODY = 'No response body'
+SWAGGER_NO_RESPONSE_BODY = OpenApiResponse(description='No response body')
 
 AUTH_ERRORS_SCHEMA_RESPONSES = {
     status.HTTP_401_UNAUTHORIZED: OpenApiResponse(description='Unauthorized'),
