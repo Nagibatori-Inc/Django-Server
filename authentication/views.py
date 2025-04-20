@@ -1,4 +1,4 @@
-from drf_spectacular.utils import extend_schema, inline_serializer
+from drf_spectacular.utils import extend_schema, inline_serializer, OpenApiResponse, OpenApiExample
 from knox.auth import TokenAuthentication
 from knox.views import LoginView as KnoxLoginView
 from rest_framework import status, serializers
@@ -28,11 +28,11 @@ from DjangoServer.settings import MESSAGE_TEMPLATE
 from common.swagger.schema import (
     SWAGGER_NO_RESPONSE_BODY,
     DEFAULT_PRIVATE_API_ERRORS_SCHEMA_RESPONSES,
-    DEFAULT_PUBLIC_API_ERRORS_WITH_404_SCHEMA_RESPONSES,
     DEFAULT_PUBLIC_API_SCHEMA_RESPONSES,
 )
 
 AUTHENTIFICATION_SWAGGER_TAG = 'Авторизация'
+PROFILE_SWAGGER_TAG = 'Профили'
 
 
 @extend_schema(
@@ -57,7 +57,11 @@ class LoginView(KnoxLoginView):
     request=VerificationRequestSerializer,
     responses={
         status.HTTP_200_OK: SWAGGER_NO_RESPONSE_BODY,
-        **DEFAULT_PUBLIC_API_ERRORS_WITH_404_SCHEMA_RESPONSES,
+        status.HTTP_404_NOT_FOUND: OpenApiResponse(
+            response='User not found',
+            examples=[OpenApiExample(name='User not found', value={'detail': 'user not found'})],
+        ),
+        **DEFAULT_PUBLIC_API_SCHEMA_RESPONSES,
     },
 )
 class ProfileVerificationView(APIView):
@@ -84,7 +88,11 @@ class ProfileVerificationView(APIView):
     request=PhoneSerializer,
     responses={
         status.HTTP_200_OK: SWAGGER_NO_RESPONSE_BODY,
-        **DEFAULT_PUBLIC_API_ERRORS_WITH_404_SCHEMA_RESPONSES,
+        status.HTTP_404_NOT_FOUND: OpenApiResponse(
+            response='User not found',
+            examples=[OpenApiExample(name='User not found', value={'detail': 'user not found'})],
+        ),
+        **DEFAULT_PUBLIC_API_SCHEMA_RESPONSES,
     },
 )
 class SendVerificationCodeView(APIView):
@@ -108,7 +116,11 @@ class SendVerificationCodeView(APIView):
     request=VerificationRequestSerializer,
     responses={
         status.HTTP_200_OK: SWAGGER_NO_RESPONSE_BODY,
-        **DEFAULT_PUBLIC_API_ERRORS_WITH_404_SCHEMA_RESPONSES,
+        status.HTTP_404_NOT_FOUND: OpenApiResponse(
+            response='User not found',
+            examples=[OpenApiExample(name='User not found', value={'detail': 'user not found'})],
+        ),
+        **DEFAULT_PUBLIC_API_SCHEMA_RESPONSES,
     },
 )
 class ResetPasswordValidateTokenView(APIView):
@@ -133,7 +145,11 @@ class ResetPasswordValidateTokenView(APIView):
     request=PasswordResetSerializer,
     responses={
         status.HTTP_200_OK: SWAGGER_NO_RESPONSE_BODY,
-        **DEFAULT_PUBLIC_API_ERRORS_WITH_404_SCHEMA_RESPONSES,
+        status.HTTP_404_NOT_FOUND: OpenApiResponse(
+            response='User not found',
+            examples=[OpenApiExample(name='User not found', value={'detail': 'user not found'})],
+        ),
+        **DEFAULT_PUBLIC_API_SCHEMA_RESPONSES,
     },
 )
 class ResetPasswordConfirmView(APIView):
@@ -177,6 +193,7 @@ class SignUpView(APIView):
         return Response({"profile": serialized_profile, "token": auth_token}, status=status.HTTP_201_CREATED)
 
 
+@extend_schema(tags=[PROFILE_SWAGGER_TAG])
 class ProfileViewSet(ViewSet):
     permission_classes = [IsProfileOwnerOrReadOnly, IsAuthenticated]
     authentication_classes = [TokenAuthentication]
@@ -186,6 +203,14 @@ class ProfileViewSet(ViewSet):
             return super().get_permissions()
         return [AllowAny()]
 
+    @extend_schema(
+        description='Получить свой профиль',
+        request={},
+        responses={
+            status.HTTP_200_OK: ProfileOwnerSerializer,
+            **DEFAULT_PRIVATE_API_ERRORS_SCHEMA_RESPONSES,
+        },
+    )
     @action(detail=False, methods=['get'], url_path='my_profile')
     def get_my_profile(self, request: Request):
         profile = request.user.profile  # type: ignore
@@ -193,12 +218,36 @@ class ProfileViewSet(ViewSet):
 
         return Response(serialized_profile, status=status.HTTP_200_OK)
 
+    @extend_schema(
+        description='Получить профиль пользователя с указанным id',
+        request={},
+        responses={
+            status.HTTP_200_OK: ProfileSerializer,
+            status.HTTP_404_NOT_FOUND: OpenApiResponse(
+                response='Profile not found',
+                examples=[OpenApiExample(name='Profile not found', value={'detail': 'profile not found'})],
+            ),
+            **DEFAULT_PRIVATE_API_ERRORS_SCHEMA_RESPONSES,
+        },
+    )
     def retrieve(self, request: Request, pk: int):
         profile = get_profile_with_user(pk)
         serialized_profile = ProfileSerializer(profile).data
 
         return Response(serialized_profile, status=status.HTTP_200_OK)
 
+    @extend_schema(
+        description='Обновить свой профиль',
+        request=ProfileOwnerSerializer,
+        responses={
+            status.HTTP_200_OK: ProfileOwnerSerializer,
+            status.HTTP_404_NOT_FOUND: OpenApiResponse(
+                response='Profile not found',
+                examples=[OpenApiExample(name='Profile not found', value={'detail': 'profile not found'})],
+            ),
+            **DEFAULT_PRIVATE_API_ERRORS_SCHEMA_RESPONSES,
+        },
+    )
     def update(self, request: Request, pk: int):
         profile = get_profile_with_user(pk)
         self.check_object_permissions(request, profile)
@@ -212,6 +261,18 @@ class ProfileViewSet(ViewSet):
 
         return Response(serialized_profile, status=status.HTTP_200_OK)
 
+    @extend_schema(
+        description='Удалить свой профиль',
+        request={},
+        responses={
+            status.HTTP_204_NO_CONTENT: SWAGGER_NO_RESPONSE_BODY,
+            status.HTTP_404_NOT_FOUND: OpenApiResponse(
+                response='Profile not found',
+                examples=[OpenApiExample(name='Profile not found', value={'detail': 'profile not found'})],
+            ),
+            **DEFAULT_PRIVATE_API_ERRORS_SCHEMA_RESPONSES,
+        },
+    )
     def destroy(self, request: Request, pk: int):
         profile = get_profile_with_user(pk)
         self.check_object_permissions(request, profile)
