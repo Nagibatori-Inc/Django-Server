@@ -198,7 +198,7 @@ class AdvertsRecommendationViewSet(ViewSet):
     serializer_class = AdvertSerializer
 
     @extend_schema(
-        description='???',
+        description='Лента объявлений',
         request={},
         responses={
             status.HTTP_200_OK: serializer_class,
