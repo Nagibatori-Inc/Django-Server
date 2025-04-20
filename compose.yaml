@@ -28,7 +28,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ${VEHICLE_BOARD_DB_VOL_PATH:-/opt/volumes/vehicle_board/data}:/var/lib/postgresql/data
+      - ${VEHICLE_BOARD_DB_VOL_PATH:-./.docker/.postgres_data/volumes/vehicle_board/data}:/var/lib/postgresql/data
     profiles: [db, backend]
 
   pgadmin:
@@ -61,6 +61,8 @@ services:
   redis:
     image: redis:latest
     container_name: vehicle_board_redis
+    volumes:
+      - ${VEHICLE_BOARD_REDIS_VOL_PATH:-./.docker/.redis_data/volumes/vehicle_board/data}:/data
     ports:
       - "6379:6379"
     profiles: [backend, db]
