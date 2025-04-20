@@ -45,7 +45,7 @@ class ProfileVerificationView(APIView):
         BaseVerificationService(user).verify_otp(otp)
         ProfileManagerService(profile).verify()
 
-        return Response("verified successfully", status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_200_OK)
 
 
 class SendVerificationCodeView(APIView):
@@ -60,7 +60,7 @@ class SendVerificationCodeView(APIView):
         otp = BaseVerificationService(user).create_otp()
         send_sms_task.delay(phone, MESSAGE_TEMPLATE.format(otp))
 
-        return Response("verification code sent", status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_200_OK)
 
 
 class ResetPasswordValidateTokenView(APIView):
@@ -76,7 +76,7 @@ class ResetPasswordValidateTokenView(APIView):
 
         BaseVerificationService(user).verify_otp(otp)
 
-        return Response({"detail": "token is valid"}, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_200_OK)
 
 
 class ResetPasswordConfirmView(APIView):
@@ -94,7 +94,7 @@ class ResetPasswordConfirmView(APIView):
         BaseVerificationService(user).verify_otp(otp)
         PasswordManagerService(user).reset_password(new_password=password)
 
-        return Response({"detail": "password changed"}, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_200_OK)
 
 
 class SignUpView(APIView):
