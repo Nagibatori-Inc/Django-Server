@@ -1,0 +1,6 @@
+{% extends "admin/base_site.html" %}
+
+{% block usertools %}
+    <a href={% url "swagger-ui" %}>API Docs</a>
+    {{ block.super }}
+{% endblock %}

@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'booking.apps.BookingConfig',
     'authentication.apps.AuthenticationConfig',
     "django_migration_linter",
+    'drf_spectacular',
 ]
 
 MIDDLEWARE = [
@@ -78,6 +79,11 @@ TEMPLATES = [
         },
     },
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': ('rest_framework.authentication.BasicAuthentication',),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
 
 WSGI_APPLICATION = "DjangoServer.wsgi.application"
 
