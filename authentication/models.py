@@ -33,6 +33,7 @@ class Profile(models.Model):
         to='booking.Advert',
         verbose_name='Понравившиеся объявления',
         related_name='users_likes',
+        blank=True,
     )
 
     class Meta:
