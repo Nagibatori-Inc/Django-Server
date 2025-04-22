@@ -1,6 +1,6 @@
 from drf_spectacular.utils import extend_schema, inline_serializer, OpenApiResponse, OpenApiExample
 from knox.auth import TokenAuthentication
-from knox.views import LoginView as KnoxLoginView
+from knox.views import LoginView as KnoxLoginView, LogoutAllView, LogoutView
 from rest_framework import status, serializers
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -33,6 +33,34 @@ from common.swagger.schema import (
 
 AUTHENTIFICATION_SWAGGER_TAG = 'Авторизация'
 PROFILE_SWAGGER_TAG = 'Профили'
+
+
+@extend_schema(
+    tags=[AUTHENTIFICATION_SWAGGER_TAG],
+    description='Выйти',
+    request={},
+    responses={
+        status.HTTP_204_NO_CONTENT: SWAGGER_NO_RESPONSE_BODY,
+        **DEFAULT_PRIVATE_API_ERRORS_SCHEMA_RESPONSES,
+    },
+)
+class UserLogoutView(LogoutView):
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
+
+@extend_schema(
+    tags=[AUTHENTIFICATION_SWAGGER_TAG],
+    description='Выйти из всех сессий',
+    request={},
+    responses={
+        status.HTTP_204_NO_CONTENT: SWAGGER_NO_RESPONSE_BODY,
+        **DEFAULT_PRIVATE_API_ERRORS_SCHEMA_RESPONSES,
+    },
+)
+class UserLogoutAllView(LogoutAllView):
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
 
 
 @extend_schema(
