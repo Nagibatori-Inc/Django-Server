@@ -49,7 +49,6 @@ INSTALLED_APPS = [
     'booking.apps.BookingConfig',
     'authentication.apps.AuthenticationConfig',
     "django_migration_linter",
-    'corsheaders',
     'drf_spectacular',
     'corsheaders',
 ]
