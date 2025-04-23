@@ -33,10 +33,10 @@ class CookieTokenAuthentication(TokenAuthentication):
             return None
         if len(auth) == 1:
             msg = _('Invalid token header. No credentials provided.')
-            raise exceptions.AuthenticationFailed(msg)
+            raise exceptions.AuthenticationFailed(msg)  # type: ignore[arg-type]
         elif len(auth) > 2:
             msg = _('Invalid token header. ' 'Token string should not contain spaces.')
-            raise exceptions.AuthenticationFailed(msg)
+            raise exceptions.AuthenticationFailed(msg)  # type: ignore[arg-type]
 
         user, auth_token = self.authenticate_credentials(auth[1])
         return (user, auth_token)
