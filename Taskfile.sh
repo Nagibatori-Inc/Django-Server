@@ -49,6 +49,8 @@ function task:init {
 
   task:build
 
+  task:run
+
   task:manage migrate
 
   (
