@@ -1,6 +1,7 @@
+from drf_spectacular.utils import extend_schema, inline_serializer, OpenApiResponse, OpenApiExample
 from knox.auth import TokenAuthentication
-from knox.views import LoginView as KnoxLoginView
-from rest_framework import status
+from knox.views import LoginView as KnoxLoginView, LogoutAllView, LogoutView
+from rest_framework import status, serializers
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.request import Request
@@ -24,12 +25,71 @@ from authentication.services.verification import BaseVerificationService
 from authentication.tasks import send_sms_task
 from authentication.utils import make_phone_uniform
 from DjangoServer.settings import MESSAGE_TEMPLATE
+from common.swagger.schema import (
+    SWAGGER_NO_RESPONSE_BODY,
+    DEFAULT_PRIVATE_API_ERRORS_SCHEMA_RESPONSES,
+    DEFAULT_PUBLIC_API_SCHEMA_RESPONSES,
+)
+
+AUTHENTIFICATION_SWAGGER_TAG = 'Авторизация'
+PROFILE_SWAGGER_TAG = 'Профили'
 
 
+@extend_schema(
+    tags=[AUTHENTIFICATION_SWAGGER_TAG],
+    description='Выйти',
+    request={},
+    responses={
+        status.HTTP_204_NO_CONTENT: SWAGGER_NO_RESPONSE_BODY,
+        **DEFAULT_PRIVATE_API_ERRORS_SCHEMA_RESPONSES,
+    },
+)
+class UserLogoutView(LogoutView):
+    pass
+
+
+@extend_schema(
+    tags=[AUTHENTIFICATION_SWAGGER_TAG],
+    description='Выйти из всех сессий',
+    request={},
+    responses={
+        status.HTTP_204_NO_CONTENT: SWAGGER_NO_RESPONSE_BODY,
+        **DEFAULT_PRIVATE_API_ERRORS_SCHEMA_RESPONSES,
+    },
+)
+class UserLogoutAllView(LogoutAllView):
+    pass
+
+
+@extend_schema(
+    tags=[AUTHENTIFICATION_SWAGGER_TAG],
+    description='Войти',
+    request={},
+    responses={
+        status.HTTP_200_OK: inline_serializer(
+            name='LoginResponse',
+            fields={'expiry': serializers.DateTimeField(), 'token': serializers.CharField()},
+        ),
+        **DEFAULT_PRIVATE_API_ERRORS_SCHEMA_RESPONSES,
+    },
+)
 class LoginView(KnoxLoginView):
     authentication_classes = [CustomBasicAuthentication]
 
 
+@extend_schema(
+    tags=[AUTHENTIFICATION_SWAGGER_TAG],
+    description='Верификация профиля по OTP коду',
+    request=VerificationRequestSerializer,
+    responses={
+        status.HTTP_200_OK: SWAGGER_NO_RESPONSE_BODY,
+        status.HTTP_404_NOT_FOUND: OpenApiResponse(
+            response='User not found',
+            examples=[OpenApiExample(name='User not found', value={'detail': 'user not found'})],
+        ),
+        **DEFAULT_PUBLIC_API_SCHEMA_RESPONSES,
+    },
+)
 class ProfileVerificationView(APIView):
     """View, использующийся для верификации профиля пользователя по OTP коду"""
 
@@ -45,9 +105,22 @@ class ProfileVerificationView(APIView):
         BaseVerificationService(user).verify_otp(otp)
         ProfileManagerService(profile).verify()
 
-        return Response("verified successfully", status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_200_OK)
 
 
+@extend_schema(
+    tags=[AUTHENTIFICATION_SWAGGER_TAG],
+    description='Отправить OTP код пользователю',
+    request=PhoneSerializer,
+    responses={
+        status.HTTP_200_OK: SWAGGER_NO_RESPONSE_BODY,
+        status.HTTP_404_NOT_FOUND: OpenApiResponse(
+            response='User not found',
+            examples=[OpenApiExample(name='User not found', value={'detail': 'user not found'})],
+        ),
+        **DEFAULT_PUBLIC_API_SCHEMA_RESPONSES,
+    },
+)
 class SendVerificationCodeView(APIView):
     """View, использующийся для отправки OTP кода пользователю"""
 
@@ -60,9 +133,22 @@ class SendVerificationCodeView(APIView):
         otp = BaseVerificationService(user).create_otp()
         send_sms_task.delay(phone, MESSAGE_TEMPLATE.format(otp))
 
-        return Response("verification code sent", status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_200_OK)
 
 
+@extend_schema(
+    tags=[AUTHENTIFICATION_SWAGGER_TAG],
+    description='Валидация OTP кода',
+    request=VerificationRequestSerializer,
+    responses={
+        status.HTTP_200_OK: SWAGGER_NO_RESPONSE_BODY,
+        status.HTTP_404_NOT_FOUND: OpenApiResponse(
+            response='User not found',
+            examples=[OpenApiExample(name='User not found', value={'detail': 'user not found'})],
+        ),
+        **DEFAULT_PUBLIC_API_SCHEMA_RESPONSES,
+    },
+)
 class ResetPasswordValidateTokenView(APIView):
     """View, использующийся для валидации OTP кода, без каких либо побочных эффектов"""
 
@@ -76,9 +162,22 @@ class ResetPasswordValidateTokenView(APIView):
 
         BaseVerificationService(user).verify_otp(otp)
 
-        return Response({"detail": "token is valid"}, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_200_OK)
 
 
+@extend_schema(
+    tags=[AUTHENTIFICATION_SWAGGER_TAG],
+    description='Смена пароля',
+    request=PasswordResetSerializer,
+    responses={
+        status.HTTP_200_OK: SWAGGER_NO_RESPONSE_BODY,
+        status.HTTP_404_NOT_FOUND: OpenApiResponse(
+            response='User not found',
+            examples=[OpenApiExample(name='User not found', value={'detail': 'user not found'})],
+        ),
+        **DEFAULT_PUBLIC_API_SCHEMA_RESPONSES,
+    },
+)
 class ResetPasswordConfirmView(APIView):
     """View, использующийся для смены пароля"""
 
@@ -94,9 +193,21 @@ class ResetPasswordConfirmView(APIView):
         BaseVerificationService(user).verify_otp(otp)
         PasswordManagerService(user).reset_password(new_password=password)
 
-        return Response({"detail": "password changed"}, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_200_OK)
 
 
+@extend_schema(
+    tags=[AUTHENTIFICATION_SWAGGER_TAG],
+    description='Зарегистрироваться',
+    request=SignUpRequestSerializer,
+    responses={
+        status.HTTP_201_CREATED: inline_serializer(
+            name='SignUpSerializer',
+            fields={'profile': ProfileOwnerSerializer(), 'token': serializers.CharField()},
+        ),
+        **DEFAULT_PUBLIC_API_SCHEMA_RESPONSES,
+    },
+)
 class SignUpView(APIView):
     def post(self, request: Request):
         serializer = SignUpRequestSerializer(data=request.data)
@@ -108,6 +219,7 @@ class SignUpView(APIView):
         return Response({"profile": serialized_profile, "token": auth_token}, status=status.HTTP_201_CREATED)
 
 
+@extend_schema(tags=[PROFILE_SWAGGER_TAG])
 class ProfileViewSet(ViewSet):
     permission_classes = [IsProfileOwnerOrReadOnly, IsAuthenticated]
     authentication_classes = [TokenAuthentication]
@@ -117,6 +229,14 @@ class ProfileViewSet(ViewSet):
             return super().get_permissions()
         return [AllowAny()]
 
+    @extend_schema(
+        description='Получить свой профиль',
+        request={},
+        responses={
+            status.HTTP_200_OK: ProfileOwnerSerializer,
+            **DEFAULT_PRIVATE_API_ERRORS_SCHEMA_RESPONSES,
+        },
+    )
     @action(detail=False, methods=['get'], url_path='my_profile')
     def get_my_profile(self, request: Request):
         profile = request.user.profile  # type: ignore
@@ -124,12 +244,36 @@ class ProfileViewSet(ViewSet):
 
         return Response(serialized_profile, status=status.HTTP_200_OK)
 
+    @extend_schema(
+        description='Получить профиль пользователя с указанным id',
+        request={},
+        responses={
+            status.HTTP_200_OK: ProfileSerializer,
+            status.HTTP_404_NOT_FOUND: OpenApiResponse(
+                response='Profile not found',
+                examples=[OpenApiExample(name='Profile not found', value={'detail': 'profile not found'})],
+            ),
+            **DEFAULT_PRIVATE_API_ERRORS_SCHEMA_RESPONSES,
+        },
+    )
     def retrieve(self, request: Request, pk: int):
         profile = get_profile_with_user(pk)
         serialized_profile = ProfileSerializer(profile).data
 
         return Response(serialized_profile, status=status.HTTP_200_OK)
 
+    @extend_schema(
+        description='Обновить свой профиль',
+        request=ProfileOwnerSerializer,
+        responses={
+            status.HTTP_200_OK: ProfileOwnerSerializer,
+            status.HTTP_404_NOT_FOUND: OpenApiResponse(
+                response='Profile not found',
+                examples=[OpenApiExample(name='Profile not found', value={'detail': 'profile not found'})],
+            ),
+            **DEFAULT_PRIVATE_API_ERRORS_SCHEMA_RESPONSES,
+        },
+    )
     def update(self, request: Request, pk: int):
         profile = get_profile_with_user(pk)
         self.check_object_permissions(request, profile)
@@ -143,6 +287,18 @@ class ProfileViewSet(ViewSet):
 
         return Response(serialized_profile, status=status.HTTP_200_OK)
 
+    @extend_schema(
+        description='Удалить свой профиль',
+        request={},
+        responses={
+            status.HTTP_204_NO_CONTENT: SWAGGER_NO_RESPONSE_BODY,
+            status.HTTP_404_NOT_FOUND: OpenApiResponse(
+                response='Profile not found',
+                examples=[OpenApiExample(name='Profile not found', value={'detail': 'profile not found'})],
+            ),
+            **DEFAULT_PRIVATE_API_ERRORS_SCHEMA_RESPONSES,
+        },
+    )
     def destroy(self, request: Request, pk: int):
         profile = get_profile_with_user(pk)
         self.check_object_permissions(request, profile)
