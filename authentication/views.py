@@ -1,5 +1,4 @@
 from drf_spectacular.utils import extend_schema, inline_serializer, OpenApiResponse, OpenApiExample
-from knox.auth import TokenAuthentication
 from knox.views import LoginView as KnoxLoginView
 from rest_framework import status, serializers
 from rest_framework.decorators import action
@@ -9,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ViewSet
 
-from authentication.misc.custom_auth import CustomBasicAuthentication
+from authentication.misc.custom_auth import CustomBasicAuthentication, CookieTokenAuthentication
 from authentication.permissions import IsProfileOwnerOrReadOnly
 from authentication.selectors import get_profile_with_user, get_user_with_profile_by_phone
 from authentication.serializers import (
@@ -187,16 +186,19 @@ class SignUpView(APIView):
         serializer = SignUpRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        auth_token, profile = ProfileManagerService.create(**serializer.validated_data)
+        auth_token_val, auth_token_exp, profile = ProfileManagerService.create(**serializer.validated_data)
         serialized_profile = ProfileOwnerSerializer(profile).data
 
-        return Response({"profile": serialized_profile, "token": auth_token}, status=status.HTTP_201_CREATED)
+        return Response(
+            {"profile": serialized_profile, "token": {"token": auth_token_val, "expiry": auth_token_exp}},
+            status=status.HTTP_201_CREATED,
+        )
 
 
 @extend_schema(tags=[PROFILE_SWAGGER_TAG])
 class ProfileViewSet(ViewSet):
     permission_classes = [IsProfileOwnerOrReadOnly, IsAuthenticated]
-    authentication_classes = [TokenAuthentication]
+    authentication_classes = [CookieTokenAuthentication]
 
     def get_permissions(self):
         if self.action in ("update", "destroy", "get_my_profile"):
