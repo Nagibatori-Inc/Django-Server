@@ -14,8 +14,11 @@ from authentication.models import Profile
 from booking.models import Advert, Promotion, AdvertStatus
 from booking.serializers import AdvertSerializer, SearchFilterSerializer, PromotionSerializer
 from booking.services import AdvertService, AdvertsRecommendationService
-from common.swagger.schema import DEFAULT_ERRORS_WITH_404_SCHEMA_RESPONSES, DEFAULT_ERRORS_SCHEMA_RESPONSES, \
-    NOT_FOUND_ERROR_SCHEMA_RESPONSES, REQUEST_ERRORS_SCHEMA_RESPONSES
+from common.swagger.schema import (
+    DEFAULT_ERRORS_WITH_404_SCHEMA_RESPONSES,
+    NOT_FOUND_ERROR_SCHEMA_RESPONSES,
+    REQUEST_ERRORS_SCHEMA_RESPONSES,
+)
 
 logger = structlog.get_logger(__name__)
 router = DefaultRouter()
