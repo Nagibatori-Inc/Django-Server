@@ -45,8 +45,7 @@ PROFILE_SWAGGER_TAG = 'Профили'
     },
 )
 class UserLogoutView(LogoutView):
-    authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    pass
 
 
 @extend_schema(
@@ -59,8 +58,7 @@ class UserLogoutView(LogoutView):
     },
 )
 class UserLogoutAllView(LogoutAllView):
-    authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    pass
 
 
 @extend_schema(
