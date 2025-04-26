@@ -50,7 +50,7 @@ INSTALLED_APPS = [
     'authentication.apps.AuthenticationConfig',
     "django_migration_linter",
     'drf_spectacular',
-    'corsheaders',
+    'corsheaders',  # убрать когда появится nginx или caddy
 ]
 
 MIDDLEWARE = [
