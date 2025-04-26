@@ -76,7 +76,8 @@ class ProfileOwnerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ["name", "type", "user"]
+        fields = ["id", "name", "type", "user"]
+        read_only_fields = ["id"]
 
     # Убираем вложенность при отправке клиенту
     def to_representation(self, instance):
