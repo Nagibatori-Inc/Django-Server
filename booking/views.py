@@ -10,6 +10,7 @@ from rest_framework.routers import DefaultRouter
 from rest_framework.viewsets import ViewSet
 import structlog
 
+from authentication.misc.custom_auth import CookieTokenAuthentication
 from authentication.models import Profile
 from booking.models import Advert, Promotion, AdvertStatus
 from booking.serializers import AdvertSerializer, SearchFilterSerializer, PromotionSerializer
@@ -25,6 +26,7 @@ POSTS_SWAGGER_TAG = 'Объявления'
 @extend_schema(tags=[POSTS_SWAGGER_TAG])
 class AdvertViewSet(ViewSet):
     permission_classes = (IsAuthenticated,)
+    authentication_classes = [CookieTokenAuthentication]
 
     queryset = Advert.objects.all()
     serializer_class = AdvertSerializer
@@ -38,7 +40,12 @@ class AdvertViewSet(ViewSet):
     )
     def list(self, request):
         profile: Profile = get_object_or_404(Profile, user=request.user)
-        return self.serializer_class(self.queryset.filter(contact=profile)).data
+        logger.debug('queryset', queryset=self.queryset.filter(contact=profile).values())
+
+        if not self.queryset.filter(contact=profile):
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        return Response(self.serializer_class(self.queryset.filter(contact=profile).values(), many=True).data)
 
     @extend_schema(
         description='Получить конкретное объявление пользователя',
@@ -207,6 +214,25 @@ class AdvertsRecommendationViewSet(ViewSet):
     )
     def list(self, request):
         return AdvertsRecommendationService.list().serialize(self.serializer_class).ok().or_else_400()
+
+    @extend_schema(
+        description='Объявление из ленты',
+        request={},
+        responses={
+            status.HTTP_200_OK: serializer_class,
+            **DEFAULT_PRIVATE_API_ERRORS_WITH_404_SCHEMA_RESPONSES,
+        },
+    )
+    def retrieve(self, request, pk=None):
+        if not self.queryset.filter(id=pk).exists():
+            return AdvertsRecommendationService().not_found().or_else_400()
+
+        return (
+            AdvertsRecommendationService(self.queryset.filter(id=pk))
+            .serialize(self.serializer_class)
+            .ok()
+            .or_else_400()
+        )
 
     @extend_schema(
         description='Поиск объявлений с фильтрацией',
