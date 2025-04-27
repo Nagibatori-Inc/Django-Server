@@ -224,13 +224,11 @@ class AdvertsRecommendationViewSet(ViewSet):
         },
     )
     def retrieve(self, request, pk=None):
-        if not self.queryset.filter(id=pk).exists():
-            return AdvertsRecommendationService().not_found().or_else_400()
-
         return (
             AdvertsRecommendationService(self.queryset.filter(id=pk))
             .serialize(self.serializer_class)
             .ok()
+            .not_found()
             .or_else_400()
         )
 
