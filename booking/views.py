@@ -40,12 +40,12 @@ class AdvertViewSet(ViewSet):
     )
     def list(self, request):
         profile: Profile = get_object_or_404(Profile, user=request.user)
-        logger.debug('queryset', queryset=self.queryset.filter(contact=profile).values())
-
-        if not self.queryset.filter(contact=profile):
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-        return Response(self.serializer_class(self.queryset.filter(contact=profile).values(), many=True).data)
+        return (
+            AdvertsRecommendationService(self.queryset.filter(contact=profile).values())
+            .serialize()
+            .ok()
+            .or_else_404()
+        )
 
     @extend_schema(
         description='Получить конкретное объявление пользователя',
@@ -225,11 +225,10 @@ class AdvertsRecommendationViewSet(ViewSet):
     )
     def retrieve(self, request, pk=None):
         return (
-            AdvertsRecommendationService(self.queryset.filter(id=pk))
+            AdvertsRecommendationService(self.queryset.filter(id=pk).values())
             .serialize(self.serializer_class)
             .ok()
-            .not_found()
-            .or_else_400()
+            .or_else_404()
         )
 
     @extend_schema(
