@@ -41,8 +41,8 @@ class AdvertViewSet(ViewSet):
     def list(self, request):
         profile: Profile = get_object_or_404(Profile, user=request.user)
         return (
-            AdvertsRecommendationService(self.queryset.filter(contact=profile).values())
-            .serialize()
+            AdvertsRecommendationService(self.queryset.filter(contact=profile))
+            .serialize(self.serializer_class)
             .ok()
             .or_else_404()
         )
