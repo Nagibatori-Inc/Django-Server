@@ -2,6 +2,7 @@ from typing import Dict, Optional
 
 from django.db import models
 
+from DjangoServer.utils import user_directory_path
 from authentication.models import Profile
 
 
@@ -170,7 +171,7 @@ class Advert(models.Model):
 class AdvertImage(models.Model):
     """Модель фотографии объявления"""
 
-    image = models.ImageField(upload_to='adverts/images/')
+    image = models.ImageField(upload_to=user_directory_path)
     advert = models.ForeignKey(to=Advert, on_delete=models.CASCADE, related_name='images', verbose_name='Объявление')
 
     class Meta:
