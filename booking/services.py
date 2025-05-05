@@ -203,7 +203,7 @@ class AdvertsRecommendationService(RestService):
 
     @transaction.atomic
     def serialize(self, serializer: Type[AdvertSerializer]):  # type: ignore[override]
-        if self.adverts is None:
+        if self.adverts is None or len(self.adverts) == 0:
             return self.not_found()
 
         serialized_queryset = serializer(self.adverts.values(), many=True)

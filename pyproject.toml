@@ -22,6 +22,7 @@ dependencies = [
     "djangorestframework-types (==0.8.0)",
     "black (>=25.1.0,<26.0.0)",
     "django-migration-linter (>=5.1.0,<6.0.0)",
+    "django-cors-headers (>=4.7.0,<5.0.0)",
     "pytest (>=8.3.4)",
     "model-bakery (>=1.20.4)",
     "pytest-django (>=4.10.0)",
