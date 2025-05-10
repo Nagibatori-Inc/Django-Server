@@ -1,58 +1,112 @@
 from functools import wraps
+from typing import Callable
 
+import structlog
 from django.core.exceptions import ObjectDoesNotExist, EmptyResultSet, FieldDoesNotExist, FieldError, PermissionDenied
 from rest_framework import status
+from rest_framework.exceptions import NotAuthenticated, AuthenticationFailed, ParseError
 from rest_framework.response import Response
 
 from DjangoServer.service import RestService
 
+logger = structlog.get_logger(__name__)
+
 
 class ServiceExceptionHandler:
-    def __init__(self, service: RestService):
-        self.__service = service
-
-    @property
-    def service(self):
-        return self.__service
-
-    @service.setter
-    def service(self, value):
-        self.__service = value
-
-    def wrap(self, method, *args, **kwargs):
-        return
-
-
-def handle_404(service, method, *args, **kwargs):
-    try:
-        return method(*args, **kwargs)
-
-    except ObjectDoesNotExist or EmptyResultSet as e:  #  type: ignore[truthy-function]
-        service.response = Response({'err_msg': str(e)}, status=status.HTTP_404_NOT_FOUND)
-
-    return service
-
-
-def handle_service_exceptions(method):
     """
-    Декоратор для обработки исключений внутри сервисных методов.
+    Класс декоратора для обработки исключений в методах сервисов
     """
+    class ServiceExceptionWrapper:
+        def __init__(self, service: RestService):
+            self.__service = service
 
-    @wraps(method)
-    def wrapper(*args, **kwargs):
-        print(f'method: {method}, args: {args}, kwargs: {kwargs}')
-        try:
-            return method(*args, **kwargs)
+        @property
+        def service(self) -> RestService:
+            return self.__service
 
-        except (ObjectDoesNotExist, EmptyResultSet) as e:
-            response = Response({'err_msg': str(e)}, status=status.HTTP_404_NOT_FOUND)  # noqa F841
+        @service.setter
+        def service(self, service) -> None:
+            self.__service = service
 
-        except (FieldDoesNotExist, FieldError, ValueError, TypeError) as e:
-            response = Response({'err_msg': str(e)}, status=status.HTTP_400_BAD_REQUEST)  # noqa F841
+        def wrap(self, method) -> Callable:
+            """
+            Декоратор, который оборачивает метод сервиса в обработку исключений
+            :param method:
+            :return:
+            """
+            @wraps(method)
+            def wrapper(*args, **kwargs):
+                try:
+                    return method(*args, **kwargs)
+                except Exception as e:
+                    return self.handle_exception(e)
 
-        except PermissionDenied as e:
-            response = Response({'err_msg': str(e)}, status=status.HTTP_403_FORBIDDEN)  # noqa F841
+            return wrapper
 
-        return {}
+        def handle_exception(self, exception) -> RestService:
+            """
+            Определяет, как обрабатывать исключение
+            :param exception:
+            :return:
+            """
+            if isinstance(exception, (ObjectDoesNotExist, EmptyResultSet)):
+                return self.handle_404(exception)
 
-    return wrapper
+            if isinstance(exception, PermissionDenied):
+                return self.handle_403(exception)
+
+            if isinstance(exception, (NotAuthenticated, AuthenticationFailed)):
+                return self.handle_401(exception)
+
+            if isinstance(exception, (FieldDoesNotExist, FieldError, ParseError, ValueError, TypeError)):
+                return self.handle_400(exception)
+
+            raise exception
+
+        def handle_404(self, exception):
+            """
+            Обработка ошибки 404
+            :param exception:
+            :return:
+            """
+            self.service.response = Response({'err_msg': str(exception)}, status=status.HTTP_404_NOT_FOUND)
+            return self.service
+
+        def handle_403(self, exception):
+            """
+            Обработка ошибки 403
+            :param exception:
+            :return:
+            """
+            self.service.response = Response({'err_msg': str(exception)}, status=status.HTTP_403_FORBIDDEN)
+            return self.service
+
+        def handle_401(self, exception):
+            """
+            Обработка ошибки 401
+            :param exception:
+            :return:
+            """
+            self.service.response = Response({'err_msg': str(exception)}, status=status.HTTP_401_UNAUTHORIZED)
+            return self.service
+
+        def handle_400(self, exception):
+            """
+            Обработка ошибки 400
+            :param exception:
+            :return:
+            """
+            self.service.response = Response({'err_msg': str(exception)}, status=status.HTTP_400_BAD_REQUEST)
+            return self.service
+
+    def __init__(self, method: Callable):
+        self.__method = method
+
+    def __call__(self, *args, **kwargs):
+        """
+        Декоратор для обработки исключений в методах сервисов
+        """
+        service = args[0] if args else RestService()
+        handler = self.ServiceExceptionWrapper(service)
+        wrapped_method = handler.wrap(self.__method)
+        return wrapped_method(self, *args, **kwargs)
