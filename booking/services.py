@@ -8,6 +8,7 @@ from django.db.models.functions import Coalesce
 from rest_framework import status
 from rest_framework.response import Response
 
+from DjangoServer.decorators import ServiceExceptionHandler
 from DjangoServer.helpers.datetime import renew_for_month
 from DjangoServer.service import RestService
 from authentication.models import Profile
@@ -61,6 +62,7 @@ class AdvertService(RestService):
         self.__advert = advert
 
     @transaction.atomic
+    @ServiceExceptionHandler
     def activate(self) -> 'AdvertService':
         if self.advert is None:
             self.not_found()
@@ -72,6 +74,7 @@ class AdvertService(RestService):
         return self
 
     @transaction.atomic
+    @ServiceExceptionHandler
     def deactivate(self) -> 'AdvertService':
         if self.advert is None:
             self.not_found()
@@ -83,6 +86,7 @@ class AdvertService(RestService):
         return self
 
     @transaction.atomic
+    @ServiceExceptionHandler
     def change(self, changed_data: AdvertSerializer) -> 'AdvertService':
         """
         Метод, изменения объявления по его идентификатору (первичному ключу) и профилю юзера, подавшего объявление
@@ -101,6 +105,7 @@ class AdvertService(RestService):
         return self
 
     @transaction.atomic
+    @ServiceExceptionHandler
     def remove(self) -> 'AdvertService':
         advert: Optional[Advert] = self.advert
         if advert is None:
@@ -112,6 +117,7 @@ class AdvertService(RestService):
         return self
 
     @transaction.atomic
+    @ServiceExceptionHandler
     def serialize(self, serializer: Type[AdvertSerializer]) -> 'AdvertService':  # type: ignore[override]
         serialized_advert = serializer(self.advert, many=False)
         self.ok(serialized_advert.data)
@@ -121,6 +127,7 @@ class AdvertService(RestService):
         return self
 
     @staticmethod
+    @ServiceExceptionHandler
     def find(advert_pk: int, user_profile: Profile) -> 'AdvertService':
         """
         Метод, поиска объявления по его идентификатору (первичному ключу) и профилю юзера, подавшего объявление
@@ -138,6 +145,7 @@ class AdvertService(RestService):
 
     @staticmethod
     @transaction.atomic
+    @ServiceExceptionHandler
     def advertise(advert_serialized_data: AdvertSerializer, contact: Profile) -> 'AdvertService':
         """
         Метод реализации логики подачи объявления (Публикация объявления)
@@ -202,6 +210,7 @@ class AdvertsRecommendationService(RestService):
         return AdvertService().not_found()
 
     @transaction.atomic
+    @ServiceExceptionHandler
     def serialize(self, serializer: Type[AdvertSerializer]):  # type: ignore[override]
         if self.adverts is None or len(self.adverts) == 0:
             return self.not_found()
@@ -214,11 +223,13 @@ class AdvertsRecommendationService(RestService):
         return self
 
     @transaction.atomic
+    @ServiceExceptionHandler
     def view_ad(self, pk: int, profile: Profile):
         return self._get(pk, profile)
 
     @staticmethod
     @transaction.atomic
+    @ServiceExceptionHandler
     def list():
         queryset = Advert.objects.filter(status=AdvertStatus.ACTIVE)
 
@@ -226,6 +237,7 @@ class AdvertsRecommendationService(RestService):
 
     @staticmethod
     @transaction.atomic
+    @ServiceExceptionHandler
     def ranked_list(filters: SearchFilterSerializer):
         valid_data = filters.validated_data
         queryset = (
@@ -297,6 +309,7 @@ class PromotionService(RestService):
         self.__promotion = promotion
 
     @transaction.atomic
+    @ServiceExceptionHandler
     def boost(self, how_to_boost: Boost) -> 'PromotionService':
         promotion: Optional[Promotion] = self.promotion
         if promotion is None:
@@ -308,6 +321,7 @@ class PromotionService(RestService):
         return self
 
     @transaction.atomic
+    @ServiceExceptionHandler
     def disable(self) -> 'PromotionService':
         promotion = self.promotion
         if promotion is None:
@@ -319,6 +333,7 @@ class PromotionService(RestService):
         return self
 
     @transaction.atomic
+    @ServiceExceptionHandler
     def remove(self) -> 'PromotionService':
         promotion = self.promotion
         if promotion is None:
@@ -330,6 +345,7 @@ class PromotionService(RestService):
         return self
 
     @staticmethod
+    @ServiceExceptionHandler
     def find(
         promotion_pk: int, advert: Optional[Advert] = None, user_profile: Optional[Profile] = None
     ) -> 'PromotionService':
@@ -366,6 +382,7 @@ class PromotionService(RestService):
 
     @staticmethod
     @transaction.atomic
+    @ServiceExceptionHandler
     def promote(
         type: str,
         rate: int,
