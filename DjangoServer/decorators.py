@@ -37,8 +37,12 @@ class ServiceExceptionHandler:
             @wraps(method)
             def wrapper(*args, **kwargs):
                 try:
+                    args = args[1::] if isinstance(args[0], ServiceExceptionHandler) else args
                     return method(*args, **kwargs)
                 except Exception as e:
+                    logger.error(
+                        'catch and handle error in service method', service=self.service, method=method, exception=e
+                    )
                     return self.handle_exception(e)
 
             return wrapper
