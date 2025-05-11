@@ -43,7 +43,7 @@ class AdvertSerializer(serializers.ModelSerializer):
 class AdvertCreationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Advert
-        fields = ['title', 'description', 'price', 'location', 'status']
+        fields = ['title', 'description', 'price', 'phone', 'location', 'status']
 
 
 class SearchFilterSerializer(serializers.ModelSerializer):
