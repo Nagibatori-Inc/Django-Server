@@ -1,9 +1,49 @@
 name: deploy
+
 on:
   push:
-    branches: [ "dev" ]
+    branches:
+      - dev
+      - main
 
 jobs:
-  build:
-
   deploy:
+    name: Deploy via SSH with Docker Compose
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Deploy to Server
+        run: |
+          BRANCH=${{ github.ref_name }}
+
+          if [ "$BRANCH" = "dev" ]; then
+            SERVER=${{ secrets.STAGE_SERVER }}
+            PROJECT_DIR=/home/user/stage/my-django-app
+          elif [ "$BRANCH" = "main" ]; then
+            SERVER=${{ secrets.PROD_SERVER }}
+            PROJECT_DIR=/home/user/prod/my-django-app
+          else
+            echo "Unknown branch: $BRANCH"
+            exit 1
+          fi
+
+          ssh -o StrictHostKeyChecking=no $SERVER << EOF
+            set -e
+
+            cd $PROJECT_DIR
+            git pull origin $BRANCH
+
+            docker-compose down
+            docker-compose pull
+            docker-compose up --build -d
+
+            docker system prune -f
+          EOF
