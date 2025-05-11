@@ -13,7 +13,7 @@ import structlog
 from authentication.misc.custom_auth import CookieTokenAuthentication
 from authentication.models import Profile
 from booking.models import Advert, Promotion, AdvertStatus
-from booking.serializers import AdvertSerializer, SearchFilterSerializer, PromotionSerializer
+from booking.serializers import AdvertSerializer, SearchFilterSerializer, PromotionSerializer, AdvertCreationSerializer
 from booking.services import AdvertService, AdvertsRecommendationService
 from common.swagger.schema import DEFAULT_PRIVATE_API_ERRORS_WITH_404_SCHEMA_RESPONSES, SWAGGER_NO_RESPONSE_BODY
 
@@ -84,7 +84,7 @@ class AdvertViewSet(ViewSet):
         )
 
         profile: Profile = get_object_or_404(Profile, user=request.user)
-        serializer = self.serializer_class(data=request.data)
+        serializer = AdvertCreationSerializer(data=request.data)
 
         logger.debug('user got profile', user=request.user, profile=profile)
 

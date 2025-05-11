@@ -40,6 +40,12 @@ class AdvertSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class AdvertCreationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Advert
+        fields = ['title', 'description', 'price', 'status']
+
+
 class SearchFilterSerializer(serializers.ModelSerializer):
     min_price = serializers.IntegerField(required=False)
     max_price = serializers.IntegerField(required=False)
