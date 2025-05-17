@@ -33,17 +33,14 @@ class ProfileManagerService:
     @staticmethod
     def _update_user(*, user: User, **update_data) -> None:
         for name in update_data:
-            new_val = update_data[name]
-
-            if new_val is None:
-                del update_data[name]
-                continue
+            new_val = update_data.get(name)
 
             if name == "password":
                 user.set_password(raw_password=new_val)
                 continue
 
-            setattr(user, name, new_val)
+            if new_val is not None:
+                setattr(user, name, new_val)
 
         fields_to_update = list(update_data.keys())
         user.save(update_fields=fields_to_update)
@@ -51,13 +48,10 @@ class ProfileManagerService:
     @staticmethod
     def _update_profile(*, profile: Profile, **update_data) -> None:
         for name in update_data:
-            new_val = update_data[name]
+            new_val = update_data.get(name)
 
-            if new_val is None:
-                del update_data[name]
-                continue
-
-            setattr(profile, name, new_val)
+            if new_val is not None:
+                setattr(profile, name, new_val)
 
         fields_to_update = list(update_data.keys())
         profile.save(update_fields=fields_to_update)
@@ -66,7 +60,7 @@ class ProfileManagerService:
     @transaction.atomic
     def create(
         phone: str, password: str, first_name: str, email: str, profile_name: str, profile_type: str
-    ) -> Tuple[str, Profile]:
+    ) -> Tuple[str, int, Profile]:
         phone = make_phone_uniform(phone)
 
         # Так как делается soft-delete, для сохранения пользовательских данных (ресурс очень нужный всем и везде),
@@ -96,8 +90,9 @@ class ProfileManagerService:
 
         auth_token = AuthToken.objects.create(user)
         auth_token_val = auth_token[1]
+        auth_token_exp = auth_token[0].expiry
 
-        return auth_token_val, profile
+        return auth_token_val, auth_token_exp, profile
 
     @transaction.atomic
     def update(

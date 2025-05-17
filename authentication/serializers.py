@@ -62,6 +62,8 @@ class SignUpRequestSerializer(serializers.Serializer, PhoneValidationMixin, Pass
 
 
 class UserSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(validators=[])
+
     class Meta:
         model = User
         fields = ["username", "email", "first_name"]
@@ -74,9 +76,10 @@ class ProfileOwnerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ["name", "type", "user"]
+        fields = ["id", "name", "type", "user"]
+        read_only_fields = ["id"]
 
-    # Убираем вложенность
+    # Убираем вложенность при отправке клиенту
     def to_representation(self, instance):
         representation = super().to_representation(instance)
 
@@ -85,6 +88,15 @@ class ProfileOwnerSerializer(serializers.ModelSerializer):
 
         representation.update(user_data)
         return representation
+
+    # Убираем вложенность при получении (нужно для дальнейшего разворачивания)
+    def to_internal_value(self, data):
+        new_data = super().to_internal_value(data)
+        user_data = new_data.pop("user")
+        user_data["phone"] = user_data.pop("username")
+
+        new_data.update(user_data)
+        return new_data
 
 
 class ProfileSerializer(serializers.ModelSerializer):
