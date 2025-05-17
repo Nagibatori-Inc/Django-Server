@@ -1,5 +1,5 @@
 from drf_spectacular.utils import extend_schema, inline_serializer, OpenApiResponse, OpenApiExample
-from knox.views import LoginView as KnoxLoginView
+from knox.views import LoginView as KnoxLoginView, LogoutView, LogoutAllView
 from rest_framework import status, serializers
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -28,6 +28,7 @@ from common.swagger.schema import (
     SWAGGER_NO_RESPONSE_BODY,
     DEFAULT_PRIVATE_API_ERRORS_SCHEMA_RESPONSES,
     DEFAULT_PUBLIC_API_SCHEMA_RESPONSES,
+    AUTH_ERRORS_SCHEMA_RESPONSES,
 )
 
 AUTHENTIFICATION_SWAGGER_TAG = 'Авторизация'
@@ -282,3 +283,29 @@ class ProfileViewSet(ViewSet):
         ProfileManagerService(profile).soft_delete()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@extend_schema(
+    tags=[AUTHENTIFICATION_SWAGGER_TAG],
+    request={},
+    responses={
+        status.HTTP_204_NO_CONTENT: OpenApiResponse(description='Успешный выход'),
+        **AUTH_ERRORS_SCHEMA_RESPONSES,
+        status.HTTP_500_INTERNAL_SERVER_ERROR: OpenApiResponse(description='Internal Server Error'),
+    },
+)
+class CookieTokenLogout(LogoutView):
+    authentication_classes = [CookieTokenAuthentication]
+
+
+@extend_schema(
+    tags=[AUTHENTIFICATION_SWAGGER_TAG],
+    request={},
+    responses={
+        status.HTTP_204_NO_CONTENT: OpenApiResponse(description='Успешный выход из всех сессий'),
+        **AUTH_ERRORS_SCHEMA_RESPONSES,
+        status.HTTP_500_INTERNAL_SERVER_ERROR: OpenApiResponse(description='Internal Server Error'),
+    },
+)
+class CookieTokenLogoutAll(LogoutAllView):
+    authentication_classes = [CookieTokenAuthentication]

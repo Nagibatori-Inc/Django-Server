@@ -1,14 +1,10 @@
 from django.utils.translation import gettext_lazy as _
-from drf_spectacular.utils import extend_schema, OpenApiResponse
 from knox.auth import TokenAuthentication
-from knox.views import LogoutView, LogoutAllView
-from rest_framework import exceptions, HTTP_HEADER_ENCODING, status
+from rest_framework import exceptions, HTTP_HEADER_ENCODING
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.request import Request
 
 from authentication.utils import make_phone_uniform
-from authentication.views import AUTHENTIFICATION_SWAGGER_TAG
-from common.swagger.schema import AUTH_ERRORS_SCHEMA_RESPONSES
 
 
 class CustomBasicAuthentication(BasicAuthentication):
@@ -43,29 +39,3 @@ class CookieTokenAuthentication(TokenAuthentication):
 
         user, auth_token = self.authenticate_credentials(auth[1])
         return (user, auth_token)
-
-
-@extend_schema(
-    tags=[AUTHENTIFICATION_SWAGGER_TAG],
-    request={},
-    responses={
-        status.HTTP_204_NO_CONTENT: OpenApiResponse(description='Успешный выход'),
-        **AUTH_ERRORS_SCHEMA_RESPONSES,
-        status.HTTP_500_INTERNAL_SERVER_ERROR: OpenApiResponse(description='Internal Server Error'),
-    },
-)
-class CookieTokenLogout(LogoutView):
-    authentication_classes = [CookieTokenAuthentication]
-
-
-@extend_schema(
-    tags=[AUTHENTIFICATION_SWAGGER_TAG],
-    request={},
-    responses={
-        status.HTTP_204_NO_CONTENT: OpenApiResponse(description='Успешный выход из всех сессий'),
-        **AUTH_ERRORS_SCHEMA_RESPONSES,
-        status.HTTP_500_INTERNAL_SERVER_ERROR: OpenApiResponse(description='Internal Server Error'),
-    },
-)
-class CookieTokenLogoutAll(LogoutAllView):
-    authentication_classes = [CookieTokenAuthentication]
