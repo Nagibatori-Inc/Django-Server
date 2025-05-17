@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'authentication.apps.AuthenticationConfig',
     "django_migration_linter",
     'drf_spectacular',
+    'review',
 ]
 
 MIDDLEWARE = [
