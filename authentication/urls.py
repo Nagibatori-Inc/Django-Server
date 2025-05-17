@@ -1,7 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
-from authentication.misc.custom_auth import CookieTokenLogout, CookieTokenLogoutAll
 from authentication.views import (
     SignUpView,
     ProfileViewSet,
@@ -10,6 +9,8 @@ from authentication.views import (
     SendVerificationCodeView,
     ResetPasswordValidateTokenView,
     ResetPasswordConfirmView,
+    CookieTokenLogout,
+    CookieTokenLogoutAll,
 )
 
 router = DefaultRouter()

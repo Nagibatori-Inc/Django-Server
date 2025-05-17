@@ -1,6 +1,5 @@
 from django.utils.translation import gettext_lazy as _
 from knox.auth import TokenAuthentication
-from knox.views import LogoutView, LogoutAllView
 from rest_framework import exceptions, HTTP_HEADER_ENCODING
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.request import Request
@@ -40,11 +39,3 @@ class CookieTokenAuthentication(TokenAuthentication):
 
         user, auth_token = self.authenticate_credentials(auth[1])
         return (user, auth_token)
-
-
-class CookieTokenLogout(LogoutView):
-    authentication_classes = [CookieTokenAuthentication]
-
-
-class CookieTokenLogoutAll(LogoutAllView):
-    authentication_classes = [CookieTokenAuthentication]
