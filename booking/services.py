@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Type, Optional
+from typing import Type, Optional, Union
 
 import structlog
 from django.db import transaction
@@ -12,7 +12,7 @@ from DjangoServer.helpers.datetime import renew_for_month
 from DjangoServer.service import RestService
 from authentication.models import Profile
 from booking.models import Advert, AdvertStatus, Promotion, Boost, PromotionStatus
-from booking.serializers import SearchFilterSerializer, AdvertSerializer
+from booking.serializers import SearchFilterSerializer, AdvertSerializer, AdvertCreationSerializer
 
 logger = structlog.get_logger(__name__)
 
@@ -138,7 +138,10 @@ class AdvertService(RestService):
 
     @staticmethod
     @transaction.atomic
-    def advertise(advert_serialized_data: AdvertSerializer, contact: Profile) -> 'AdvertService':
+    def advertise(
+        advert_serialized_data: Union[AdvertSerializer, AdvertCreationSerializer],
+        contact: Profile,
+    ) -> 'AdvertService':
         """
         Метод реализации логики подачи объявления (Публикация объявления)
 
