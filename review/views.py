@@ -11,7 +11,7 @@ from review.serializers import ReviewSerializer
 SWAGGER_REVIEWS_TAG = 'Отзывы'
 
 
-class ProfileReviewsAPIView(APIView):
+class ProfileReviewsListAPIView(APIView):
     """Вью для получения отзывов профиля"""
 
     authentication_classes = []
