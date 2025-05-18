@@ -10,9 +10,10 @@ from rest_framework.routers import DefaultRouter
 from rest_framework.viewsets import ViewSet
 import structlog
 
+from authentication.misc.custom_auth import CookieTokenAuthentication
 from authentication.models import Profile
 from booking.models import Advert, Promotion, AdvertStatus
-from booking.serializers import AdvertSerializer, SearchFilterSerializer, PromotionSerializer
+from booking.serializers import AdvertSerializer, SearchFilterSerializer, PromotionSerializer, AdvertCreationSerializer
 from booking.services import AdvertService, AdvertsRecommendationService
 from common.swagger.schema import DEFAULT_PRIVATE_API_ERRORS_WITH_404_SCHEMA_RESPONSES, SWAGGER_NO_RESPONSE_BODY
 
@@ -25,6 +26,7 @@ POSTS_SWAGGER_TAG = 'Объявления'
 @extend_schema(tags=[POSTS_SWAGGER_TAG])
 class AdvertViewSet(ViewSet):
     permission_classes = (IsAuthenticated,)
+    authentication_classes = [CookieTokenAuthentication]
 
     queryset = Advert.objects.all()
     serializer_class = AdvertSerializer
@@ -38,7 +40,12 @@ class AdvertViewSet(ViewSet):
     )
     def list(self, request):
         profile: Profile = get_object_or_404(Profile, user=request.user)
-        return self.serializer_class(self.queryset.filter(contact=profile)).data
+        return (
+            AdvertsRecommendationService(self.queryset.filter(contact=profile))
+            .serialize(self.serializer_class)
+            .ok()
+            .or_else_404()
+        )
 
     @extend_schema(
         description='Получить конкретное объявление пользователя',
@@ -77,7 +84,7 @@ class AdvertViewSet(ViewSet):
         )
 
         profile: Profile = get_object_or_404(Profile, user=request.user)
-        serializer = self.serializer_class(data=request.data)
+        serializer = AdvertCreationSerializer(data=request.data)
 
         logger.debug('user got profile', user=request.user, profile=profile)
 
@@ -207,6 +214,22 @@ class AdvertsRecommendationViewSet(ViewSet):
     )
     def list(self, request):
         return AdvertsRecommendationService.list().serialize(self.serializer_class).ok().or_else_400()
+
+    @extend_schema(
+        description='Объявление из ленты',
+        request={},
+        responses={
+            status.HTTP_200_OK: serializer_class,
+            **DEFAULT_PRIVATE_API_ERRORS_WITH_404_SCHEMA_RESPONSES,
+        },
+    )
+    def retrieve(self, request, pk=None):
+        return (
+            AdvertsRecommendationService(self.queryset.filter(id=pk).values())
+            .serialize(self.serializer_class)
+            .ok()
+            .or_else_404()
+        )
 
     @extend_schema(
         description='Поиск объявлений с фильтрацией',
