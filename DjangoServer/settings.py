@@ -31,7 +31,7 @@ SECRET_KEY = "django-insecure-jlfaz)s(!fgo^x!y=^kxyr1huxxr^qutvna2ek3#azy_+1t__z
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config("DEBUG", default='dev') == 'debug' or 'dev' or 'development'
 
-ALLOWED_HOSTS = ['localhost', '0.0.0.0', '127.0.0.1', '192.168.0.107', '[::1]']
+ALLOWED_HOSTS = ['localhost', '0.0.0.0', '127.0.0.1', '*', '[::1]']
 ALLOWED_HOSTS += config('ALLOWED_HOSTS', default='').split(',')
 
 
@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'authentication.apps.AuthenticationConfig',
     "django_migration_linter",
     'drf_spectacular',
+    'corsheaders',  # убрать когда появится nginx или caddy
     'review',
 ]
 
@@ -61,7 +62,12 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
+
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = "DjangoServer.urls"
 

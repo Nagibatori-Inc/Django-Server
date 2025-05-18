@@ -88,6 +88,7 @@ class Boost:
 class AdvertStatus:
     ACTIVE = 'ACTIVE'
     DISABLED = 'DISABLED'
+    DRAFT = 'DRAFT'
 
 
 class Advert(models.Model):
@@ -115,6 +116,7 @@ class Advert(models.Model):
     ADVERT_STATUS_CHOICES = (
         (AdvertStatus.ACTIVE, 'Активировано'),
         (AdvertStatus.DISABLED, 'Не опубликовано'),
+        (AdvertStatus.DRAFT, 'Черновик'),
     )
 
     title = models.CharField(max_length=100, verbose_name='Название')

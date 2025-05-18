@@ -34,19 +34,19 @@ class PromotionSerializer(serializers.ModelSerializer):
 
 class AdvertSerializer(serializers.ModelSerializer):
     promotion = PromotionSerializer(required=False, read_only=True)
-    status = serializers.CharField(required=False)
-    activated_at = serializers.DateTimeField(required=False)
-    created_at = serializers.DateTimeField(required=False)
-    contact = AdvertContactSerializer()
 
     class Meta:
         model = Advert
         fields = '__all__'
 
 
+class AdvertCreationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Advert
+        fields = ['title', 'description', 'price', 'phone', 'location', 'status']
+
+
 class SearchFilterSerializer(serializers.ModelSerializer):
-    title = serializers.CharField(required=False)
-    location = serializers.CharField(required=False)
     min_price = serializers.IntegerField(required=False)
     max_price = serializers.IntegerField(required=False)
 
