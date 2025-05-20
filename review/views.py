@@ -1,7 +1,7 @@
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 from rest_framework import status
 from rest_framework.generics import CreateAPIView
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -41,7 +41,7 @@ class ProfileReviewsAPIView(CreateAPIView):
     """Вью для оставления и удаления отзывов"""
 
     authentication_classes = [CookieTokenAuthentication]
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     serializer_class = ReviewSerializer
 
     def post(self, request, profile_id: int):
