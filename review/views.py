@@ -72,7 +72,7 @@ class ProfileReviewsAPIView(APIView):
                 data={'error_detail': 'Нельзя оставить отзыв самому себе'}, status=status.HTTP_422_UNPROCESSABLE_ENTITY
             )
 
-        serializer = self.serializer_class(data={'profile_id': profile.id, 'author': author.id, **request.data})  # type: ignore[attr-defined]
+        serializer = self.serializer_class(data={'profile': profile.id, 'author': author.id, **request.data})  # type: ignore[attr-defined]
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
