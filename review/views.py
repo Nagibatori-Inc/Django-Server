@@ -10,7 +10,7 @@ from authentication.selectors.profile import get_profile_by_id
 from common.swagger.schema import DEFAULT_PRIVATE_API_ERRORS_WITH_404_SCHEMA_RESPONSES, SWAGGER_NO_RESPONSE_BODY
 from review.selectors.review import get_visible_reviews
 from review.serializers import ReviewSerializer
-from review.services.review import delete_review_by_id
+from review.services.review import delete_review_by_id, recalc_profile_rating
 
 SWAGGER_REVIEWS_TAG = 'Отзывы'
 
@@ -73,6 +73,8 @@ class CreateReviewAPIView(CreateAPIView):
         serializer = self.serializer_class(data={'profile_id': profile.id, 'author': author.id, **request.data})  # type: ignore[attr-defined]
         serializer.is_valid(raise_exception=True)
         serializer.save()
+
+        recalc_profile_rating(profile_id)
 
         return Response(status=status.HTTP_201_CREATED)
 
