@@ -1,5 +1,7 @@
+from django.db.models import Avg
 from rest_framework.generics import get_object_or_404
 
+from authentication.models import Profile
 from review.models import Review
 
 
@@ -9,4 +11,15 @@ def delete_review_by_id(review_id: int) -> None:
     :param review_id: id отзыва
     """
     review = get_object_or_404(Review, id=review_id)
+    profile_id = review.profile_id  # type: ignore[attr-defined]
     review.delete()
+    recalc_profile_rating(profile_id)
+
+
+def recalc_profile_rating(profile_id: int) -> None:
+    """
+    Пересчитать рейтинг профиля, этот метод нужно вызывать при удалении/добавлении отзыва
+    :param profile_id: id профиля, для которого нужно пересчитать рейтинг
+    """
+    new_rating = Review.objects.filter(is_approved=True).aggregate(Avg('rating'))['rating__avg']
+    Profile.objects.filter(profile_id=profile_id).update(rating=new_rating)
