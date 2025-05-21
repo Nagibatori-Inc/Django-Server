@@ -1,6 +1,5 @@
 from drf_spectacular.utils import extend_schema, OpenApiResponse, inline_serializer, OpenApiExample
-from rest_framework import status, serializers
-from rest_framework.generics import CreateAPIView
+from rest_framework import status, serializers, permissions
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -15,12 +14,20 @@ from review.services.review import delete_review_by_id, recalc_profile_rating
 SWAGGER_REVIEWS_TAG = 'Отзывы'
 
 
-class ProfileReviewsListAPIView(APIView):
+class ProfileReviewsAPIView(APIView):
     """Вью для получения отзывов профиля"""
 
-    authentication_classes = []
-    permission_classes = [AllowAny]
     serializer_class = ReviewSerializer
+
+    def get_permissions(self):
+        if self.request.method in permissions.SAFE_METHODS:
+            return [AllowAny()]
+        return [IsAuthenticated()]
+
+    def get_authentications(self):
+        if self.request.method in permissions.SAFE_METHODS:
+            return []
+        return [CookieTokenAuthentication()]
 
     @extend_schema(
         description='Получить одобренные модерацией отзывы профиля',
@@ -35,14 +42,6 @@ class ProfileReviewsListAPIView(APIView):
         """Получить отзывы профиля"""
         queryset = get_visible_reviews(profile_id)
         return Response(status=status.HTTP_200_OK, data=self.serializer_class(queryset, many=True).data)
-
-
-class CreateReviewAPIView(CreateAPIView):
-    """Вью для оставления отзывов"""
-
-    authentication_classes = [CookieTokenAuthentication]
-    permission_classes = [IsAuthenticated]
-    serializer_class = ReviewSerializer
 
     @extend_schema(
         tags=[SWAGGER_REVIEWS_TAG],
