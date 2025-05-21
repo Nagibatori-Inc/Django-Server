@@ -1,4 +1,5 @@
 from rest_framework import permissions
+from rest_framework.permissions import IsAuthenticated
 
 from authentication.models import Profile
 
@@ -14,3 +15,12 @@ class IsProfileOwnerOrReadOnly(permissions.BasePermission):  # type: ignore[misc
         is_profile_owner = obj.user == user
 
         return is_profile_owner
+
+
+class HasModeratorPermissions(IsAuthenticated):
+    """Проверка что пользователь - модератор"""
+
+    def has_permission(self, request, view):
+        if not super().has_permission(request, view):
+            return False
+        return request.user.profile.type == Profile.ProfileType.MODERATOR
