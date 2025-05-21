@@ -3,6 +3,7 @@ import secrets
 import string
 
 from django.contrib.auth.models import User
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils import timezone
 from django.db import models
 from django.contrib.auth.hashers import make_password as hash_value
@@ -34,6 +35,14 @@ class Profile(models.Model):
         verbose_name='Понравившиеся объявления',
         related_name='users_likes',
         blank=True,
+    )
+    rating = models.DecimalField(
+        null=True,
+        blank=True,
+        max_digits=4,
+        decimal_places=2,
+        validators=[MinValueValidator(0.0), MaxValueValidator(5.0)],
+        verbose_name='Рейтинг профиля',
     )
 
     class Meta:
