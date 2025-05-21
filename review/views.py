@@ -47,7 +47,10 @@ class CreateReviewAPIView(CreateAPIView):
     @extend_schema(
         tags=[SWAGGER_REVIEWS_TAG],
         description='Оставить отзыв',
-        request=inline_serializer(name='CreateReviewSerializer', fields={'text': serializers.CharField()}),
+        request=inline_serializer(
+            name='CreateReviewSerializer',
+            fields={'text': serializers.CharField(), 'rate': serializers.FloatField()},
+        ),
         responses={
             status.HTTP_200_OK: serializer_class(),
             **DEFAULT_PRIVATE_API_ERRORS_WITH_404_SCHEMA_RESPONSES,
