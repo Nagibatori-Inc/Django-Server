@@ -24,10 +24,10 @@ jobs:
         run: |
           BRANCH=${{ github.ref_name }}
 
-          if [ "$BRANCH" = "dev" ]; then
+          if [ "$BRANCH" = ${{ secrets.STAGE_BRANCH }} ]; then
             SERVER=${{ secrets.STAGE_SERVER }}
             PROJECT_DIR=/home/user/stage/my-django-app
-          elif [ "$BRANCH" = "main" ]; then
+          elif [ "$BRANCH" = ${{ secrets.PROD_BRANCH }} ]; then
             SERVER=${{ secrets.PROD_SERVER }}
             PROJECT_DIR=/home/user/prod/my-django-app
           else
