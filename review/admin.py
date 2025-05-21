@@ -9,7 +9,7 @@ class ReviewAdmin(admin.ModelAdmin):
     """Админка для модели Review"""
 
     list_display = ['profile_name', 'author_name', 'short_text', 'created_at', 'is_approved', 'approved_by']
-    readonly_fields = ['rate', 'approved_by', 'created_at']
+    readonly_fields = ['rate', 'approved_by', 'created_at', 'is_approved']
     list_filter = ['is_approved', 'approved_by']
 
     def get_form(self, request, obj=None, **kwargs):
