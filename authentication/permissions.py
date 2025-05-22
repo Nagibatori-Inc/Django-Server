@@ -17,7 +17,7 @@ class IsProfileOwnerOrReadOnly(permissions.BasePermission):  # type: ignore[misc
         return is_profile_owner
 
 
-class HasModeratorPermissions(IsAuthenticated):
+class HasModeratorPermissions(IsAuthenticated):  # type: ignore[misc]
     """Проверка что пользователь - модератор"""
 
     def has_permission(self, request, view):
