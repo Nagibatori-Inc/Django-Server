@@ -10,7 +10,7 @@ from rest_framework.viewsets import ViewSet
 
 from authentication.misc.custom_auth import CustomBasicAuthentication, CookieTokenAuthentication
 from authentication.permissions import IsProfileOwnerOrReadOnly
-from authentication.selectors import get_profile_with_user, get_user_with_profile_by_phone
+from authentication.selectors.profile import get_profile_with_user, get_user_with_profile_by_phone
 from authentication.serializers import (
     ProfileSerializer,
     SignUpRequestSerializer,

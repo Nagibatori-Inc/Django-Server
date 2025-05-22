@@ -8,6 +8,7 @@ class ProfileAdmin(admin.ModelAdmin):
     search_fields = ["name", "user__username"]
     list_display = ["user", "name", "type", "is_deleted"]
     list_filter = ["is_deleted", "type"]
+    readonly_fields = ['rating']
 
 
 class OTPAdmin(admin.ModelAdmin):

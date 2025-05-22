@@ -9,13 +9,14 @@ class ReviewAdmin(admin.ModelAdmin):
     """Админка для модели Review"""
 
     list_display = ['profile_name', 'author_name', 'short_text', 'created_at', 'is_approved', 'approved_by']
-    readonly_fields = ['approved_by', 'created_at']
+    readonly_fields = ['rate', 'approved_by', 'created_at', 'is_approved']
     list_filter = ['is_approved', 'approved_by']
 
     def get_form(self, request, obj=None, **kwargs):
         """Изменение виджета поля text"""
         form = super(ReviewAdmin, self).get_form(request, obj, **kwargs)
         form.base_fields['text'].widget = Textarea(attrs={'rows': 20, 'cols': 50})
+        form.base_fields['text'].disabled = True
         return form
 
     @admin.display(description='Профиль')

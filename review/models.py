@@ -1,3 +1,4 @@
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
 
@@ -17,6 +18,10 @@ class Review(models.Model):
         verbose_name='Автор отзыва',
     )
     text = models.CharField(max_length=3000, blank=True, default='', verbose_name='Текст отзыва')
+    rate = models.PositiveSmallIntegerField(
+        verbose_name='Оценка от 1 до 5',
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+    )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата и время создания')
 
     is_approved = models.BooleanField(default=False, verbose_name='Одобрен модерацией')
