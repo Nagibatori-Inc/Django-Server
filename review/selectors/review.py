@@ -17,4 +17,4 @@ def get_review_author(review_id: int) -> Profile:
 
 def get_reviews_to_moderate() -> QuerySet[Review]:
     """Получить отзывы для модерирования"""
-    return Review.objects.filter(is_approved=True)
+    return Review.objects.filter(is_approved=False)
