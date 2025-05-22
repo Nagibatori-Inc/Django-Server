@@ -160,6 +160,7 @@ class ModerateReviewAPIView(APIView):
         moderate_review(
             review=serializer.validated_data['review_id'],
             is_approved=serializer.validated_data['is_approved'],
+            moderator=request.user.profile,
         )
 
         return Response(status=status.HTTP_200_OK)
