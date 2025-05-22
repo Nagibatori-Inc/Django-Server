@@ -10,8 +10,8 @@ from authentication.permissions import HasModeratorPermissions
 from authentication.selectors.profile import get_profile_by_id
 from common.swagger.schema import DEFAULT_PRIVATE_API_ERRORS_WITH_404_SCHEMA_RESPONSES, SWAGGER_NO_RESPONSE_BODY
 from review.selectors.review import get_visible_reviews, get_review_author, get_reviews_to_moderate
-from review.serializers import ReviewSerializer
-from review.services.review import delete_review_by_id
+from review.serializers import ReviewSerializer, ModerateReviewSerializer
+from review.services.review import delete_review_by_id, moderate_review
 
 SWAGGER_REVIEWS_TAG = 'Отзывы'
 
@@ -125,7 +125,20 @@ class ModerateReviewAPIView(APIView):
 
     authentication_classes = [CookieTokenAuthentication]
     permission_classes = [HasModeratorPermissions]
+    serializer_class = ModerateReviewSerializer
 
     def get(self, request):
         """Получить страницу модерации отзывов"""
         return TemplateResponse(request, 'admin/review_moderation.html', context={'reviews': get_reviews_to_moderate()})
+
+    def post(self, request):
+        """Одобрение и отклонение отзыва"""
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        moderate_review(
+            review=serializer.validated_data['review_id'],
+            is_approved=serializer.validated_data['is_approved'],
+        )
+
+        return Response(status=status.HTTP_200_OK, data={'data': serializer.validated_data})
