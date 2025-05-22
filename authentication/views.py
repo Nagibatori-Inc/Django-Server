@@ -195,10 +195,13 @@ class SignUpView(APIView):
         auth_token_val, auth_token_exp, profile = ProfileManagerService.create(**serializer.validated_data)
         serialized_profile = ProfileOwnerSerializer(profile).data
 
-        return Response(
+        response = Response(
             {"profile": serialized_profile, "token": {"token": auth_token_val, "expiry": auth_token_exp}},
             status=status.HTTP_201_CREATED,
         )
+        response.set_cookie(key='Authorization', value=f"Token {auth_token_val}")
+
+        return response
 
 
 @extend_schema(tags=[PROFILE_SWAGGER_TAG])
