@@ -50,6 +50,11 @@ PROFILE_SWAGGER_TAG = 'Профили'
 class LoginView(KnoxLoginView):
     authentication_classes = [CustomBasicAuthentication]
 
+    def post(self, request):
+        response = super().post(request)
+        response.set_cookie(key='Authorization', value=f"Token {response.data['token']}")
+        return response
+
 
 @extend_schema(
     tags=[AUTHENTIFICATION_SWAGGER_TAG],
