@@ -62,6 +62,7 @@
                     <td>
                         <form action="{% url "moderate_review" %}" method="POST">
                             {% csrf_token %}
+                            <input type="hidden" value="{{ review.id }}" name="review_id"/>
                             <input type="hidden" value="1" name="is_approved"/>
                             <button type="submit" style="background-color: forestgreen; border-color: forestgreen; color: white">Одобрить</button>
                         </form>
@@ -69,6 +70,7 @@
                     <td>
                         <form action="{% url "moderate_review" %}" method="POST">
                             {% csrf_token %}
+                            <input type="hidden" value="{{ review.id }}" name="review_id"/>
                             <input type="hidden" value="0" name="is_approved"/>
                             <button type="submit" style="background-color: darkred; border-color: darkred; color: white">Отклонить</button>
                         </form>
