@@ -1,3 +1,4 @@
+from django.template.response import TemplateResponse
 from drf_spectacular.utils import extend_schema, OpenApiResponse, inline_serializer, OpenApiExample
 from rest_framework import status, serializers, permissions
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -5,9 +6,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from authentication.misc.custom_auth import CookieTokenAuthentication
+from authentication.permissions import HasModeratorPermissions
 from authentication.selectors.profile import get_profile_by_id
 from common.swagger.schema import DEFAULT_PRIVATE_API_ERRORS_WITH_404_SCHEMA_RESPONSES, SWAGGER_NO_RESPONSE_BODY
-from review.selectors.review import get_visible_reviews, get_review_author
+from review.selectors.review import get_visible_reviews, get_review_author, get_reviews_to_moderate
 from review.serializers import ReviewSerializer
 from review.services.review import delete_review_by_id
 
@@ -116,3 +118,14 @@ class DeleteReviewAPIView(APIView):
         delete_review_by_id(review_id)
 
         return Response(status=status.HTTP_200_OK)
+
+
+class ModerateReviewAPIView(APIView):
+    "Класс для модерации отзывов"
+
+    authentication_classes = [CookieTokenAuthentication]
+    permission_classes = [HasModeratorPermissions]
+
+    def get(self, request):
+        """Получить страницу модерации отзывов"""
+        return TemplateResponse(request, 'admin/review_moderation.html', context={'reviews': get_reviews_to_moderate()})
