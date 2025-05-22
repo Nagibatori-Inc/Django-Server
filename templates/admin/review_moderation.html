@@ -30,11 +30,12 @@
 {% block coltype %}{% endblock %}
 
 {% block content %}
-    <table class="admin-table" style="word-break: break-all">
+    <table class="admin-table" style="word-break: break-all; width: 100%;">
         <colgroup>
+            <col style="width: 4%">
             <col style="width: 10%;">
             <col style="width: 10%;">
-            <col style="width: 50%;">
+            <col style="width: 46%;">
             <col style="width: 5%;">
             <col style="width: 13%;">
             <col style="width: 6%;">
@@ -42,6 +43,7 @@
        </colgroup>
         <thead>
             <tr>
+                <td>ID отзыва</td>
                 <th>Профиль</th>
                 <th>Автор отзыва</th>
                 <th>Текст отзыва</th>
@@ -54,6 +56,7 @@
         <tbody>
             {% for review in reviews %}
                 <tr>
+                    <td><a href="/admin/review/review/{{ review.id }}/change/">{{ review.id }}</a></td>
                     <td><a href="/admin/authentication/profile/{{ review.profile.id }}/change/">{{ review.profile.name }}</a></td>
                     <td><a href="/admin/authentication/profile/{{ review.author.id }}/change/">{{ review.author.name }}</a></td>
                     <td>{{ review.text }}</td>
@@ -76,7 +79,6 @@
                         </form>
                     </td>
                 </tr>
-
             {% endfor %}
         </tbody>
     </table>
