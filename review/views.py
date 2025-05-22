@@ -8,12 +8,17 @@ from rest_framework.views import APIView
 from authentication.misc.custom_auth import CookieTokenAuthentication
 from authentication.permissions import HasModeratorPermissions
 from authentication.selectors.profile import get_profile_by_id
-from common.swagger.schema import DEFAULT_PRIVATE_API_ERRORS_WITH_404_SCHEMA_RESPONSES, SWAGGER_NO_RESPONSE_BODY
+from common.swagger.schema import (
+    DEFAULT_PRIVATE_API_ERRORS_WITH_404_SCHEMA_RESPONSES,
+    SWAGGER_NO_RESPONSE_BODY,
+    DEFAULT_PRIVATE_API_ERRORS_SCHEMA_RESPONSES,
+)
 from review.selectors.review import get_visible_reviews, get_review_author, get_reviews_to_moderate
 from review.serializers import ReviewSerializer, ModerateReviewSerializer
 from review.services.review import delete_review_by_id, moderate_review
 
 SWAGGER_REVIEWS_TAG = 'Отзывы'
+SWAGGER_REVIEWS_MODERATION_TAG = 'Модерация отзывов'
 
 
 class ProfileReviewsAPIView(APIView):
@@ -127,10 +132,26 @@ class ModerateReviewAPIView(APIView):
     permission_classes = [HasModeratorPermissions]
     serializer_class = ModerateReviewSerializer
 
+    @extend_schema(
+        tags=[SWAGGER_REVIEWS_MODERATION_TAG],
+        request={},
+        responses={
+            status.HTTP_200_OK: OpenApiResponse(description='Страница модерации отзывов'),
+            **DEFAULT_PRIVATE_API_ERRORS_SCHEMA_RESPONSES,
+        },
+    )
     def get(self, request):
         """Получить страницу модерации отзывов"""
         return TemplateResponse(request, 'admin/review_moderation.html', context={'reviews': get_reviews_to_moderate()})
 
+    @extend_schema(
+        tags=[SWAGGER_REVIEWS_MODERATION_TAG],
+        request=serializer_class(),
+        responses={
+            status.HTTP_200_OK: OpenApiResponse(description='Страница модерации отзывов'),
+            **DEFAULT_PRIVATE_API_ERRORS_SCHEMA_RESPONSES,
+        },
+    )
     def post(self, request):
         """Одобрение и отклонение отзыва"""
         serializer = self.serializer_class(data=request.data)
@@ -141,4 +162,4 @@ class ModerateReviewAPIView(APIView):
             is_approved=serializer.validated_data['is_approved'],
         )
 
-        return Response(status=status.HTTP_200_OK, data={'data': serializer.validated_data})
+        return Response(status=status.HTTP_200_OK)
