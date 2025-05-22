@@ -11,6 +11,7 @@ function task:dce {
 }
 
 # docker compose build
+# shellcheck disable=SC2120
 function task:build {
   task:dc build "$@"
 }
@@ -23,6 +24,11 @@ function task:run {
 # docker compose down
 function task:down {
   task:dc down --remove-orphans
+}
+
+# docker system prune -a -f
+function task:clear {
+  docker system prune -a -f
 }
 
 # poetry shortcut
