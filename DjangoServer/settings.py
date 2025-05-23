@@ -175,3 +175,7 @@ OTP_TTL = config("OTP_TTL", default=1)
 # Настройки Celery
 CELERY_BROKER_URL = "redis://localhost:6379/0"
 CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
+
+# Переменные ЮКассы
+YOO_KASSA_SECRET = config("YOO_KASSA_SECRET", None)
+YOO_KASSA_ID = config("YOO_KASSA_ID", None)
