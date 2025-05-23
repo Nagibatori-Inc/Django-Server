@@ -56,7 +56,7 @@ class TestProfileReview:
             review.profile = profile
             self._save_review_object(review=review)
 
-        response_data = api_client.get(reverse(self.profile_reviews_url_name, kwargs={'profile_id': profile.id})).data  # type: ignore[attr-defined]
+        response_data = api_client.get(reverse(self.profile_reviews_url_name, kwargs={'profile_id': profile.pk})).data
 
         assert len(response_data) == count_returned_reviews
 
@@ -68,7 +68,7 @@ class TestProfileReview:
         """
         self._save_profile_object(profile=profile)
 
-        response = api_client.post(reverse(self.profile_reviews_url_name, kwargs={'profile_id': profile.id}))  # type: ignore[attr-defined]
+        response = api_client.post(reverse(self.profile_reviews_url_name, kwargs={'profile_id': profile.pk}))
 
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
@@ -100,7 +100,7 @@ class TestProfileReview:
         self._save_profile_object(profile=auth_profile)
 
         response = auth_client.post(
-            path=reverse(self.profile_reviews_url_name, kwargs={'profile_id': profile.id}),  # type: ignore[attr-defined]
+            path=reverse(self.profile_reviews_url_name, kwargs={'profile_id': profile.pk}),
             data=request_data,
             format='json',
         )
@@ -123,7 +123,7 @@ class TestProfileReview:
         Asset: 422 ошибка
         """
         response = auth_client.post(
-            path=reverse(self.profile_reviews_url_name, kwargs={'profile_id': auth_profile.id}),  # type: ignore[attr-defined]
+            path=reverse(self.profile_reviews_url_name, kwargs={'profile_id': auth_profile.pk}),
             data=SUCCESS_CREATE_REVIEW_REQUEST_BODY,
             format='json',
         )
@@ -140,7 +140,7 @@ class TestProfileReview:
         Act: Запрос на создание отзыва на несуществующий профиль
         Assert: 404 ошибка
         """
-        nonexistent_user_id = auth_profile.id + 1  # type: ignore[attr-defined]
+        nonexistent_user_id = auth_profile.pk + 1
 
         response = auth_client.post(
             path=reverse(self.profile_reviews_url_name, kwargs={'profile_id': nonexistent_user_id}),
