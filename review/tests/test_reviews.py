@@ -232,3 +232,24 @@ class TestDeleteReview:
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
         assert Review.objects.filter(pk=review_form_auth_profile.pk).exists()
+
+    def test_delete_stranger_review_request(self, auth_client: APIClient, review_form_unauth_profile: Review):
+        """
+        Arrange: Авторизованный профиль, отзыв от другого профиля
+        Act: Запрос на удаление отзыва
+        Assert: Ощибка 422, отзыв не был удален
+        """
+        _save_review_object(review=review_form_unauth_profile)
+
+        response = auth_client.delete(
+            path=reverse(
+                self.delete_profile_review_url_name,
+                kwargs={
+                    'profile_id': review_form_unauth_profile.profile.pk,
+                    'review_id': review_form_unauth_profile.pk,
+                },
+            ),
+        )
+
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+        assert Review.objects.filter(pk=review_form_unauth_profile.pk).exists()
