@@ -112,3 +112,17 @@ class TestProfileReview:
                 rate=request_data.get('rate'),
                 is_approved=False,
             ).exists()
+
+    def test_self_review_creation_error(self, auth_client: APIClient, auth_profile: Profile):
+        """
+        Arrange: Авторизованный пользователь
+        Act: Запрос на создание отзыва самому себе
+        Asset: 422 ошибка
+        """
+        response = auth_client.post(
+            path=reverse(self.profile_reviews_url_name, kwargs={'profile_id': auth_profile.id}),  # type: ignore[attr-defined]
+            data={'text': 'Тестовый текст отзыва', 'rate': 4},
+            format='json',
+        )
+
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
