@@ -13,6 +13,9 @@ from review.tests.factories import ReviewFactory
 pytestmark = pytest.mark.django_db
 
 
+SUCCESS_CREATE_REVIEW_REQUEST_BODY = {'text': 'Тестовый текст отзыва', 'rate': 4}
+
+
 class TestProfileReview:
 
     profile_reviews_url_name = 'profile_reviews'
@@ -72,7 +75,7 @@ class TestProfileReview:
     @pytest.mark.parametrize(
         'request_data, status_code',
         (
-            ({'text': 'Тестовый текст отзыва', 'rate': 4}, status.HTTP_201_CREATED),
+            (SUCCESS_CREATE_REVIEW_REQUEST_BODY, status.HTTP_201_CREATED),
             ({'rate': 4}, status.HTTP_201_CREATED),
             ({'text': 'Тестовый текст отзыва'}, status.HTTP_400_BAD_REQUEST),
             ({'text': 'Тестовый текст отзыва', 'rate': 0}, status.HTTP_400_BAD_REQUEST),
@@ -121,8 +124,28 @@ class TestProfileReview:
         """
         response = auth_client.post(
             path=reverse(self.profile_reviews_url_name, kwargs={'profile_id': auth_profile.id}),  # type: ignore[attr-defined]
-            data={'text': 'Тестовый текст отзыва', 'rate': 4},
+            data=SUCCESS_CREATE_REVIEW_REQUEST_BODY,
             format='json',
         )
 
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+
+    def test_review_creation_request_if_profile_not_exist(
+        self,
+        auth_client: APIClient,
+        auth_profile: Profile,
+    ):
+        """
+        Arrange: Авторизованный пользователь, айди несуществующего профиля
+        Act: Запрос на создание отзыва на несуществующий профиль
+        Assert: 404 ошибка
+        """
+        nonexistent_user_id = auth_profile.id + 1  # type: ignore[attr-defined]
+
+        response = auth_client.post(
+            path=reverse(self.profile_reviews_url_name, kwargs={'profile_id': nonexistent_user_id}),
+            data=SUCCESS_CREATE_REVIEW_REQUEST_BODY,
+            format='json',
+        )
+
+        assert response.status_code == status.HTTP_404_NOT_FOUND
