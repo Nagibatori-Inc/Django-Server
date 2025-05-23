@@ -210,3 +210,25 @@ class TestDeleteReview:
 
         assert response.status_code == status.HTTP_200_OK
         assert not Review.objects.filter(pk=review_id).exists()
+
+    def test_delete_review_request_if_review_not_exist(self, auth_client: APIClient, review_form_auth_profile: Review):
+        """
+        Arrange: Авторизованный профиль, корректный айди профиля, некорректный айди отзыва
+        Act: Запрос на удаление отзыва
+        Assert: 404 ошибка, отзыв не был удален
+        """
+        _save_review_object(review=review_form_auth_profile)
+        unexistent_review_id = review_form_auth_profile.pk + 1
+
+        response = auth_client.delete(
+            path=reverse(
+                self.delete_profile_review_url_name,
+                kwargs={
+                    'profile_id': review_form_auth_profile.profile.pk,
+                    'review_id': unexistent_review_id,
+                },
+            ),
+        )
+
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+        assert Review.objects.filter(pk=review_form_auth_profile.pk).exists()
