@@ -16,20 +16,20 @@ pytestmark = pytest.mark.django_db
 SUCCESS_CREATE_REVIEW_REQUEST_BODY = {'text': 'Тестовый текст отзыва', 'rate': 4}
 
 
+def _save_profile_object(profile: Profile) -> None:
+    profile.user.save()
+    profile.save()
+
+
+def _save_review_object(review: Review) -> None:
+    _save_profile_object(profile=review.profile)
+    _save_profile_object(profile=review.author)
+    review.save()
+
+
 class TestProfilesReview:
 
     profile_reviews_url_name = 'profile_reviews'
-
-    @classmethod
-    def _save_profile_object(cls, profile: Profile) -> None:
-        profile.user.save()
-        profile.save()
-
-    @classmethod
-    def _save_review_object(cls, review: Review) -> None:
-        cls._save_profile_object(profile=review.profile)
-        cls._save_profile_object(profile=review.author)
-        review.save()
 
     @pytest.mark.parametrize(
         'reviews, count_returned_reviews',
@@ -51,14 +51,14 @@ class TestProfilesReview:
         Act: Запрос на получение отзывов профиля
         Assert: Количество возвращаемых объектов совпадает
         """
-        self._save_profile_object(profile=profile)
+        _save_profile_object(profile=profile)
         for review in reviews:
             review.profile = profile
-            self._save_review_object(review=review)
+            _save_review_object(review=review)
 
         response_data = api_client.get(reverse(self.profile_reviews_url_name, kwargs={'profile_id': profile.pk})).data
 
-        assert len(response_data) == count_returned_reviews
+        assert len(response_data) == count_returned_reviews  # type: ignore[arg-type]
 
     def test_unauthorized_create_review_request(self, api_client: APIClient, profile: Profile):
         """
@@ -66,7 +66,7 @@ class TestProfilesReview:
         Act: Запрос на создание отзыва на профиль
         Assert: 401 ошибка
         """
-        self._save_profile_object(profile=profile)
+        _save_profile_object(profile=profile)
 
         response = api_client.post(reverse(self.profile_reviews_url_name, kwargs={'profile_id': profile.pk}))
 
@@ -96,8 +96,8 @@ class TestProfilesReview:
         Arrange: Корректный код ответа. В случае успешных запросов -
                  проверка, что в бд создались объекты с корректными данными.
         """
-        self._save_profile_object(profile=profile)
-        self._save_profile_object(profile=auth_profile)
+        _save_profile_object(profile=profile)
+        _save_profile_object(profile=auth_profile)
 
         response = auth_client.post(
             path=reverse(self.profile_reviews_url_name, kwargs={'profile_id': profile.pk}),
