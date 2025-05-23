@@ -38,6 +38,7 @@ def review_form_auth_profile(auth_profile: Profile) -> Review:
 
 
 class TestProfilesReview:
+    """Тесты на вью ProfileReviewsAPIView"""
 
     profile_reviews_url_name = 'profile_reviews'
 
