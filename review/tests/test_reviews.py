@@ -186,3 +186,27 @@ class TestDeleteReview:
         )
 
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+    def test_delete_review_success_request(self, auth_client: APIClient, review_form_auth_profile: Review):
+        """
+        Arrange: Авторизованный профиль, отзыв от этого профиля
+        Act: Запрос на удаление отзыва
+        Assert: Успешное удаление, отзыв существует в бд до запроса и не существует после, код ответа - 200
+        """
+        _save_review_object(review=review_form_auth_profile)
+        review_id = review_form_auth_profile.pk
+
+        assert Review.objects.filter(pk=review_id).exists()
+
+        response = auth_client.delete(
+            path=reverse(
+                self.delete_profile_review_url_name,
+                kwargs={
+                    'profile_id': review_form_auth_profile.profile.pk,
+                    'review_id': review_id,
+                },
+            ),
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        assert not Review.objects.filter(pk=review_id).exists()
