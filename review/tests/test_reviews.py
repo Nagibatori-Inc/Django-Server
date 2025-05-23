@@ -160,3 +160,29 @@ class TestProfilesReview:
         )
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+class TestDeleteReview:
+    """Тесты на вью DeleteReviewAPIView"""
+
+    delete_profile_review_url_name = 'delete_review'
+
+    def test_unauthorized_delete_review_request(self, api_client: APIClient, review_form_unauth_profile: Review):
+        """
+        Arrange: Навторизованный профиль, отзыв от неавторизованного профиля
+        Act: Запрос на удаление отзыва
+        Assert: 401 ошибка
+        """
+        _save_review_object(review=review_form_unauth_profile)
+
+        response = api_client.delete(
+            path=reverse(
+                self.delete_profile_review_url_name,
+                kwargs={
+                    'profile_id': review_form_unauth_profile.profile.pk,
+                    'review_id': review_form_unauth_profile.pk,
+                },
+            ),
+        )
+
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
