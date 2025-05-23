@@ -87,6 +87,12 @@ class TestProfileReview:
         request_data: dict[str, Any],
         status_code: int,
     ):
+        """
+        Arrange: Профиль на который будет оставляться отзыв, авторизованный профиль автора отзыва
+        Act: Запрос на создание отзыва
+        Arrange: Корректный код ответа. В случае успешных запросов -
+                 проверка, что в бд создались объекты с корректными данными.
+        """
         self._save_profile_object(profile=profile)
         self._save_profile_object(profile=auth_profile)
 
@@ -97,3 +103,12 @@ class TestProfileReview:
         )
 
         assert response.status_code == status_code
+
+        if response.status_code == status.HTTP_201_CREATED:
+            assert Review.objects.filter(
+                profile=profile,
+                author=auth_profile,
+                text=request_data.get('text', ''),
+                rate=request_data.get('rate'),
+                is_approved=False,
+            ).exists()
