@@ -27,6 +27,16 @@ def _save_review_object(review: Review) -> None:
     review.save()
 
 
+@pytest.fixture
+def review_form_unauth_profile(profile: Profile) -> Review:
+    return ReviewFactory(author=profile)
+
+
+@pytest.fixture
+def review_form_auth_profile(auth_profile: Profile) -> Review:
+    return ReviewFactory(author=auth_profile)
+
+
 class TestProfilesReview:
 
     profile_reviews_url_name = 'profile_reviews'
