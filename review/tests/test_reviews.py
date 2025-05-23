@@ -16,7 +16,7 @@ pytestmark = pytest.mark.django_db
 SUCCESS_CREATE_REVIEW_REQUEST_BODY = {'text': 'Тестовый текст отзыва', 'rate': 4}
 
 
-class TestProfileReview:
+class TestProfilesReview:
 
     profile_reviews_url_name = 'profile_reviews'
 
