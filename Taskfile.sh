@@ -67,10 +67,11 @@ function task:init {
   task:down
 }
 
-# run tests (TODO)
+# run tests
 function task:test {
-  # TODO Добавить сюда таску по запуску тестов, когда они появятся
-  echo "Tests"
+  task:run
+  task:dce app pytest .
+  task:down
 }
 
 # run linters
