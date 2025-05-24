@@ -1,5 +1,8 @@
+import pytest
+
 from authentication.models import Profile
 from review.models import Review
+from review.tests.factories import ReviewFactory
 
 
 def save_profile_object(profile: Profile) -> None:
@@ -13,3 +16,9 @@ def save_review_object(review: Review) -> None:
     save_profile_object(profile=review.profile)
     save_profile_object(profile=review.author)
     review.save()
+
+
+@pytest.fixture
+def review() -> Review:
+    """Фикстура модели отзыва"""
+    return ReviewFactory()
