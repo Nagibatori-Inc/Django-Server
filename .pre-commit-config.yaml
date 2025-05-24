@@ -28,3 +28,10 @@ repos:
               - --diff
               - --color
           exclude: ^.*\b(migrations)\b.*$
+
+-   repo: local
+    hooks:
+        - id: pytest
+          name: pytest
+          entry: bash -c './Taskfile.sh test'
+          language: system
