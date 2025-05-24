@@ -7,6 +7,7 @@ from rest_framework.test import APIClient
 
 from authentication.models import Profile
 from review.models import Review
+from review.tests.conftest import save_profile_object, save_review_object
 from review.tests.factories import ReviewFactory
 
 
@@ -14,17 +15,6 @@ pytestmark = pytest.mark.django_db
 
 
 SUCCESS_CREATE_REVIEW_REQUEST_BODY = {'text': 'Тестовый текст отзыва', 'rate': 4}
-
-
-def _save_profile_object(profile: Profile) -> None:
-    profile.user.save()
-    profile.save()
-
-
-def _save_review_object(review: Review) -> None:
-    _save_profile_object(profile=review.profile)
-    _save_profile_object(profile=review.author)
-    review.save()
 
 
 @pytest.fixture
@@ -62,10 +52,10 @@ class TestProfilesReview:
         Act: Запрос на получение отзывов профиля
         Assert: Количество возвращаемых объектов совпадает
         """
-        _save_profile_object(profile=profile)
+        save_profile_object(profile=profile)
         for review in reviews:
             review.profile = profile
-            _save_review_object(review=review)
+            save_review_object(review=review)
 
         response_data = api_client.get(reverse(self.profile_reviews_url_name, kwargs={'profile_id': profile.pk})).data
 
@@ -77,7 +67,7 @@ class TestProfilesReview:
         Act: Запрос на создание отзыва на профиль
         Assert: 401 ошибка
         """
-        _save_profile_object(profile=profile)
+        save_profile_object(profile=profile)
 
         response = api_client.post(reverse(self.profile_reviews_url_name, kwargs={'profile_id': profile.pk}))
 
@@ -107,8 +97,8 @@ class TestProfilesReview:
         Arrange: Корректный код ответа. В случае успешных запросов -
                  проверка, что в бд создались объекты с корректными данными.
         """
-        _save_profile_object(profile=profile)
-        _save_profile_object(profile=auth_profile)
+        save_profile_object(profile=profile)
+        save_profile_object(profile=auth_profile)
 
         response = auth_client.post(
             path=reverse(self.profile_reviews_url_name, kwargs={'profile_id': profile.pk}),
@@ -173,7 +163,7 @@ class TestDeleteReview:
         Act: Запрос на удаление отзыва
         Assert: 401 ошибка
         """
-        _save_review_object(review=review_form_unauth_profile)
+        save_review_object(review=review_form_unauth_profile)
 
         response = api_client.delete(
             path=reverse(
@@ -193,7 +183,7 @@ class TestDeleteReview:
         Act: Запрос на удаление отзыва
         Assert: Успешное удаление, отзыв существует в бд до запроса и не существует после, код ответа - 200
         """
-        _save_review_object(review=review_form_auth_profile)
+        save_review_object(review=review_form_auth_profile)
         review_id = review_form_auth_profile.pk
 
         assert Review.objects.filter(pk=review_id).exists()
@@ -217,7 +207,7 @@ class TestDeleteReview:
         Act: Запрос на удаление отзыва
         Assert: 404 ошибка, отзыв не был удален
         """
-        _save_review_object(review=review_form_auth_profile)
+        save_review_object(review=review_form_auth_profile)
         unexistent_review_id = review_form_auth_profile.pk + 1
 
         response = auth_client.delete(
@@ -239,7 +229,7 @@ class TestDeleteReview:
         Act: Запрос на удаление отзыва
         Assert: Ощибка 422, отзыв не был удален
         """
-        _save_review_object(review=review_form_unauth_profile)
+        save_review_object(review=review_form_unauth_profile)
 
         response = auth_client.delete(
             path=reverse(
