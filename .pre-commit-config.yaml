@@ -28,3 +28,12 @@ repos:
               - --diff
               - --color
           exclude: ^.*\b(migrations)\b.*$
+
+-   repo: local
+    hooks:
+        - id: pytest
+          name: pytest
+          entry: ./Taskfile.sh pytest_pre_commit_hook
+          language: script
+          pass_filenames: false
+          stages: [push]

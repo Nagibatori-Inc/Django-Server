@@ -7,7 +7,7 @@ function task:dc {
 
 # docker compose exec
 function task:dce {
-  task:dc exec "$@"
+  task:dc exec -T "$@"
 }
 
 # docker compose build
@@ -67,10 +67,11 @@ function task:init {
   task:down
 }
 
-# run tests (TODO)
+# run tests
 function task:test {
-  # TODO Добавить сюда таску по запуску тестов, когда они появятся
-  echo "Tests"
+  task:run
+  task:dce app pytest .
+  task:down
 }
 
 # run linters
@@ -91,6 +92,17 @@ function task:lint-and-fix {
 function task:help {
   echo "Available tasks:"
   compgen -A function
+}
+
+function task:pytest_pre_commit_hook {
+  task:run
+
+  task:dce app pytest . 2>&1
+  exit_code=$?
+
+  task:down
+
+  exit $exit_code
 }
 
 task="task:$1"
