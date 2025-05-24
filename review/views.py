@@ -126,7 +126,7 @@ class DeleteReviewAPIView(APIView):
 
 
 class ModerateReviewAPIView(APIView):
-    "Класс для модерации отзывов"
+    """Класс для модерации отзывов"""
 
     authentication_classes = [CookieTokenAuthentication]
     permission_classes = [HasModeratorPermissions]
