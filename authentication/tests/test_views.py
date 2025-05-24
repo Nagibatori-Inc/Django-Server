@@ -19,7 +19,7 @@ class TestProfileViewSet:
     basename = "profile-detail"
 
     def test_retrieve(self, api_client: APIClient, default_profile: Profile):
-        expected_json = {"profile": {"name": default_profile.name, "type": default_profile.type}}
+        expected_json = {"name": default_profile.name, "type": default_profile.type}
 
         # Получаем профиль
         url = reverse(self.basename, kwargs={"pk": default_profile.id})  # type: ignore[attr-defined]
