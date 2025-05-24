@@ -33,5 +33,7 @@ repos:
     hooks:
         - id: pytest
           name: pytest
-          entry: bash -c './Taskfile.sh test'
-          language: system
+          entry: ./Taskfile.sh pytest_pre_commit_hook
+          language: script
+          pass_filenames: false
+          stages: [push]
