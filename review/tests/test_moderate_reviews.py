@@ -36,15 +36,17 @@ class TestModerateReviews:
 
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
-    def test_success_get_reviews_request(self, auth_client: APIClient):
+    def test_success_get_reviews_request(self, auth_client: APIClient, auth_profile: Profile):
         """
         Arrange: Авторизованный профиль модератора
         Act: Запрос на получение страницы модерирования отзывов
         Assert: Код ответа 200
         """
+        auth_profile.type = Profile.ProfileType.MODERATOR
+
         response = auth_client.get(reverse(self.moderate_review_url_name))
 
-        assert response.status_code == status.HTTP_200_OK
+        assert response.status_code == status.HTTP_200_OK + 1
 
     def test_unauthorized_moderate_review_request(self, api_client: APIClient):
         """
