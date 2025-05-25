@@ -11,6 +11,7 @@ function task:dce {
 }
 
 # docker compose build
+# shellcheck disable=SC2120
 function task:build {
   task:dc build "$@"
 }
@@ -25,6 +26,11 @@ function task:down {
   task:dc down --remove-orphans
 }
 
+# docker system prune -a -f
+function task:clean {
+  docker system prune -a -f
+}
+
 # poetry shortcut
 function task:poetry {
   task:dce app poetry "$@"
@@ -33,6 +39,13 @@ function task:poetry {
 # manage.py shortcut
 function task:manage {
   task:poetry run python manage.py "$@"
+}
+
+# docker compose up --build + migrate
+function deploy {
+  task:build
+  task:run
+  task:manage migrate
 }
 
 # init project script
@@ -47,11 +60,7 @@ function task:init {
       --hook-type pre-push \
       --hook-type commit-msg
 
-  task:build
-
-  task:run
-
-  task:manage migrate
+  task:deploy
 
   (
     source ./.env
@@ -65,6 +74,13 @@ function task:init {
   )
 
   task:down
+}
+
+# docker system prune + down + build + run + migrate
+function rebuild {
+  task:down
+  task:clean
+  task:deploy
 }
 
 # run tests
