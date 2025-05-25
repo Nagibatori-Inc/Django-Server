@@ -191,7 +191,7 @@ class AdvertViewSet(ViewSet):
                 advert_pk=pk,
                 user_profile=user,
             )
-            .delete()
+            .remove()
             .ok()
             .or_else_400()
         )
