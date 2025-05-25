@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'corsheaders',  # убрать когда появится nginx или caddy
     'review',
+    'notification',
 ]
 
 MIDDLEWARE = [
