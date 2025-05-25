@@ -96,7 +96,7 @@ class TestAdverts:
         response = auth_client.get(self.ADVERTS_LIST_URL)
 
         assert response.status_code == status.HTTP_200_OK
-        assert len(response.data if response.data else []) == count_returned_adverts
+        assert len(response.data if response.data else []) == count_returned_adverts  # type: ignore[arg-type]
 
     def test_profile_not_found_list_request(self, api_client: APIClient, auth_user: User):
         """
