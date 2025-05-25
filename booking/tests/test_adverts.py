@@ -1,3 +1,5 @@
+from typing import Any
+
 import pytest
 from django.contrib.auth.models import User
 from rest_framework import status
@@ -136,3 +138,33 @@ class TestAdverts:
         response = auth_client.get(self.ADVERTS_RETRIEVE_URL.format(id=wrong_advert_id))
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    @pytest.mark.parametrize(
+        'request_data, status_code',
+        (
+            (
+                {
+                    'title': 'CorrectTitle',
+                    'description': 'CorrectDescription',
+                    'price': 1123,
+                    'phone': '123123123',
+                    'location': 'CorrectLocation',
+                    'status': AdvertStatus.DISABLED,
+                },
+                status.HTTP_201_CREATED,
+            ),
+            ({}, status.HTTP_422_UNPROCESSABLE_ENTITY),
+        ),
+    )
+    def test_advert_creation_request(self, auth_client: APIClient, request_data: dict[str, Any], status_code: int):
+        """
+        Arrange: Авторизованный клиент, данные для создания объявления
+        Act: Запрос на создание объявления
+        Assert: 1. Код ответа 200, в бд создалось новое объявление с корректными данными
+                2. 422 ошибка
+        """
+        response = auth_client.post(self.ADVERTS_CREATE_URL, data=request_data)
+
+        assert response.status_code == status_code
+        if response.status_code == status.HTTP_201_CREATED:
+            assert Advert.objects.filter(**request_data).exists()
