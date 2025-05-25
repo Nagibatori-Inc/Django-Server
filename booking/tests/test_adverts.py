@@ -26,6 +26,18 @@ class TestAdverts:
     ADVERTS_ACTIVATE_URL = '/api/posts/{id}/activate/'
     ADVERTS_DEACTIVATE_URL = '/api/posts/{id}/deactivate/'
 
+    SUCCESS_ADVERT_UPDATE_REQUEST_DATA = {
+        "title": "Новое название",
+        "description": "Новое описание",
+        "price": "1000.00",
+        "phone": "79999999999",
+        "location": "Новая локация",
+        "views": 123123,
+        "activated_at": "2025-05-14T20:36:39.573115Z",
+        "status": "ACTIVE",
+        "active_until": "2025-05-17T18:54:54Z",
+    }
+
     def test_unauthorized_request(self, api_client: APIClient):
         """
         Arrange: Неавторизованный клиент
@@ -169,7 +181,9 @@ class TestAdverts:
         if response.status_code == status.HTTP_201_CREATED:
             assert Advert.objects.filter(**request_data).exists()
 
-    def test_profile_not_found_update_request(self, api_client: APIClient, auth_user: User):
+    def test_profile_not_found_update_request(
+        self, api_client: APIClient, auth_user: User, auth_profile_advert: Advert
+    ):
         """
         Arrange: Авторизованный клиент, в бд есть только объект User
         Act: Запрос на изменение объявления
@@ -192,26 +206,16 @@ class TestAdverts:
         save_advert_object(auth_profile_advert)
         wrong_advert_id = auth_profile_advert.pk + 1
 
-        response = auth_client.put(self.ADVERTS_RETRIEVE_URL.format(id=wrong_advert_id))
+        request_data = self.SUCCESS_ADVERT_UPDATE_REQUEST_DATA
+        request_data['contact'] = auth_profile_advert.contact.pk
+
+        response = auth_client.put(self.ADVERTS_RETRIEVE_URL.format(id=wrong_advert_id), data=request_data)
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
 
-    @pytest.mark.parametrize(  # Сюда потом можно больше кейсов добавить
-        'request_data',
-        (
-            {
-                "title": "Новое название",
-                "description": "Новое описание",
-                "price": "1000.00",
-                "phone": "79999999999",
-                "location": "Новая локация",
-                "views": 123123,
-                "activated_at": "2025-05-14T20:36:39.573115Z",
-                "status": "ACTIVE",
-                "active_until": "2025-05-17T18:54:54Z",
-            },
-        ),
-    )
+    @pytest.mark.parametrize(
+        'request_data', SUCCESS_ADVERT_UPDATE_REQUEST_DATA
+    )  # Сюда потом можно больше кейсов добавить
     def test_advert_update_request(
         self, auth_client: APIClient, auth_profile_advert: Advert, request_data: dict[str, Any]
     ):
@@ -221,8 +225,10 @@ class TestAdverts:
         Assert: Код ответа 200, данные объявления изменились
         """
         save_advert_object(auth_profile_advert)
+        request_data = self.SUCCESS_ADVERT_UPDATE_REQUEST_DATA
+        request_data['contact'] = auth_profile_advert.contact.pk
+
         response = auth_client.put(self.ADVERTS_UPDATE_URL.format(id=auth_profile_advert.pk), data=request_data)
 
         assert response.status_code == status.HTTP_200_OK
-
         assert Advert.objects.filter(pk=auth_profile_advert.pk, **request_data).exists()
