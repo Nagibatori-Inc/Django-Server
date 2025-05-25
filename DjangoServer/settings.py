@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'corsheaders',  # убрать когда появится nginx или caddy
     'review',
+    'notification',
 ]
 
 MIDDLEWARE = [
@@ -175,3 +176,12 @@ OTP_TTL = config("OTP_TTL", default=1)
 # Настройки Celery
 CELERY_BROKER_URL = "redis://localhost:6379/0"
 CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
+
+# Email
+EMAIL_BACKEND = config("EMAIL_BACKEND")
+EMAIL_HOST = config("EMAIL_HOST")
+EMAIL_PORT = config("EMAIL_PORT")
+EMAIL_USE_TLS = config("EMAIL_USE_TLS")
+EMAIL_USE_SSL = config("EMAIL_USE_SSL")
+EMAIL_HOST_USER = config("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
