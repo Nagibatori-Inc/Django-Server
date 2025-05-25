@@ -109,3 +109,17 @@ class TestAdverts:
 
         assert response.status_code == status.HTTP_200_OK
         assert response.data['id'] == auth_profile_advert.pk
+
+    def test_profile_not_found_retrieve_request(self, api_client: APIClient, auth_user: User):
+        """
+        Arrange: Авторизованный клиент, в бд есть только объект User
+        Act: Запрос на получение объявления
+        Assert: 404 ошибка
+        """
+        auth_user.save()
+        api_client.force_authenticate(user=auth_user)
+        fake_advert_id = 1
+
+        response = api_client.get(self.ADVERTS_RETRIEVE_URL.format(id=fake_advert_id))
+
+        assert response.status_code == status.HTTP_404_NOT_FOUND
