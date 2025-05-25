@@ -49,9 +49,9 @@ class TestAdvertRecommendation:
         response = api_client.get(self.ADVERT_RECOMMENDATION_LIST_URL)
 
         assert response.status_code == status.HTTP_200_OK
-        response_data = response.data if response.data else []  # type: ignore[arg-type]
-        assert len(response_data) == count_return_adverts
-        for advert in response_data:
+        response_data = response.data if response.data else []
+        assert len(response_data) == count_return_adverts  # type: ignore[arg-type]
+        for advert in response_data:  # type: ignore[attr-defined]
             assert advert['status'] == AdvertStatus.ACTIVE  # type: ignore[index]
 
     def test_retrieve_request_with_active_advert(self, api_client: APIClient, advert: Advert):
@@ -86,4 +86,4 @@ class TestAdvertRecommendation:
     #     assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
-# TODO: тесты на фильтрацию
+# TODO: тесты на фильтрацию, я уже устал....
