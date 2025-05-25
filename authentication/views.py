@@ -21,7 +21,7 @@ from authentication.serializers import (
 )
 from authentication.services.profile import ProfileManagerService, PasswordManagerService
 from authentication.services.verification import BaseVerificationService
-from authentication.tasks import send_sms_task
+from notification.tasks import send_sms_task
 from authentication.utils import make_phone_uniform
 from DjangoServer.settings import MESSAGE_TEMPLATE
 from common.swagger.schema import (
