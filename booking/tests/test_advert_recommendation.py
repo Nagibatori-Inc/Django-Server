@@ -67,3 +67,19 @@ class TestAdvertRecommendation:
 
         assert response.status_code == status.HTTP_200_OK
         assert response.data[0]['id'] == advert.pk  # type: ignore[index]
+
+    @pytest.mark.parametrize('advert_status', (AdvertStatus.DRAFT, AdvertStatus.DISABLED))
+    def test_retrieve_request_with_not_active_advert(
+        self, api_client: APIClient, advert: Advert, advert_status: AdvertStatus
+    ):
+        """
+        Arrange: Не активированное объявление в бд
+        Act: Запроса на получение объявления по id
+        Assert: 404 ошибка
+        """
+        advert.status = advert_status
+        save_advert_object(advert)
+
+        response = api_client.get(self.ADVERT_RECOMMENDATION_RETRIEVE_URL.format(id=advert.pk))
+
+        assert response.status_code == status.HTTP_404_NOT_FOUND
