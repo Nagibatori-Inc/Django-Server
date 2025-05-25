@@ -1,5 +1,5 @@
 from DjangoServer import celery_app
-from authentication.services.sms import sms_service
+from notification.services.sms import sms_service
 
 
 @celery_app.task
