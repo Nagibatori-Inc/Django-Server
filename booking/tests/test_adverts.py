@@ -232,3 +232,46 @@ class TestAdverts:
 
         assert response.status_code == status.HTTP_200_OK
         assert Advert.objects.filter(pk=auth_profile_advert.pk, **request_data).exists()
+
+    def test_profile_not_found_activate_request(
+        self, api_client: APIClient, auth_user: User, auth_profile_advert: Advert
+    ):
+        """
+        Arrange: Авторизованный клиент, в бд есть только объект User
+        Act: Запрос на активацию объявления
+        Assert: 404 ошибка
+        """
+        auth_user.save()
+        api_client.force_authenticate(user=auth_user)
+        fake_advert_id = 1
+
+        response = api_client.patch(self.ADVERTS_ACTIVATE_URL.format(id=fake_advert_id))
+
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    def test_advert_not_found_activate_request(self, auth_client: APIClient, auth_profile_advert: Advert):
+        """
+        Arrange: Авторизованный клиент, в бд есть объект объявления от авторизованного профиля
+        Act: Запрос на активацию объявления с неправильным id
+        Assert: 404 ошибка
+        """
+        save_advert_object(auth_profile_advert)
+        wrong_advert_id = auth_profile_advert.pk + 1
+
+        response = auth_client.patch(self.ADVERTS_ACTIVATE_URL.format(id=wrong_advert_id))
+
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    def test_advert_activate_request(self, auth_client: APIClient, auth_profile_advert: Advert):
+        """
+        Arrange: Авторизованный клиент, объект объявления в бд
+        Act: Запрос на активацию объявления
+        Assert: Код ответа 200, данные объявления изменились
+        """
+        auth_profile_advert.status = AdvertStatus.ACTIVE
+        save_advert_object(auth_profile_advert)
+
+        response = auth_client.patch(self.ADVERTS_ACTIVATE_URL.format(id=auth_profile_advert.pk))
+
+        assert response.status_code == status.HTTP_200_OK
+        assert Advert.objects.get(pk=auth_profile_advert.pk).is_active
