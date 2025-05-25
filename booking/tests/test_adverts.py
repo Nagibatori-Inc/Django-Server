@@ -3,6 +3,12 @@ from rest_framework import status
 from rest_framework.status import HTTP_401_UNAUTHORIZED
 from rest_framework.test import APIClient
 
+from authentication.models import Profile
+from booking.models import Advert, AdvertStatus
+from booking.tests.factories import AdvertFactory
+
+from booking.tests.conftest import save_advert_object
+
 
 pytestmark = pytest.mark.django_db
 
@@ -40,3 +46,39 @@ class TestAdverts:
 
         deactivate_response = api_client.patch(self.ADVERTS_ACTIVATE_URL.format(id=1))
         assert deactivate_response.status_code == HTTP_401_UNAUTHORIZED
+
+    @pytest.mark.parametrize(
+        'adverts, count_returned_adverts',
+        (
+            (
+                [
+                    AdvertFactory(status=AdvertStatus.ACTIVE),
+                    AdvertFactory(status=AdvertStatus.ACTIVE),
+                    AdvertFactory(status=AdvertStatus.ACTIVE),
+                ],
+                3,
+            ),
+            (
+                [],
+                0,
+            ),
+        ),
+    )
+    def test_success_list_request(
+        self, auth_client: APIClient, auth_profile: Profile, adverts: list[Advert], count_returned_adverts: int
+    ):
+        """
+        Arrange: Авторизованный профиль.
+                 1. 3 объявления профиля
+                 2. 0 объявлений профиля
+        Act: Запрос на получение объявлений профиля
+        Assert: Код ответа 200, вернулось корректное количество объектов
+        """
+        for advert in adverts:
+            advert.contact = auth_profile
+            save_advert_object(advert)
+
+        response = auth_client.get(self.ADVERTS_LIST_URL)
+
+        assert response.status_code == status.HTTP_200_OK
+        assert len(response.data if response.data else []) == count_returned_adverts
