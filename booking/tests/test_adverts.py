@@ -168,3 +168,61 @@ class TestAdverts:
         assert response.status_code == status_code
         if response.status_code == status.HTTP_201_CREATED:
             assert Advert.objects.filter(**request_data).exists()
+
+    def test_profile_not_found_update_request(self, api_client: APIClient, auth_user: User):
+        """
+        Arrange: Авторизованный клиент, в бд есть только объект User
+        Act: Запрос на изменение объявления
+        Assert: 404 ошибка
+        """
+        auth_user.save()
+        api_client.force_authenticate(user=auth_user)
+        fake_advert_id = 1
+
+        response = api_client.put(self.ADVERTS_UPDATE_URL.format(id=fake_advert_id))
+
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    def test_advert_not_found_update_request(self, auth_client: APIClient, auth_profile_advert: Advert):
+        """
+        Arrange: Авторизованный клиент, в бд есть объект объявления от авторизованного профиля
+        Act: Запрос на изменение объявления с неправильным id
+        Assert: 404 ошибка
+        """
+        save_advert_object(auth_profile_advert)
+        wrong_advert_id = auth_profile_advert.pk + 1
+
+        response = auth_client.put(self.ADVERTS_RETRIEVE_URL.format(id=wrong_advert_id))
+
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    @pytest.mark.parametrize(  # Сюда потом можно больше кейсов добавить
+        'request_data',
+        (
+            {
+                "title": "Новое название",
+                "description": "Новое описание",
+                "price": "1000.00",
+                "phone": "79999999999",
+                "location": "Новая локация",
+                "views": 123123,
+                "activated_at": "2025-05-14T20:36:39.573115Z",
+                "status": "ACTIVE",
+                "active_until": "2025-05-17T18:54:54Z",
+            },
+        ),
+    )
+    def test_advert_update_request(
+        self, auth_client: APIClient, auth_profile_advert: Advert, request_data: dict[str, Any]
+    ):
+        """
+        Arrange: Авторизованный клиент, данные для обновления объявления
+        Act: Запрос на создание объявления
+        Assert: Код ответа 200, данные объявления изменились
+        """
+        save_advert_object(auth_profile_advert)
+        response = auth_client.put(self.ADVERTS_UPDATE_URL.format(id=auth_profile_advert.pk), data=request_data)
+
+        assert response.status_code == status.HTTP_200_OK
+
+        assert Advert.objects.filter(pk=auth_profile_advert.pk, **request_data).exists()
