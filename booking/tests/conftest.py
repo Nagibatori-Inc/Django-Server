@@ -16,4 +16,11 @@ def save_advert_object(advert: Advert) -> None:
 
 @pytest.fixture
 def auth_profile_advert(auth_profile: Profile) -> Advert:
+    """Фикстура объявления, оставленного профилем auth_profile"""
     return AdvertFactory(contact=auth_profile)
+
+
+@pytest.fixture
+def advert() -> Advert:
+    """Фикстура объявления"""
+    return AdvertFactory()
