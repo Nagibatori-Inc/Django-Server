@@ -122,7 +122,7 @@ class TestAdverts:
         response = auth_client.get(self.ADVERTS_RETRIEVE_URL.format(id=auth_profile_advert.pk))
 
         assert response.status_code == status.HTTP_200_OK
-        assert response.data['id'] == auth_profile_advert.pk
+        assert response.data.get('id') == auth_profile_advert.pk
 
     def test_profile_not_found_retrieve_request(self, api_client: APIClient, auth_user: User):
         """
