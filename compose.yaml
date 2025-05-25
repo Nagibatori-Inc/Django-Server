@@ -25,8 +25,6 @@ services:
     image: postgres:latest
     container_name: vehicle_board_db
     environment: *db-variables
-    ports:
-      - "5432:5432"
     volumes:
       - ${VEHICLE_BOARD_DB_VOL_PATH:-./.docker/.postgres_data/volumes/vehicle_board/data}:/var/lib/postgresql/data
 
@@ -38,6 +36,14 @@ services:
       - "5050:80"
     depends_on:
       - db
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: '512M'
+        reservations:
+          cpus: '1'
+          memory: '256M'
 
   app:
     container_name: vehicle_board_api
@@ -54,6 +60,14 @@ services:
     depends_on:
       - db
       - redis
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: '512M'
+        reservations:
+          cpus: '1'
+          memory: '256M'
 
   redis:
     image: redis:latest
