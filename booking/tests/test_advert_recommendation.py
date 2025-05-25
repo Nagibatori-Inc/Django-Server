@@ -39,9 +39,9 @@ class TestAdvertRecommendation:
     )
     def test_list_request(self, api_client: APIClient, adverts: list[Advert], count_return_adverts: int):
         """
-        Arrange:
-        Act:
-        Assert:
+        Arrange: Объявления в бд
+        Act: Запрос на получение объявлений
+        Assert: Вернулись корректные данные
         """
         for advert in adverts:
             save_advert_object(advert)
@@ -53,3 +53,17 @@ class TestAdvertRecommendation:
         assert len(response_data) == count_return_adverts
         for advert in response_data:
             assert advert['status'] == AdvertStatus.ACTIVE  # type: ignore[index]
+
+    def test_retrieve_request_with_active_advert(self, api_client: APIClient, advert: Advert):
+        """
+        Arrange: Активированное объявление в бд
+        Act: Запрос на получение объявления по id
+        Assert: Код ответа 200, вернулось корректное объявление
+        """
+        advert.status = AdvertStatus.ACTIVE
+        save_advert_object(advert)
+
+        response = api_client.get(self.ADVERT_RECOMMENDATION_RETRIEVE_URL.format(id=advert.pk))
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data[0]['id'] == advert.pk  # type: ignore[index]
