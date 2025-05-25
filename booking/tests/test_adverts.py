@@ -1,4 +1,5 @@
 import pytest
+from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.status import HTTP_401_UNAUTHORIZED
 from rest_framework.test import APIClient
@@ -82,3 +83,16 @@ class TestAdverts:
 
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data if response.data else []) == count_returned_adverts
+
+    def test_profile_not_found_list_request(self, api_client: APIClient, auth_user: User):
+        """
+        Arrange: Авторизованный клиент, в бд есть только объект User
+        Act: Запрос на получение объявлений
+        Assert: 404 ошибка
+        """
+        auth_user.save()
+        api_client.force_authenticate(user=auth_user)
+
+        response = api_client.get(self.ADVERTS_LIST_URL)
+
+        assert response.status_code == status.HTTP_404_NOT_FOUND
