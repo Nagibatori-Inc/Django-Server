@@ -15,6 +15,7 @@ from common.swagger.schema import (
 )
 from review.selectors.review import get_visible_reviews, get_review_author, get_reviews_to_moderate
 from review.serializers import ReviewSerializer, ModerateReviewSerializer
+from review.services.mail import send_message_about_moderation_results
 from review.services.review import delete_review_by_id, moderate_review
 
 SWAGGER_REVIEWS_TAG = 'Отзывы'
@@ -161,6 +162,10 @@ class ModerateReviewAPIView(APIView):
             review=serializer.validated_data['review_id'],
             is_approved=serializer.validated_data['is_approved'],
             moderator=request.user.profile,
+        )
+        send_message_about_moderation_results(
+            is_review_approved=serializer.validated_data['is_approved'],
+            review=serializer.validated_data['review_id'],
         )
 
         return Response(status=status.HTTP_200_OK)
