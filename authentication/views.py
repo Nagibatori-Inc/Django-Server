@@ -52,7 +52,7 @@ class LoginView(KnoxLoginView):
 
     def post(self, request):
         response = super().post(request)
-        response.set_cookie(key='Authorization', value=f"Token {response.data['token']}")
+        response.set_cookie(key='Authorization', value=f"Token {response.data['token']}", max_age=3600)
         return response
 
 
