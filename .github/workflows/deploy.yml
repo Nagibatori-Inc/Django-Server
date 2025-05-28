@@ -25,24 +25,21 @@ jobs:
         run: |
           BRANCH=${{ github.ref_name }}
           
-          echo "Branch: ${{ github.ref_name }}"
-          echo "STAGE_BRANCH: ${{ secrets.STAGE_BRANCH }}"
-          echo "PROD_BRANCH: ${{ secrets.PROD_BRANCH }}"
-          echo "STAGE_SERVER: ${{ secrets.STAGE_SERVER }}"
-          echo "PROD_SERVER: ${{ secrets.PROD_SERVER }}"
+          echo "STAGE_SERVER: "${{ secrets.STAGE_SERVER }}""
+          echo "PROD_SERVER: "${{ secrets.PROD_SERVER }}""
 
-          if [ "$BRANCH" = ${{ secrets.STAGE_BRANCH }} ]; then
-            SERVER=${{ secrets.STAGE_SERVER }}
+          if [ "$BRANCH" = "${{ secrets.STAGE_BRANCH }}" ]; then
+            SERVER="${{ secrets.STAGE_SERVER }}"
             PROJECT_DIR=/srv/projects/Django-Server
           elif [ "$BRANCH" = ${{ secrets.PROD_BRANCH }} ]; then
-            SERVER=${{ secrets.PROD_SERVER }}
+            SERVER="${{ secrets.PROD_SERVER }}"
             PROJECT_DIR=/home/user/prod/my-django-app
           else
             echo "Unknown branch: $BRANCH"
             exit 1
           fi
 
-          ssh -o StrictHostKeyChecking=no $SERVER << EOF
+          ssh -o StrictHostKeyChecking=no "$SERVER" << EOF
             set -e
 
             cd $PROJECT_DIR
