@@ -1,8 +1,12 @@
+import base64
+
 import requests
+import structlog
 
 from DjangoServer.settings import YOO_KASSA_ID, YOO_KASSA_SECRET
-from payments.exceptions import PaymentError
 from payments.models import Payment, PaymentStatus
+
+logger = structlog.get_logger()
 
 YOO_KASSA_STATUS_MAPPING = {
     "pending": PaymentStatus.PENDING,
@@ -13,32 +17,40 @@ YOO_KASSA_STATUS_MAPPING = {
 
 
 class YooKassa:
-    PAYMENT_URL = "https://api.yookassa.ru/v3/payments"
+    PAYMENT_URL = "https://api.yookassa.ru/v3/payments/"
 
     def __init__(self, payment: Payment):
         self.payment = payment
-        self.headers = {"Idempotence-Key": payment.id, "Authorization": f"{YOO_KASSA_ID}:{YOO_KASSA_SECRET}"}
+        self.headers = {
+            "Idempotence-Key": str(payment.id),
+            "Authorization": "Basic "
+            + base64.b64encode(f"{YOO_KASSA_ID}:{YOO_KASSA_SECRET}".encode("ascii")).decode("ascii"),
+            "Content-Type": "application/json",
+        }
 
     def init_transaction(self):
         data = self.payment_to_format()
-
+        print(self.headers)
         try:
             response = requests.post(
                 url=self.PAYMENT_URL,
-                data=data,
+                json=data,
                 headers=self.headers,
             )
-        except Exception:
-            raise PaymentError()
+        except Exception as e:
+            logger.info(e)
+            raise e
 
         try:
             transaction_data = response.json()
             transaction_id = transaction_data["id"]
             confirm_url = transaction_data["confirmation"]["confirmation_url"]
-        except Exception:
-            raise PaymentError()
+        except Exception as e:
+            logger.info(e)
+            raise e
 
-        self.payment.objects.update(external_transaction_id=transaction_id)
+        self.payment.external_transaction_id = transaction_id
+        self.payment.save(update_fields=["external_transaction_id"])
 
         return confirm_url
 
@@ -50,9 +62,9 @@ class YooKassa:
 
     def payment_to_format(self):
         data = {
-            "amount": {"value": self.payment.amount, "currency": "RUB"},
-            "capture": "true",
-            "confirmation": {"type": "redirect", "return_url": ""},
+            "amount": {"value": str(self.payment.amount), "currency": "RUB"},
+            "capture": True,
+            "confirmation": {"type": "redirect", "return_url": "https://www.example.com/return_url"},
         }
 
         return data
