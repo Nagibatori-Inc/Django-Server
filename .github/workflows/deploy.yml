@@ -5,7 +5,7 @@ on:
     branches:
       - dev
       - main
-
+  workflow_dispatch:
 jobs:
   deploy:
     name: Deploy via SSH with Docker Compose
@@ -23,11 +23,14 @@ jobs:
       - name: Deploy to Server
         run: |
           BRANCH=${{ github.ref_name }}
+          
+          echo "STAGE_SERVER: ${{ secrets.STAGE_SERVER }}"
+          echo "PROD_SERVER: ${{ secrets.PROD_SERVER }}"
 
-          if [ "$BRANCH" = ${{ secrets.STAGE_BRANCH }} ]; then
+          if [ $BRANCH = ${{ secrets.STAGE_BRANCH }} ]; then
             SERVER=${{ secrets.STAGE_SERVER }}
             PROJECT_DIR=/srv/projects/Django-Server
-          elif [ "$BRANCH" = ${{ secrets.PROD_BRANCH }} ]; then
+          elif [ $BRANCH = ${{ secrets.PROD_BRANCH }} ]; then
             SERVER=${{ secrets.PROD_SERVER }}
             PROJECT_DIR=/home/user/prod/my-django-app
           else
