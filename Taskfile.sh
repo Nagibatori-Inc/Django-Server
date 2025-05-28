@@ -42,7 +42,7 @@ function task:manage {
 }
 
 # docker compose up --build + migrate
-function deploy {
+function task:deploy {
   task:build
   task:run
   task:manage migrate
@@ -77,7 +77,7 @@ function task:init {
 }
 
 # docker system prune + down + build + run + migrate
-function rebuild {
+function task:rebuild {
   task:down
   task:clean
   task:deploy
