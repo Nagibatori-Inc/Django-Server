@@ -23,5 +23,6 @@ urlpatterns = [
     path("api/", include("authentication.urls")),
     path("api/", include("booking.urls")),
     path('api/', include('common.swagger.urls')),
+    path('api/payments/', include('payments.urls')),
     path('api/', include('review.urls')),
 ]
