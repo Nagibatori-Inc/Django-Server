@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "knox",
     'booking.apps.BookingConfig',
     'authentication.apps.AuthenticationConfig',
+    'payments.apps.PaymentsConfig',
     "django_migration_linter",
     'drf_spectacular',
     'corsheaders',  # убрать когда появится nginx или caddy
