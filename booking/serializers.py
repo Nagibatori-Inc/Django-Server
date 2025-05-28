@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from authentication.models import Profile
-from booking.models import Advert, Promotion
+from booking.models import Advert, Promotion, AdvertImage
 
 
 class AdvertContactSerializer(serializers.Serializer):
@@ -32,8 +32,15 @@ class PromotionSerializer(serializers.ModelSerializer):
         fields = ['type', 'rate', 'status']
 
 
+class AdvertImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AdvertImage
+        fields = ['image']
+
+
 class AdvertSerializer(serializers.ModelSerializer):
     promotion = PromotionSerializer(required=False, read_only=True)
+    images = AdvertImageSerializer(many=True, required=False, read_only=True)
 
     class Meta:
         model = Advert
@@ -41,9 +48,11 @@ class AdvertSerializer(serializers.ModelSerializer):
 
 
 class AdvertCreationSerializer(serializers.ModelSerializer):
+    images = AdvertImageSerializer(many=True, read_only=True)
+
     class Meta:
         model = Advert
-        fields = ['title', 'description', 'price', 'phone', 'location', 'status']
+        fields = ['title', 'description', 'price', 'phone', 'location', 'status', 'images']
 
 
 class SearchFilterSerializer(serializers.ModelSerializer):
