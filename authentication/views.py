@@ -33,6 +33,7 @@ from common.swagger.schema import (
 
 AUTHENTIFICATION_SWAGGER_TAG = 'Авторизация'
 PROFILE_SWAGGER_TAG = 'Профили'
+COOKIE_MAX_AGE = 3600
 
 
 @extend_schema(
@@ -52,7 +53,7 @@ class LoginView(KnoxLoginView):
 
     def post(self, request):
         response = super().post(request)
-        response.set_cookie(key='Authorization', value=f"Token {response.data['token']}")
+        response.set_cookie(key='Authorization', value=f"Token {response.data['token']}", max_age=COOKIE_MAX_AGE)
         return response
 
 
@@ -199,7 +200,7 @@ class SignUpView(APIView):
             {"profile": serialized_profile, "token": {"token": auth_token_val, "expiry": auth_token_exp}},
             status=status.HTTP_201_CREATED,
         )
-        response.set_cookie(key='Authorization', value=f"Token {auth_token_val}")
+        response.set_cookie(key='Authorization', value=f"Token {auth_token_val}", max_age=COOKIE_MAX_AGE)
 
         return response
 
