@@ -23,9 +23,6 @@ jobs:
       - name: Deploy to Server
         run: |
           BRANCH=${{ github.ref_name }}
-          
-          echo "STAGE_SERVER: ${{ secrets.STAGE_SERVER }}"
-          echo "PROD_SERVER: ${{ secrets.PROD_SERVER }}"
 
           if [ $BRANCH = ${{ secrets.STAGE_BRANCH }} ]; then
             SERVER=${{ secrets.STAGE_SERVER }}
