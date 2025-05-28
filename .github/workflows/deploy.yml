@@ -35,4 +35,4 @@ jobs:
             exit 1
           fi
           
-          /srv/projects/Django-Server/Django-Server/Taskfile rebuild
+          /srv/projects/Django-Server/Django-Server/Django-Server/Taskfile rebuild
