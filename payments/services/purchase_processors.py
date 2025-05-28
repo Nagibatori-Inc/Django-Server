@@ -1,12 +1,14 @@
 import base64
+import datetime
 
 import requests
 import structlog
 
 from DjangoServer.settings import YOO_KASSA_ID, YOO_KASSA_SECRET
+from payments.exceptions import PaymentError
 from payments.models import Payment, PaymentStatus
 
-logger = structlog.get_logger()
+logger = structlog.get_logger(__name__)
 
 YOO_KASSA_STATUS_MAPPING = {
     "pending": PaymentStatus.PENDING,
@@ -30,7 +32,7 @@ class YooKassa:
 
     def init_transaction(self):
         data = self.payment_to_format()
-        print(self.headers)
+
         try:
             response = requests.post(
                 url=self.PAYMENT_URL,
@@ -38,16 +40,16 @@ class YooKassa:
                 headers=self.headers,
             )
         except Exception as e:
-            logger.info(e)
-            raise e
+            logger.error("Error during request to payment gateway", error=e)
+            raise PaymentError(detail="Ошибка при отправке запроса в платежную систему")
 
         try:
             transaction_data = response.json()
             transaction_id = transaction_data["id"]
             confirm_url = transaction_data["confirmation"]["confirmation_url"]
         except Exception as e:
-            logger.info(e)
-            raise e
+            logger.error("Error while parsing response from payment gateway", error=e)
+            raise PaymentError(detail="Неверный формат ответа от платежной системы")
 
         self.payment.external_transaction_id = transaction_id
         self.payment.save(update_fields=["external_transaction_id"])
@@ -55,10 +57,16 @@ class YooKassa:
         return confirm_url
 
     def finalize_transaction(self, event_type: str, external_payment: dict):
-        external_status = external_payment["status"]
-        internal_status = YOO_KASSA_STATUS_MAPPING[external_status]
+        try:
+            external_status = external_payment["status"]
+            internal_status = YOO_KASSA_STATUS_MAPPING[external_status]
+        except Exception as e:
+            logger.error("Error during parsing of the webhook status", error=e)
+            raise PaymentError(detail="Ошибка обработки вебхука")
 
-        self.payment.objects.update(status=internal_status)
+        self.payment.status = internal_status
+        self.payment.completed_at = datetime.datetime.now()
+        self.payment.save(update_fields=["status", "completed_at"])
 
     def payment_to_format(self):
         data = {
