@@ -394,8 +394,10 @@ class PromotionService(RestService):
             promotion = Promotion.objects.create(
                 type=type,
                 rate=rate,
-                advert=advert,  # type: ignore[misc]
             )
+
+            advert.promotion = promotion
+            advert.save(update_fields=["promotion"])
 
         elif user_profile and advert_pk:
             promotion = Promotion.objects.create(
