@@ -34,12 +34,5 @@ jobs:
             echo "Unknown branch: $BRANCH"
             exit 1
           fi
-
-          ssh -o StrictHostKeyChecking=no $SERVER << EOF
-            set -e
-
-            cd $PROJECT_DIR
-            git pull origin $BRANCH
-
-            ./Taskfile rebuild
-          EOF
+          
+          ./Taskfile rebuild
