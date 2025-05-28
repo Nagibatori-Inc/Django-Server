@@ -77,3 +77,13 @@ class Payment(models.Model):
         null=True,
         verbose_name="Завершено",
     )
+
+    def __str__(self):
+        return f"Платеж [user={self.user}, advert={self.advert}]"
+
+    def __repr__(self):
+        return self.__str__()
+
+    class Meta:
+        verbose_name = "Платеж"
+        verbose_plural_name = "Платежи"
