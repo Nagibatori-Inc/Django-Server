@@ -22,7 +22,7 @@ function task:build {
 
 # docker compose up
 function task:run {
-  task:dc up -d --remove-orphans
+  task:dc up -d
 }
 
 # docker compose down
