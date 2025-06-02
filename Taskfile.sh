@@ -1,13 +1,17 @@
 #!/bin/bash
 
+function task:d {
+  docker "$@"
+}
+
 # docker compose
 function task:dc {
-  docker compose -f "compose.yaml" "$@"
+  task:d compose -f "compose.yaml" "$@"
 }
 
 # docker compose exec
 function task:dce {
-  task:dc exec -T "$@"
+  task:d exec -it "$@"
 }
 
 # docker compose build
