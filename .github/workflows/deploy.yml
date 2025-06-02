@@ -14,7 +14,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        run: git config --global --add safe.directory '*'
 
       - name: Set up SSH agent
         uses: webfactory/ssh-agent@v0.9.0
@@ -23,6 +22,7 @@ jobs:
 
       - name: Deploy to Server
         run: |
+          git config --global --add safe.directory '*'
           BRANCH=${{ github.ref_name }}
 
           if [ $BRANCH = ${{ secrets.STAGE_BRANCH }} ]; then
