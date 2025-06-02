@@ -1,13 +1,17 @@
 #!/bin/bash
 
+function task:d {
+  docker "$@"
+}
+
 # docker compose
 function task:dc {
-  docker compose -f "compose.yaml" "$@"
+  task:d compose -f "compose.yaml" "$@"
 }
 
 # docker compose exec
-function task:dce {
-  task:dc exec -T "$@"
+function task:de {
+  task:d exec -it "$@"
 }
 
 # docker compose build
@@ -86,22 +90,22 @@ function task:rebuild {
 # run tests
 function task:test {
   task:run
-  task:dce app pytest .
+  task:de vehicle_board_api pytest .
   task:down
 }
 
 # run linters
 function task:lint {
-  task:dce app black . --diff --color
-  task:dce app mypy .
-  task:dce app ruff check .
+  task:de vehicle_board_api black . --diff --color
+  task:de vehicle_board_api mypy .
+  task:de vehicle_board_api ruff check .
 }
 
 # run linters with autofix
 function task:lint-and-fix {
-  task:dce app black . --color
-  task:dce app mypy .
-  task:dce app ruff check --fix
+  task:de vehicle_board_api black . --color
+  task:de vehicle_board_api mypy .
+  task:de vehicle_board_api ruff check --fix
 }
 
 # show all tasks
@@ -113,7 +117,7 @@ function task:help {
 function task:pytest_pre_commit_hook {
   task:run
 
-  task:dce app pytest . 2>&1
+  task:de vehicle_board_api pytest . 2>&1
   exit_code=$?
 
   task:down
