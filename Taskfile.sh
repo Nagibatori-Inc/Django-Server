@@ -37,7 +37,7 @@ function task:clean {
 
 # poetry shortcut
 function task:poetry {
-  task:dce vehicle_board_api poetry "$@"
+  task:de vehicle_board_api poetry "$@"
 }
 
 # manage.py shortcut
