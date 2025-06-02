@@ -22,6 +22,7 @@ jobs:
 
       - name: Deploy to Server
         run: |
+          export HOME=/home/user
           git config --global --add safe.directory '*'
           BRANCH=${{ github.ref_name }}
 
