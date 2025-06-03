@@ -15,7 +15,7 @@ function task:de {
   shift
 
   if docker ps --format '{{.Names}}' | grep -q "^${container_name}$"; then
-    task:d exec -it "$container_name" "$@"
+    task:d exec "$container_name" "$@"
   else
     echo "Container $container_name is not running"
     exit 1
