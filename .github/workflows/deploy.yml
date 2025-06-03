@@ -37,4 +37,9 @@ jobs:
             exit 1
           fi
           
+          if ! docker ps -q -f name=vehicle_board_api | grep -q .; then
+            echo "API container not launching yet. Running ./Taskfile.sh init first..."
+            ./Taskfile.sh init
+          fi
+          
           ./Taskfile.sh rebuild
