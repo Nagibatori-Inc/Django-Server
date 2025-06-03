@@ -1,23 +1,31 @@
 x-postgres-db-variables: &db-variables
-  POSTGRES_USER: admin
-  POSTGRES_PASSWORD: adminpassword
-  POSTGRES_DB: booking_platform
+  POSTGRES_USER: ${POSTGRES_USER}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  POSTGRES_DB: ${POSTGRES_DB}
 x-postgres-admin-variables: &pgadmin-variables
-  PGADMIN_DEFAULT_EMAIL: admin@mail.store
-  PGADMIN_DEFAULT_PASSWORD: adminpassword
+  PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+  PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
 x-app-variables: &app-variables
-  DEBUG: dev
-  ALLOWED_HOSTS: http://localhost
-  HOST: http://localhost:8000/
+  DEBUG: ${DEBUG}
+  ALLOWED_HOSTS: ${ALLOWED_HOSTS}
+  HOST: ${HOST}
 
-  DATABASE_HOST: db
-  POSTGRES_DB: booking_platform
-  POSTGRES_USER: admin
-  POSTGRES_PASSWORD: adminpassword
+  DATABASE_HOST: ${DATABASE_HOST}
+  POSTGRES_DB: ${POSTGRES_DB}
+  POSTGRES_USER: ${POSTGRES_USER}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
 
-  DJANGO_SUPERUSER_USERNAME: admin
-  DJANGO_SUPERUSER_EMAIL: admin@example.com
-  DJANGO_SUPERUSER_PASSWORD: strongpassword
+  DJANGO_SUPERUSER_USERNAME: ${DJANGO_SUPERUSER_USERNAME}
+  DJANGO_SUPERUSER_EMAIL: ${DJANGO_SUPERUSER_EMAIL}
+  DJANGO_SUPERUSER_PASSWORD: ${DJANGO_SUPERUSER_PASSWORD}
+
+  EMAIL_BACKEND: ${EMAIL_BACKEND}
+  EMAIL_HOST: ${EMAIL_HOST}
+  EMAIL_PORT: ${EMAIL_PORT}
+  EMAIL_USE_TLS: ${EMAIL_USE_TLS}
+  EMAIL_USE_SSL: ${EMAIL_USE_SSL}
+  EMAIL_HOST_USER: ${EMAIL_HOST_USER}
+  EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD}
 
   REST_API_BASE: api/
 services:
@@ -36,14 +44,14 @@ services:
       - "5050:80"
     depends_on:
       - db
-    deploy:
-      resources:
-        limits:
-          cpus: '1'
-          memory: '512M'
-        reservations:
-          cpus: '1'
-          memory: '256M'
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: '1'
+#          memory: '512M'
+#        reservations:
+#          cpus: '1'
+#          memory: '256M'
 
   app:
     container_name: vehicle_board_api
@@ -60,14 +68,14 @@ services:
     depends_on:
       - db
       - redis
-    deploy:
-      resources:
-        limits:
-          cpus: '1'
-          memory: '512M'
-        reservations:
-          cpus: '1'
-          memory: '256M'
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: '2'
+#          memory: '512M'
+#        reservations:
+#          cpus: '1'
+#          memory: '256M'
 
   redis:
     image: redis:latest

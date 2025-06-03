@@ -11,7 +11,15 @@ function task:dc {
 
 # docker compose exec
 function task:de {
-  task:d exec -it "$@"
+  container_name="$1"
+  shift
+
+  if docker ps --format '{{.Names}}' | grep -q "^${container_name}$"; then
+    task:d exec "$container_name" "$@"
+  else
+    echo "Container $container_name is not running"
+    exit 1
+  fi
 }
 
 # docker compose build
@@ -30,9 +38,9 @@ function task:down {
   task:dc down -v
 }
 
-# docker system prune -a -f
+# docker system prune -f
 function task:clean {
-  docker system prune -a -f
+  docker system prune -f
 }
 
 # poetry shortcut
