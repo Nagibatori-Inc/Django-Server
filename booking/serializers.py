@@ -34,7 +34,7 @@ class PromotionSerializer(serializers.ModelSerializer):
 
 
 class AdvertImageSerializer(serializers.ModelSerializer):
-    image = Base64ImageField(required=True, read_only=True)
+    image = Base64ImageField(required=True)
 
     class Meta:
         model = AdvertImage
@@ -44,7 +44,7 @@ class AdvertImageSerializer(serializers.ModelSerializer):
 class AdvertSerializer(serializers.ModelSerializer):
     promotion = PromotionSerializer(required=False, read_only=True)
     images = AdvertImageSerializer(many=True, required=False, read_only=True)
-    logo = Base64ImageField(required=True, read_only=True)
+    logo = serializers.CharField(required=False, allow_blank=True)
 
     class Meta:
         model = Advert
@@ -53,7 +53,7 @@ class AdvertSerializer(serializers.ModelSerializer):
 
 class AdvertCreationSerializer(serializers.ModelSerializer):
     images = AdvertImageSerializer(many=True, read_only=True)
-    logo = Base64ImageField(required=True, read_only=True)
+    logo = Base64ImageField(required=True)
 
     class Meta:
         model = Advert
