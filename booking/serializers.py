@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from drf_extra_fields.fields import Base64ImageField
 
 from authentication.models import Profile
 from booking.models import Advert, Promotion, AdvertImage
@@ -33,6 +34,8 @@ class PromotionSerializer(serializers.ModelSerializer):
 
 
 class AdvertImageSerializer(serializers.ModelSerializer):
+    image = Base64ImageField(required=True)
+
     class Meta:
         model = AdvertImage
         fields = ['image']
