@@ -150,7 +150,7 @@ class Advert(models.Model):
     )
     active_until = models.DateTimeField(verbose_name='Активно до', null=True, blank=True)
 
-    logo = models.ImageField(upload_to='adverts/images/', verbose_name='Логотип', null=True, blank=True)
+    logo = models.ImageField(upload_to=user_directory_path, verbose_name='Логотип', null=True, blank=True)
 
     class Meta:
         verbose_name = 'Объявление'
