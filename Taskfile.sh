@@ -34,8 +34,9 @@ function task:run {
 }
 
 # docker compose down
+# shellcheck disable=SC2120
 function task:down {
-  task:dc down -v
+  task:dc down "$@"
 }
 
 # docker system prune -f
