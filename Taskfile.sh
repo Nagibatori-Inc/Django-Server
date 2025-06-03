@@ -27,7 +27,7 @@ function task:run {
 
 # docker compose down
 function task:down {
-  task:dc down --remove-orphans
+  task:dc down -v
 }
 
 # docker system prune -a -f
@@ -82,8 +82,8 @@ function task:init {
 
 # docker system prune + down + build + run + migrate
 function task:rebuild {
-  task:down
   task:clean
+  task:down
   task:deploy
 }
 
