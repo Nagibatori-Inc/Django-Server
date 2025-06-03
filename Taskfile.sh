@@ -83,6 +83,7 @@ function task:init {
       exit 1
     fi
     task:manage createsuperuser --no-input
+    task:manage create_default_adverts
   )
 
   task:down
