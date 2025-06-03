@@ -61,6 +61,4 @@ jobs:
             ./Taskfile.sh init
           fi
           
-          printenv
-          
           ./Taskfile.sh rebuild
