@@ -22,19 +22,19 @@ jobs:
 
       - name: Deploy to Server
         run: |
-          export HOME=/root
-          git config --global --add safe.directory '*'
           BRANCH=${{ github.ref_name }}
 
           if [ $BRANCH = ${{ secrets.STAGE_BRANCH }} ]; then
             SERVER=${{ secrets.STAGE_SERVER }}
-            PROJECT_DIR=/srv/projects/Django-Server
+            PROJECT_DIR=/srv/projects/Django-Server/Django-Server/Django-Server
+            cd PROJECT_DIR
           elif [ $BRANCH = ${{ secrets.PROD_BRANCH }} ]; then
             SERVER=${{ secrets.PROD_SERVER }}
             PROJECT_DIR=/home/user/prod/my-django-app
+            cd PROJECT_DIR
           else
             echo "Unknown branch: $BRANCH"
             exit 1
           fi
           
-          /srv/projects/Django-Server/Django-Server/Django-Server/Taskfile.sh rebuild
+          ./Taskfile.sh rebuild
