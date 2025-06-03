@@ -36,14 +36,14 @@ services:
       - "5050:80"
     depends_on:
       - db
-    deploy:
-      resources:
-        limits:
-          cpus: '1'
-          memory: '512M'
-        reservations:
-          cpus: '1'
-          memory: '256M'
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: '1'
+#          memory: '512M'
+#        reservations:
+#          cpus: '1'
+#          memory: '256M'
 
   app:
     container_name: vehicle_board_api
@@ -60,14 +60,14 @@ services:
     depends_on:
       - db
       - redis
-    deploy:
-      resources:
-        limits:
-          cpus: '1'
-          memory: '512M'
-        reservations:
-          cpus: '1'
-          memory: '256M'
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: '2'
+#          memory: '512M'
+#        reservations:
+#          cpus: '1'
+#          memory: '256M'
 
   redis:
     image: redis:latest
