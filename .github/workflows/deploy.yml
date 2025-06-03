@@ -5,7 +5,6 @@ on:
     branches:
       - dev
       - main
-  workflow_dispatch:
 jobs:
   deploy:
     name: Deploy via SSH with Docker Compose
