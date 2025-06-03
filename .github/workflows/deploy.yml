@@ -24,7 +24,7 @@ jobs:
         run: |
           BRANCH=${{ github.ref_name }}
 
-          if [ $BRANCH = ${{ secrets.STAGE_BRANCH }} || $BRANCH = configure/deploy ]; then
+          if [[ $BRANCH = ${{ secrets.STAGE_BRANCH }} || $BRANCH = configure/deploy ]]; then
             SERVER=${{ secrets.STAGE_SERVER }}
             PROJECT_DIR=/srv/projects/Django-Server/Django-Server/Django-Server
             cd PROJECT_DIR
