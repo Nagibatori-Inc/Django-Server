@@ -27,11 +27,11 @@ jobs:
           if [[ $BRANCH = ${{ secrets.STAGE_BRANCH }} || $BRANCH = configure/deploy ]]; then
             SERVER=${{ secrets.STAGE_SERVER }}
             PROJECT_DIR=/srv/projects/Django-Server/Django-Server/Django-Server
-            cd PROJECT_DIR
+            cd $PROJECT_DIR
           elif [ $BRANCH = ${{ secrets.PROD_BRANCH }} ]; then
             SERVER=${{ secrets.PROD_SERVER }}
             PROJECT_DIR=/home/user/prod/my-django-app
-            cd PROJECT_DIR
+            cd $PROJECT_DIR
           else
             echo "Unknown branch: $BRANCH"
             exit 1
