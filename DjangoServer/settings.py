@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'booking.apps.BookingConfig',
     'authentication.apps.AuthenticationConfig',
     'payments.apps.PaymentsConfig',
+    'support.apps.SupportConfig',
     "django_migration_linter",
     'drf_spectacular',
     'corsheaders',  # убрать когда появится nginx или caddy
