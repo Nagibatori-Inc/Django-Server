@@ -174,8 +174,11 @@ MESSAGE_TEMPLATE = "Ваш код, {0}"
 OTP_TTL = config("OTP_TTL", default=1)
 
 # Настройки Celery
-CELERY_BROKER_URL = "redis://localhost:6379/0"
-CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
+REDIS_HOST = config("REDIS_HOST", default="localhost")
+REDIS_PORT = config("REDIS_PORT", cast=int, default=6379)
+
+CELERY_BROKER_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/0"
+CELERY_RESULT_BACKEND = f"redis://{REDIS_HOST}:{REDIS_PORT}/0"
 
 # Email
 EMAIL_BACKEND = config("EMAIL_BACKEND")
