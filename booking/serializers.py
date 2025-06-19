@@ -55,6 +55,10 @@ class AdvertCreationSerializer(serializers.ModelSerializer):
     images = AdvertImageSerializer(many=True, read_only=True)
     logo = Base64ImageField(required=True)
 
+    def create(self, validated_data):
+        images = [image.save() for image in validated_data.pop('images', [])]
+        return Advert.objects.create(**validated_data, images=images)
+
     class Meta:
         model = Advert
         fields = ['title', 'description', 'price', 'phone', 'location', 'status', 'logo', 'images']
