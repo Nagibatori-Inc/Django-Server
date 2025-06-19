@@ -24,6 +24,9 @@ class SupportMessage(models.Model):
 
 
 class SupportAnswer(models.Model):
+    agent = models.ForeignKey(
+        User, related_name="suport_answers", on_delete=models.DO_NOTHING, verbose_name="Агент поддержки"
+    )
     message = models.ForeignKey(
         SupportMessage, related_name="answers", on_delete=models.DO_NOTHING, verbose_name="Обращение"
     )
