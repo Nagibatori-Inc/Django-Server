@@ -32,6 +32,7 @@ x-app-variables: &app-variables
 
   SMSAERO_EMAIL: ${SMSAERO_EMAIL}
   SMSAERO_API_KEY: ${SMSAERO_API_KEY}
+  SMS_MODE: ${SMS_MODE}
 
   REST_API_BASE: api/
 services:
