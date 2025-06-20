@@ -25,4 +25,5 @@ urlpatterns = [
     path('api/', include('common.swagger.urls')),
     path('api/payments/', include('payments.urls')),
     path('api/', include('review.urls')),
+    path('api/', include('support.urls')),
 ]
