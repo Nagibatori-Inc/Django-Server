@@ -89,7 +89,7 @@ services:
     image: grafana/otel-lgtm
     container_name: lgtm
     volumes:
-      - ./stats_configs/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./stats_configs/prometheus.yaml:/otel-lgtm/prometheus.yaml
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
@@ -97,4 +97,5 @@ services:
       - "3030:3000"
       - "4317:4317"
       - "4318:4318"
+      - "9090:9090"
     restart: unless-stopped

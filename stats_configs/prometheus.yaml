@@ -2,6 +2,6 @@ global:
   scrape_interval: 15s  # Frequency of metric scraping
 
 scrape_configs:
-  - job_name: 'prometheus'
+  - job_name: ‘django_app’
     static_configs:
-      - targets: ['localhost:8000/api/metrics/prometheus']
+      - targets: ['app:8080']
