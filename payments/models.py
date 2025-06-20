@@ -1,4 +1,4 @@
-from enum import StrEnum
+from enum import StrEnum  # type: ignore[attr-defined]
 import uuid
 
 from django.contrib.auth.models import User
