@@ -328,7 +328,7 @@ class PromotionService(RestService):
             self.not_found()
             return self
 
-        self.promotion = None
+        self.promotion = None  # type: ignore[assignment]
         promotion.delete()
         return self
 
