@@ -178,7 +178,7 @@ CELERY_BROKER_URL = "redis://localhost:6379/0"
 CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
 
 # Email
-EMAIL_BACKEND = config("EMAIL_BACKEND")
+EMAIL_BACKEND = config("EMAIL_BACKEND", "")
 EMAIL_HOST = config("EMAIL_HOST", "")
 EMAIL_PORT = config("EMAIL_PORT", "")
 EMAIL_USE_TLS = config("EMAIL_USE_TLS", False)
