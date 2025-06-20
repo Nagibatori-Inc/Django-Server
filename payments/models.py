@@ -1,4 +1,4 @@
-import enum
+from enum import StrEnum
 import uuid
 
 from django.contrib.auth.models import User
@@ -8,11 +8,11 @@ from django.db.models import DO_NOTHING
 import booking.models
 
 
-class Providers(enum.StrEnum):
+class Providers(StrEnum):
     YOO_KASSA = "YOO_KASSA"
 
 
-class PaymentStatus(enum.StrEnum):
+class PaymentStatus(StrEnum):
     PENDING = "PND"
     CANCELLED = "CAN"
     SUCCESSFUL = "SUC"
