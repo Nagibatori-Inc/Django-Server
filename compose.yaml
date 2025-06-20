@@ -84,3 +84,14 @@ services:
       - ${VEHICLE_BOARD_REDIS_VOL_PATH:-./.docker/.redis_data/volumes/vehicle_board/data}:/data
     ports:
       - "6379:6379"
+
+  lgtm:
+    image: grafana/otel-lgtm
+    container_name: lgtm
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    ports:
+      - "3030:3000"
+      - "4317:4317"
+      - "4318:4318"
