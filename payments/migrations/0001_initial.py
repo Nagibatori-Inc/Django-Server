@@ -32,12 +32,12 @@ class Migration(migrations.Migration):
                     'status',
                     models.CharField(
                         choices=[
-                            (payments.models.PaymentStatus['ERROR'], 'ошибка'),
-                            (payments.models.PaymentStatus['PENDING'], 'в процессе'),
-                            (payments.models.PaymentStatus['SUCCESSFUL'], 'успешен'),
-                            (payments.models.PaymentStatus['CANCELLED'], 'отменен'),
+                            (payments.models.PaymentStatus['ERROR'], 'ошибка'),  # type: ignore[misc]
+                            (payments.models.PaymentStatus['PENDING'], 'в процессе'),  # type: ignore[misc]
+                            (payments.models.PaymentStatus['SUCCESSFUL'], 'успешен'),  # type: ignore[misc]
+                            (payments.models.PaymentStatus['CANCELLED'], 'отменен'),  # type: ignore[misc]
                         ],
-                        default=payments.models.PaymentStatus['PENDING'],
+                        default=payments.models.PaymentStatus['PENDING'],  # type: ignore[misc]
                         max_length=16,
                         verbose_name='Статус',
                     ),
@@ -45,8 +45,8 @@ class Migration(migrations.Migration):
                 (
                     'service_provider',
                     models.CharField(
-                        choices=[(payments.models.Providers['YOO_KASSA'], 'ЮКасса')],
-                        default=payments.models.Providers['YOO_KASSA'],
+                        choices=[(payments.models.Providers['YOO_KASSA'], 'ЮКасса')],  # type: ignore[misc]
+                        default=payments.models.Providers['YOO_KASSA'],  # type: ignore[misc]
                         verbose_name='Провайдер',
                     ),
                 ),
