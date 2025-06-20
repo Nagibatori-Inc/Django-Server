@@ -1,4 +1,3 @@
-from enum import StrEnum  # type: ignore[attr-defined]
 import uuid
 
 from django.contrib.auth.models import User
@@ -8,11 +7,11 @@ from django.db.models import DO_NOTHING
 import booking.models
 
 
-class Providers(StrEnum):
+class Providers:
     YOO_KASSA = "YOO_KASSA"
 
 
-class PaymentStatus(StrEnum):
+class PaymentStatus:
     PENDING = "PND"
     CANCELLED = "CAN"
     SUCCESSFUL = "SUC"
