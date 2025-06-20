@@ -19,22 +19,22 @@ from payments.services.purchase_processors import YooKassa
 PAYMENTS_SWAGGER_TAG = "Оплата"
 
 
-@extend_schema(
-    tags=[PAYMENTS_SWAGGER_TAG],
-    description='Покупка продвижения',
-    request=WebHookEventSerializer,
-    responses={
-        status.HTTP_200_OK: inline_serializer(
-            name='PaymentResponse',
-            fields={'confirmation_url': serializers.CharField()},
-        ),
-        **DEFAULT_PUBLIC_API_SCHEMA_RESPONSES,
-    },
-)
 class PromotionPurchaseView(APIView):
     authentication_classes = [CookieTokenAuthentication]
     permission_classes = [IsAuthenticated, IsAdvertOwnerOrReadOnly]
 
+    @extend_schema(
+        tags=[PAYMENTS_SWAGGER_TAG],
+        description='Покупка продвижения',
+        request=PaymentSerializer,
+        responses={
+            status.HTTP_200_OK: inline_serializer(
+                name='PaymentResponse',
+                fields={'confirmation_url': serializers.CharField()},
+            ),
+            **DEFAULT_PUBLIC_API_SCHEMA_RESPONSES,
+        },
+    )
     def post(self, request: Request):
         payment_data = PaymentSerializer(data=request.data)
         payment_data.is_valid(raise_exception=True)
@@ -52,17 +52,17 @@ class PromotionPurchaseView(APIView):
         return Response(status=HTTP_200_OK, data={"confirmation_url": confirm_url})
 
 
-@extend_schema(
-    tags=[PAYMENTS_SWAGGER_TAG],
-    description='Вебхук для уведомлений от банка',
-    request=WebHookEventSerializer,
-    responses={
-        status.HTTP_200_OK: SWAGGER_NO_RESPONSE_BODY,
-        status.HTTP_500_INTERNAL_SERVER_ERROR: SWAGGER_NO_RESPONSE_BODY,
-        **DEFAULT_PUBLIC_API_SCHEMA_RESPONSES,
-    },
-)
 class PaymentSystemWebHookView(APIView):
+    @extend_schema(
+        tags=[PAYMENTS_SWAGGER_TAG],
+        description='Вебхук для уведомлений от банка',
+        request=WebHookEventSerializer,
+        responses={
+            status.HTTP_200_OK: SWAGGER_NO_RESPONSE_BODY,
+            status.HTTP_500_INTERNAL_SERVER_ERROR: SWAGGER_NO_RESPONSE_BODY,
+            **DEFAULT_PUBLIC_API_SCHEMA_RESPONSES,
+        },
+    )
     def post(self, request: Request):
         webhook_data = WebHookEventSerializer(data=request.data)
         webhook_data.is_valid(raise_exception=True)
