@@ -58,7 +58,7 @@ class SignUpRequestSerializer(serializers.Serializer, PhoneValidationMixin, Pass
     password = serializers.CharField(required=True)
     # Аттрибуты для профиля
     profile_name = serializers.CharField(required=False, max_length=50, allow_null=True)
-    profile_type = serializers.ChoiceField(required=False, choices=Profile.PROFILE_TYPE_CHOICES, default="IND")
+    profile_type = serializers.ChoiceField(required=False, choices=Profile.ProfileType.choices, default="IND")
 
 
 class UserSerializer(serializers.ModelSerializer):

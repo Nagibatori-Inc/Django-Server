@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'corsheaders',  # убрать когда появится nginx или caddy
     'review',
+    'notification',
 ]
 
 MIDDLEWARE = [
@@ -172,12 +173,31 @@ SMS_MODE = config("SMS_MODE", default="debug")
 MESSAGE_TEMPLATE = "Ваш код, {0}"
 
 # Время действия одноразового кода (OTP) в минутах
-OTP_TTL = config("OTP_TTL", default=1)
+OTP_TTL = config("OTP_TTL", default=15)
 
 # Настройки Celery
 CELERY_BROKER_URL = "redis://localhost:6379/0"
 CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
 
+# Email
+EMAIL_BACKEND = config("EMAIL_BACKEND", "")
+EMAIL_HOST = config("EMAIL_HOST", "")
+EMAIL_PORT = config("EMAIL_PORT", "")
+EMAIL_USE_TLS = config("EMAIL_USE_TLS", False)
+EMAIL_USE_SSL = config("EMAIL_USE_SSL", True)
+EMAIL_HOST_USER = config("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", "")
+
 # Переменные ЮКассы
-YOO_KASSA_SECRET = config("YOO_KASSA_SECRET", None)
-YOO_KASSA_ID = config("YOO_KASSA_ID", None)
+YOO_KASSA_SECRET = config("YOO_KASSA_SECRET", "test_LJLS5QClPXp9H6PqPXjPDAD9n6HihzEGy45951HxMII")
+YOO_KASSA_ID = config("YOO_KASSA_ID", "1093728")
+
+YOO_KASSA_IPS = (
+    "185.71.76.0/27",
+    "185.71.77.0/27",
+    "77.75.153.0/25",
+    "77.75.156.11",
+    "77.75.156.35",
+    "77.75.154.128/25",
+    "2a02:5180::/32",
+)

@@ -1,0 +1,64 @@
+name: deploy
+
+on:
+  push:
+    branches:
+      - dev
+      - main
+jobs:
+  deploy:
+    name: Deploy via SSH with Docker Compose
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Deploy to Server
+        env:
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+          PGADMIN_DEFAULT_EMAIL: ${{ secrets.PGADMIN_DEFAULT_EMAIL }}
+          PGADMIN_DEFAULT_PASSWORD: ${{ secrets.PGADMIN_DEFAULT_PASSWORD }}
+          DEBUG: ${{ secrets.DEBUG }}
+          ALLOWED_HOSTS: ${{ secrets.ALLOWED_HOSTS }}
+          HOST: ${{ secrets.HOST }}
+          DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
+          DJANGO_SUPERUSER_USERNAME: ${{ secrets.DJANGO_SUPERUSER_USERNAME }}
+          DJANGO_SUPERUSER_EMAIL: ${{ secrets.DJANGO_SUPERUSER_EMAIL }}
+          DJANGO_SUPERUSER_PASSWORD: ${{ secrets.DJANGO_SUPERUSER_PASSWORD }}
+          EMAIL_BACKEND: ${{ secrets.EMAIL_BACKEND }}
+          EMAIL_HOST: ${{ secrets.EMAIL_HOST }}
+          EMAIL_PORT: ${{ secrets.EMAIL_PORT }}
+          EMAIL_USE_TLS: ${{ secrets.EMAIL_USE_TLS }}
+          EMAIL_USE_SSL: ${{ secrets.EMAIL_USE_SSL }}
+          EMAIL_HOST_USER: ${{ secrets.EMAIL_HOST_USER }}
+          EMAIL_HOST_PASSWORD: ${{ secrets.EMAIL_HOST_PASSWORD }}
+        run: |
+          BRANCH=${{ github.ref_name }}
+
+          if [[ $BRANCH = ${{ secrets.STAGE_BRANCH }} || $BRANCH = configure/deploy ]]; then
+            SERVER=${{ secrets.STAGE_SERVER }}
+            PROJECT_DIR=/srv/projects/Django-Server/Django-Server/Django-Server
+            cd $PROJECT_DIR
+          elif [ $BRANCH = ${{ secrets.PROD_BRANCH }} ]; then
+            SERVER=${{ secrets.PROD_SERVER }}
+            PROJECT_DIR=/home/user/prod/my-django-app
+            cd $PROJECT_DIR
+          else
+            echo "Unknown branch: $BRANCH"
+            exit 1
+          fi
+          
+          if ! docker ps -q -f name=vehicle_board_api | grep -q .; then
+            echo "API container not launching yet. Running ./Taskfile.sh init first..."
+            ./Taskfile.sh init
+          fi
+          
+          ./Taskfile.sh rebuild

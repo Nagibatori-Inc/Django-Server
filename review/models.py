@@ -1,5 +1,6 @@
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
+from django.db.models import UniqueConstraint
 
 
 class Review(models.Model):
@@ -37,6 +38,7 @@ class Review(models.Model):
     class Meta:
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
+        constraints = [UniqueConstraint(fields=('profile', 'author'), name='unique_profile_author_pair')]
 
     def __str__(self):
         return f'Отзыв от {self.author.name} на профиль {self.profile.name}'

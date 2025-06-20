@@ -4,7 +4,7 @@ from django.core.exceptions import ObjectDoesNotExist, EmptyResultSet, FieldDoes
 from rest_framework import status
 from rest_framework.response import Response
 
-from DjangoServer.service import RestService
+from common.service import RestService
 
 
 class ServiceExceptionHandler:

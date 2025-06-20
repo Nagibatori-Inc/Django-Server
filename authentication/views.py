@@ -21,7 +21,7 @@ from authentication.serializers import (
 )
 from authentication.services.profile import ProfileManagerService, PasswordManagerService
 from authentication.services.verification import BaseVerificationService
-from authentication.tasks import send_sms_task
+from notification.tasks import send_sms_task
 from authentication.utils import make_phone_uniform
 from DjangoServer.settings import MESSAGE_TEMPLATE
 from common.swagger.schema import (
@@ -33,6 +33,7 @@ from common.swagger.schema import (
 
 AUTHENTIFICATION_SWAGGER_TAG = 'Авторизация'
 PROFILE_SWAGGER_TAG = 'Профили'
+COOKIE_MAX_AGE = 3600
 
 
 @extend_schema(
@@ -49,6 +50,11 @@ PROFILE_SWAGGER_TAG = 'Профили'
 )
 class LoginView(KnoxLoginView):
     authentication_classes = [CustomBasicAuthentication]
+
+    def post(self, request):
+        response = super().post(request)
+        response.set_cookie(key='Authorization', value=f"Token {response.data['token']}", max_age=COOKIE_MAX_AGE)
+        return response
 
 
 @extend_schema(
@@ -190,10 +196,13 @@ class SignUpView(APIView):
         auth_token_val, auth_token_exp, profile = ProfileManagerService.create(**serializer.validated_data)
         serialized_profile = ProfileOwnerSerializer(profile).data
 
-        return Response(
+        response = Response(
             {"profile": serialized_profile, "token": {"token": auth_token_val, "expiry": auth_token_exp}},
             status=status.HTTP_201_CREATED,
         )
+        response.set_cookie(key='Authorization', value=f"Token {auth_token_val}", max_age=COOKIE_MAX_AGE)
+
+        return response
 
 
 @extend_schema(tags=[PROFILE_SWAGGER_TAG])

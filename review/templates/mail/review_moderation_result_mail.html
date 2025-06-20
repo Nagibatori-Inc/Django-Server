@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <p>Ваш отзыв на <a href="#">профиль</a> {{ profile_name }} был {% if is_review_approved %}одобрен{% else %}отклонен{% endif %}.</p>
+    {% if not is_review_approved %}
+        <p>За подробностями, обратитесь в тех. поддержку.</p>
+    {% endif %}
+</body>
+</html>

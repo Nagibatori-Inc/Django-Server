@@ -6,7 +6,7 @@ from payments.models import Payment
 class PaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
-        fields = ["advert", "amount", "service_provider"]
+        fields = ["advert", "service_provider"]
 
 
 class WebHookEventSerializer(serializers.Serializer):

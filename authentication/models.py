@@ -23,11 +23,16 @@ class Profile(models.Model):
     + is_deleted: Поле soft delete'a, выставляется на True в случае удаления со стороны пользователя
     """
 
-    PROFILE_TYPE_CHOICES = (("IND", "Частное лицо"), ("CMP", "Компания"))
+    class ProfileType(models.TextChoices):
+        """Типы профиля"""
+
+        INDIVIDUAL = 'IND', 'Частное лицо'
+        COMPANY = 'CMP', 'Компания'
+        MODERATOR = 'MOD', 'Модератор'
 
     name = models.CharField(max_length=50, null=True, verbose_name="Имя профиля")
     user = models.OneToOneField(User, related_name="profile", on_delete=models.CASCADE, verbose_name="Пользователь")
-    type = models.CharField(max_length=3, choices=PROFILE_TYPE_CHOICES, default="IND", verbose_name="Тип профиля")
+    type = models.CharField(max_length=3, choices=ProfileType.choices, default="IND", verbose_name="Тип профиля")
     is_deleted = models.BooleanField(default=False, verbose_name="Удален")
     is_verified = models.BooleanField(default=False, verbose_name="Верифицирован")
     liked_adverts = models.ManyToManyField(
