@@ -8,8 +8,8 @@ from django.db.models.functions import Coalesce
 from rest_framework import status
 from rest_framework.response import Response
 
-from DjangoServer.helpers.datetime import renew_for_month
-from DjangoServer.service import RestService
+from common.helpers.datetime import renew_for_month
+from common.service import RestService
 from authentication.models import Profile
 from booking.models import Advert, AdvertStatus, Promotion, Boost, PromotionStatus
 from booking.serializers import SearchFilterSerializer, AdvertSerializer, AdvertCreationSerializer

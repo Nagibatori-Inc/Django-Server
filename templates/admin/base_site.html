@@ -2,5 +2,6 @@
 
 {% block usertools %}
     <a href={% url "swagger-ui" %}>API Docs</a>
+    <a href={% url "moderate_review" %}>Модерация отзывов</a>
     {{ block.super }}
 {% endblock %}

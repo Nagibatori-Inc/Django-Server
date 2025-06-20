@@ -13,3 +13,8 @@ def get_visible_reviews(profile_id: int) -> QuerySet[Review]:
 def get_review_author(review_id: int) -> Profile:
     """Получить автора отзыва по его айди"""
     return get_object_or_404(Review, id=review_id).author
+
+
+def get_reviews_to_moderate() -> QuerySet[Review]:
+    """Получить отзывы для модерирования"""
+    return Review.objects.filter(is_approved=False)

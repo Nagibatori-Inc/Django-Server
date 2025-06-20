@@ -9,3 +9,10 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
         fields = ['profile', 'author', 'text', 'created_at', 'rate']
+
+
+class ModerateReviewSerializer(serializers.Serializer):
+    """Сериализатор для обработки запроса на модерацию отзыва"""
+
+    review_id = serializers.PrimaryKeyRelatedField(queryset=Review.objects.filter(is_approved=False), help_text='Отзыв')
+    is_approved = serializers.BooleanField(help_text='Одобрен')
