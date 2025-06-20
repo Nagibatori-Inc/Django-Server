@@ -46,7 +46,7 @@ class PromotionPurchaseView(APIView):
         if advert.is_promoted:
             return Response(status=HTTP_409_CONFLICT)
 
-        payment = payment_data.save(user=request.user)
+        payment = payment_data.save(user=request.user, amount=100)
         confirm_url = YooKassa(payment).init_transaction()
 
         return Response(status=HTTP_200_OK, data={"confirmation_url": confirm_url})
@@ -72,6 +72,7 @@ class PaymentSystemWebHookView(APIView):
         internal_payment = get_payment_by_external_id(external_payment["id"])
 
         YooKassa(internal_payment).finalize_transaction(event, external_payment)
+
         if internal_payment.status == PaymentStatus.SUCCESSFUL:
             PromotionService().promote("Базовое", 1, internal_payment.advert)
 
