@@ -1,4 +1,5 @@
 from locust import HttpUser, task, between
+from random import randint
 
 
 class LoadTestAuth(HttpUser):
@@ -22,7 +23,8 @@ class LoadTestAuth(HttpUser):
 
     @task
     def retrieve_profile(self):
-        pass
+        profile_id = randint(1, 10)
+        self.client.get(f"/profiles/{profile_id}")
 
     @task
     def update_profile(self):
