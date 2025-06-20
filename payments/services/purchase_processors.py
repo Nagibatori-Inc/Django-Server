@@ -3,6 +3,7 @@ import datetime
 
 import requests
 import structlog
+from rest_framework.exceptions import ValidationError
 
 from DjangoServer.settings import YOO_KASSA_ID, YOO_KASSA_SECRET
 from payments.exceptions import PaymentError
@@ -58,11 +59,23 @@ class YooKassa:
 
     def finalize_transaction(self, event_type: str, external_payment: dict):
         try:
+            response = requests.get(
+                url=self.PAYMENT_URL + external_payment["id"],
+            )
+            verified_transaction = response.json()
+        except Exception as e:
+            logger.error("Error during request for verification of transaction", error=e)
+            raise PaymentError(detail="Ошибка при запросе на проверку транзакции")
+
+        try:
             external_status = external_payment["status"]
             internal_status = YOO_KASSA_STATUS_MAPPING[external_status]
         except Exception as e:
             logger.error("Error during parsing of the webhook status", error=e)
             raise PaymentError(detail="Ошибка обработки вебхука")
+
+        if verified_transaction["status"] != external_status:
+            raise ValidationError("Транзакция невверна")
 
         self.payment.status = internal_status
         self.payment.completed_at = datetime.datetime.now()
