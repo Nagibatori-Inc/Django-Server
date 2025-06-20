@@ -93,7 +93,7 @@ class YooKassa:
         data = {
             "amount": {"value": str(self.payment.amount), "currency": "RUB"},
             "capture": True,
-            "confirmation": {"type": "redirect", "return_url": "https://www.example.com/return_url"},
+            "confirmation": {"type": "redirect", "return_url": "https://176.53.162.107:3000"},
         }
 
         return data
