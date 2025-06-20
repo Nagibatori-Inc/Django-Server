@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 
+import structlog
 from decouple import AutoConfig
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -120,6 +121,52 @@ DATABASES = {
     }
 }
 
+# Logging
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "loki": {
+            "class": "logging_loki.LokiHandler",
+            "formatter": "json",
+            "url": "http://lgtm:3100/loki/api/v1/push",
+            "tags": {"app": "django_app"},
+            "version": "1",
+        },
+    },
+    "formatters": {
+        "json": {
+            "()": structlog.stdlib.ProcessorFormatter,
+            "processor": structlog.processors.JSONRenderer(),
+            "foreign_pre_chain": [
+                structlog.processors.TimeStamper(fmt="iso"),
+                structlog.stdlib.add_log_level,
+            ],
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["loki"],
+            "level": "INFO",
+            "propagate": True,
+        },
+    },
+}
+
+structlog.configure(
+    processors=[
+        structlog.contextvars.merge_contextvars,
+        structlog.processors.TimeStamper(fmt="iso"),
+        structlog.stdlib.add_log_level,
+        structlog.stdlib.PositionalArgumentsFormatter(),
+        structlog.processors.JSONRenderer(),
+    ],
+    context_class=dict,
+    logger_factory=structlog.stdlib.LoggerFactory(),
+    wrapper_class=structlog.stdlib.BoundLogger,
+    cache_logger_on_first_use=True,
+)
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
