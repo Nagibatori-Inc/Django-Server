@@ -2,6 +2,7 @@ from typing import Dict, Optional
 
 from django.db import models
 
+from DjangoServer.utils import user_directory_path
 from authentication.models import Profile
 
 
@@ -149,6 +150,8 @@ class Advert(models.Model):
     )
     active_until = models.DateTimeField(verbose_name='Активно до', null=True, blank=True)
 
+    logo = models.ImageField(upload_to=user_directory_path, verbose_name='Логотип', null=True, blank=True)
+
     class Meta:
         verbose_name = 'Объявление'
         verbose_name_plural = 'Объявления'
@@ -163,3 +166,17 @@ class Advert(models.Model):
     @property
     def is_promoted(self) -> bool:
         return self.promotion is not None
+
+
+class AdvertImage(models.Model):
+    """Модель фотографии объявления"""
+
+    image = models.ImageField(upload_to=user_directory_path)
+    advert = models.ForeignKey(to=Advert, on_delete=models.CASCADE, related_name='images', verbose_name='Объявление')
+
+    class Meta:
+        verbose_name = 'Фотография объявления'
+        verbose_name_plural = 'Фотографии объявлений'
+
+    def __str__(self) -> str:
+        return f'{self.advert.title} - img {self.image}'

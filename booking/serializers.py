@@ -1,7 +1,8 @@
 from rest_framework import serializers
+from drf_extra_fields.fields import Base64ImageField
 
 from authentication.models import Profile
-from booking.models import Advert, Promotion
+from booking.models import Advert, Promotion, AdvertImage
 
 
 class AdvertContactSerializer(serializers.Serializer):
@@ -32,8 +33,18 @@ class PromotionSerializer(serializers.ModelSerializer):
         fields = ['type', 'rate', 'status']
 
 
+class AdvertImageSerializer(serializers.ModelSerializer):
+    image = Base64ImageField(required=True)
+
+    class Meta:
+        model = AdvertImage
+        fields = ['image']
+
+
 class AdvertSerializer(serializers.ModelSerializer):
     promotion = PromotionSerializer(required=False, read_only=True)
+    images = AdvertImageSerializer(many=True, required=False, read_only=True)
+    logo = serializers.CharField(required=False, allow_blank=True)
 
     class Meta:
         model = Advert
@@ -41,9 +52,16 @@ class AdvertSerializer(serializers.ModelSerializer):
 
 
 class AdvertCreationSerializer(serializers.ModelSerializer):
+    images = AdvertImageSerializer(many=True, read_only=True)
+    logo = Base64ImageField(required=True)
+
+    def create(self, validated_data):
+        images = [image.save() for image in validated_data.pop('images', [])]
+        return Advert.objects.create(**validated_data, images=images)
+
     class Meta:
         model = Advert
-        fields = ['title', 'description', 'price', 'phone', 'location', 'status']
+        fields = ['title', 'description', 'price', 'phone', 'location', 'status', 'logo', 'images']
 
 
 class SearchFilterSerializer(serializers.ModelSerializer):
