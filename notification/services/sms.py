@@ -2,6 +2,7 @@ from smsaero import SmsAero
 import structlog
 
 from DjangoServer.settings import SMS_MODE, SMSAERO_API_KEY, SMSAERO_EMAIL
+from notification.enums.sms import SmsMode
 
 logger = structlog.get_logger(__name__)
 
@@ -51,5 +52,7 @@ class SmsDebugService(BaseSmsService):
 
 
 sms_service = (
-    SmsDebugService() if SMS_MODE != "production" else SmsAeroService(api_key=SMSAERO_API_KEY, email=SMSAERO_EMAIL)
+    SmsDebugService()
+    if SMS_MODE != SmsMode.PRODUCTION
+    else SmsAeroService(api_key=SMSAERO_API_KEY, email=SMSAERO_EMAIL)
 )
