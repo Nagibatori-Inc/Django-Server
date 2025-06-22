@@ -13,8 +13,13 @@ import structlog
 from authentication.misc.custom_auth import CookieTokenAuthentication
 from authentication.models import Profile
 from booking.models import Advert, Promotion, AdvertStatus
-from booking.serializers import AdvertSerializer, SearchFilterSerializer, PromotionSerializer, AdvertCreationSerializer, \
-    AdvertUpdateSerializer
+from booking.serializers import (
+    AdvertSerializer,
+    SearchFilterSerializer,
+    PromotionSerializer,
+    AdvertCreationSerializer,
+    AdvertUpdateSerializer,
+)
 from booking.services import AdvertService, AdvertsRecommendationService
 from common.swagger.schema import DEFAULT_PRIVATE_API_ERRORS_WITH_404_SCHEMA_RESPONSES, SWAGGER_NO_RESPONSE_BODY
 
