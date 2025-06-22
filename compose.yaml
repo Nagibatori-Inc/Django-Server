@@ -68,8 +68,7 @@ services:
     volumes:
       - .:/app
     environment: *app-variables
-    command: sh -c "poetry run python manage.py runserver 0.0.0.0:8080 && 
-                    celery -A DjangoServer worker --loglevel=INFO"
+    command: sh -c "poetry run python manage.py runserver 0.0.0.0:8080"
     ports:
       - "8000:8080"
     depends_on:
@@ -91,6 +90,20 @@ services:
       - ${VEHICLE_BOARD_REDIS_VOL_PATH:-./.docker/.redis_data/volumes/vehicle_board/data}:/data
     ports:
       - "6379:6379"
+
+  celery_worker:
+    container_name: vehicle_board_celery-worker
+    restart: always
+    build: .
+    command: celery -A DjangoServer worker --loglevel=INFO
+    volumes:
+      - .:/app
+    env_file:
+      - ./.env
+    depends_on:
+      - redis
+      - app
+
   lgtm:
     image: grafana/otel-lgtm
     container_name: lgtm
