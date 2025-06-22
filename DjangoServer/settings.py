@@ -15,7 +15,6 @@ from pathlib import Path
 import structlog
 from decouple import AutoConfig
 
-from notification.enums.sms import SmsMode
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -219,7 +218,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 SMSAERO_EMAIL = config("SMSAERO_EMAIL", default="johndoe@email.com")
 SMSAERO_API_KEY = config("SMSAERO_API_KEY", default=None)
 
-SMS_MODE = config("SMS_MODE", default=SmsMode.DEBUG)
+SMS_MODE = config("SMS_MODE", default="production")
 
 # Шаблон отправляемого сообщения верификации (где {0} - это одноразовый код)
 MESSAGE_TEMPLATE = "Ваш код, {0}"
