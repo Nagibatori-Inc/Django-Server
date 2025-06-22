@@ -65,6 +65,22 @@ class AdvertCreationSerializer(serializers.ModelSerializer):
         fields = ['title', 'description', 'price', 'phone', 'location', 'status', 'logo', 'images']
 
 
+class AdvertUpdateSerializer(serializers.ModelSerializer):
+    images = AdvertImageSerializer(many=True, read_only=True)
+    logo = Base64ImageField(required=True)
+
+    def update(self, instance, validated_data):
+        instance.images.set([image.save() for image in validated_data.pop('images', [])])
+        for field, value in validated_data.items():
+            setattr(instance, field, value)
+        instance.save()
+        return instance
+
+    class Meta:
+        model = Advert
+        fields = ['title', 'description', 'price', 'phone', 'location', 'status', 'logo', 'images']
+
+
 class SearchFilterSerializer(serializers.ModelSerializer):
     min_price = serializers.IntegerField(required=False)
     max_price = serializers.IntegerField(required=False)
