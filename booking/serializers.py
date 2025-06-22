@@ -3,6 +3,7 @@ from drf_extra_fields.fields import Base64ImageField
 
 from authentication.models import Profile
 from booking.models import Advert, Promotion, AdvertImage
+from booking.tests.conftest import advert
 
 
 class AdvertContactSerializer(serializers.Serializer):
@@ -59,6 +60,22 @@ class AdvertCreationSerializer(serializers.ModelSerializer):
         advert = Advert.objects.create(**validated_data)
         advert.images.set([image.save() for image in validated_data.pop('images', [])])
         return advert
+
+    class Meta:
+        model = Advert
+        fields = ['title', 'description', 'price', 'phone', 'location', 'status', 'logo', 'images']
+
+
+class AdvertUpdateSerializer(serializers.ModelSerializer):
+    images = AdvertImageSerializer(many=True, read_only=True)
+    logo = Base64ImageField(required=True)
+
+    def update(self, instance, validated_data):
+        instance.images.set([image.save() for image in validated_data.pop('images', [])])
+        for field, value in validated_data.items():
+            setattr(instance, field, value)
+        instance.save()
+        return instance
 
     class Meta:
         model = Advert

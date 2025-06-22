@@ -12,7 +12,8 @@ from common.helpers.datetime import renew_for_month
 from common.service import RestService
 from authentication.models import Profile
 from booking.models import Advert, AdvertStatus, Promotion, Boost, PromotionStatus
-from booking.serializers import SearchFilterSerializer, AdvertSerializer, AdvertCreationSerializer
+from booking.serializers import SearchFilterSerializer, AdvertSerializer, AdvertCreationSerializer, \
+    AdvertUpdateSerializer
 
 logger = structlog.get_logger(__name__)
 
@@ -83,7 +84,7 @@ class AdvertService(RestService):
         return self
 
     @transaction.atomic
-    def change(self, changed_data: AdvertSerializer) -> 'AdvertService':
+    def change(self, changed_data: Union[AdvertSerializer, AdvertUpdateSerializer]) -> 'AdvertService':
         """
         Метод, изменения объявления по его идентификатору (первичному ключу) и профилю юзера, подавшего объявление
         По сути планируется применять когда юзер на веб аппе меняет поля объявления на соответствующей страничке ->
