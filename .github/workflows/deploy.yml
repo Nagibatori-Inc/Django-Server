@@ -37,15 +37,14 @@ jobs:
 
       - name: Deploy to Server
         env:
+          PGADMIN_DEFAULT_EMAIL: ${{ secrets.PGADMIN_DEFAULT_EMAIL }}
+          PGADMIN_DEFAULT_PASSWORD: ${{ secrets.PGADMIN_DEFAULT_PASSWORD }}
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-          PGADMIN_DEFAULT_EMAIL: ${{ secrets.PGADMIN_DEFAULT_EMAIL }}
-          PGADMIN_DEFAULT_PASSWORD: ${{ secrets.PGADMIN_DEFAULT_PASSWORD }}
           DEBUG: ${{ secrets.DEBUG }}
-          ALLOWED_HOSTS: ${{ secrets.ALLOWED_HOSTS }}
           HOST: ${{ secrets.HOST }}
-          DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
+          ALLOWED_HOSTS: ${{ secrets.ALLOWED_HOSTS }}
           DJANGO_SUPERUSER_USERNAME: ${{ secrets.DJANGO_SUPERUSER_USERNAME }}
           DJANGO_SUPERUSER_EMAIL: ${{ secrets.DJANGO_SUPERUSER_EMAIL }}
           DJANGO_SUPERUSER_PASSWORD: ${{ secrets.DJANGO_SUPERUSER_PASSWORD }}
@@ -56,6 +55,9 @@ jobs:
           EMAIL_USE_SSL: ${{ secrets.EMAIL_USE_SSL }}
           EMAIL_HOST_USER: ${{ secrets.EMAIL_HOST_USER }}
           EMAIL_HOST_PASSWORD: ${{ secrets.EMAIL_HOST_PASSWORD }}
+          SMSAERO_EMAIL: ${{ secrets.SMSAERO_EMAIL }}
+          SMSAERO_API_KEY: ${{ secrets.SMSAERO_API_KEY }}
+          SMS_MODE: ${{ secrets.SMS_MODE }}
         run: |
           BRANCH=${{ github.ref_name }}
           
