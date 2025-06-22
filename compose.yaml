@@ -35,6 +35,7 @@ x-app-variables: &app-variables
   SMS_MODE: ${SMS_MODE}
 
   REST_API_BASE: api/
+x-celery-variables: &celery-variables
 services:
   db:
     image: postgres:latest
@@ -91,6 +92,17 @@ services:
       - ${VEHICLE_BOARD_REDIS_VOL_PATH:-./.docker/.redis_data/volumes/vehicle_board/data}:/data
     ports:
       - "6379:6379"
+
+  celery_worker:
+    restart: always
+    build: .
+    command: celery -A DjangoServer worker --loglevel=INFO -n default-worker@%h
+    volumes:
+      - .:/app
+    environment: *celery-variables
+    depends_on:
+      - redis
+      - app
 
   lgtm:
     image: grafana/otel-lgtm
