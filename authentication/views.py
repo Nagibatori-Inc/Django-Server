@@ -111,7 +111,7 @@ class SendVerificationCodeView(APIView):
         phone = make_phone_uniform(serializer.validated_data.get("phone"))
         user = get_user_with_profile_by_phone(phone)
         otp = BaseVerificationService(user).create_otp()
-        send_sms_task.delay(phone, MESSAGE_TEMPLATE.format(otp))
+        send_sms_task(phone, MESSAGE_TEMPLATE.format(otp))
 
         return Response(status=status.HTTP_200_OK)
 
