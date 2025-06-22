@@ -11,33 +11,25 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          path: ./temp_checkout
-
       - name: Set up SSH agent
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Sync code to server
+      - name: Pull latest changes
         run: |
-          PROJECT_DIR=/srv/projects/Django-Server/Django-Server/Django-Server
           BRANCH=${{ github.ref_name }}
-
+          
           if [[ $BRANCH = ${{ secrets.STAGE_BRANCH }} || $BRANCH = configure/deploy ]]; then
-            SERVER=${{ secrets.STAGE_SERVER }}
             PROJECT_DIR=/srv/projects/Django-Server/Django-Server/Django-Server
-            rsync -avz --delete --exclude=".env" --exclude=".docker" \
-              -e "ssh -o StrictHostKeyChecking=no" \
-              ./temp_checkout/ user@$SERVER:/srv/project/$PROJECT_DIR/
+            cd $PROJECT_DIR
+            git checkout ${{ github.ref_name }}
+            git pull origin ${{ github.ref_name }}
           elif [ $BRANCH = ${{ secrets.PROD_BRANCH }} ]; then
-            SERVER=${{ secrets.PROD_SERVER }}
             PROJECT_DIR=/home/user/prod/my-django-app
-            rsync -avz --delete --exclude=".env" --exclude=".docker" \
-              -e "ssh -o StrictHostKeyChecking=no" \
-              ./temp_checkout/ user@$SERVER:/srv/project/$PROJECT_DIR/
+            cd $PROJECT_DIR
+            git checkout ${{ github.ref_name }}
+            git pull origin ${{ github.ref_name }}
           else
             echo "Unknown branch: $BRANCH"
             exit 1
@@ -66,7 +58,7 @@ jobs:
           EMAIL_HOST_PASSWORD: ${{ secrets.EMAIL_HOST_PASSWORD }}
         run: |
           BRANCH=${{ github.ref_name }}
-
+          
           if [[ $BRANCH = ${{ secrets.STAGE_BRANCH }} || $BRANCH = configure/deploy ]]; then
             SERVER=${{ secrets.STAGE_SERVER }}
             PROJECT_DIR=/srv/projects/Django-Server/Django-Server/Django-Server
