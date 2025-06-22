@@ -3,7 +3,6 @@ from drf_extra_fields.fields import Base64ImageField
 
 from authentication.models import Profile
 from booking.models import Advert, Promotion, AdvertImage
-from booking.tests.conftest import advert
 
 
 class AdvertContactSerializer(serializers.Serializer):
