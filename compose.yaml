@@ -35,9 +35,6 @@ x-app-variables: &app-variables
   SMS_MODE: ${SMS_MODE}
 
   REST_API_BASE: api/
-x-celery-variables: &celery-variables
-  REDIS_HOST: redis
-  REDIS_PORT: 6379
 services:
   db:
     image: postgres:latest
@@ -71,7 +68,8 @@ services:
     volumes:
       - .:/app
     environment: *app-variables
-    command: sh -c "poetry run python manage.py runserver 0.0.0.0:8080"
+    command: sh -c "poetry run python manage.py runserver 0.0.0.0:8080 && 
+                    celery -A DjangoServer worker --loglevel=INFO"
     ports:
       - "8000:8080"
     depends_on:
@@ -93,18 +91,6 @@ services:
       - ${VEHICLE_BOARD_REDIS_VOL_PATH:-./.docker/.redis_data/volumes/vehicle_board/data}:/data
     ports:
       - "6379:6379"
-
-  celery_worker:
-    restart: always
-    build: .
-    command: celery -A DjangoServer worker --loglevel=INFO
-    volumes:
-      - .:/app
-    environment: *celery-variables
-    depends_on:
-      - redis
-      - app
-
   lgtm:
     image: grafana/otel-lgtm
     container_name: lgtm
