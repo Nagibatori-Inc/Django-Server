@@ -21,10 +21,12 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Copy updated files to project dir
+      - name: Sync code to server
         run: |
           PROJECT_DIR=/srv/projects/Django-Server/Django-Server/Django-Server
-          rsync -av --exclude='.git' ./temp_checkout/ $PROJECT_DIR/
+          rsync -avz --delete --exclude=".env" --exclude=".docker" \
+            -e "ssh -o StrictHostKeyChecking=no" \
+            ./temp_checkout/ user@${{ secrets.SERVER }}:/srv/project/$PROJECT_DIR/
 
       - name: Deploy to Server
         env:
