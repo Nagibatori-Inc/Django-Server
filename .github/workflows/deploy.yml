@@ -24,9 +24,24 @@ jobs:
       - name: Sync code to server
         run: |
           PROJECT_DIR=/srv/projects/Django-Server/Django-Server/Django-Server
-          rsync -avz --delete --exclude=".env" --exclude=".docker" \
-            -e "ssh -o StrictHostKeyChecking=no" \
-            ./temp_checkout/ user@${{ secrets.SERVER }}:/srv/project/$PROJECT_DIR/
+          BRANCH=${{ github.ref_name }}
+
+          if [[ $BRANCH = ${{ secrets.STAGE_BRANCH }} || $BRANCH = configure/deploy ]]; then
+            SERVER=${{ secrets.STAGE_SERVER }}
+            PROJECT_DIR=/srv/projects/Django-Server/Django-Server/Django-Server
+            rsync -avz --delete --exclude=".env" --exclude=".docker" \
+              -e "ssh -o StrictHostKeyChecking=no" \
+              ./temp_checkout/ user@$SERVER:/srv/project/$PROJECT_DIR/
+          elif [ $BRANCH = ${{ secrets.PROD_BRANCH }} ]; then
+            SERVER=${{ secrets.PROD_SERVER }}
+            PROJECT_DIR=/home/user/prod/my-django-app
+            rsync -avz --delete --exclude=".env" --exclude=".docker" \
+              -e "ssh -o StrictHostKeyChecking=no" \
+              ./temp_checkout/ user@$SERVER:/srv/project/$PROJECT_DIR/
+          else
+            echo "Unknown branch: $BRANCH"
+            exit 1
+          fi
 
       - name: Deploy to Server
         env:
